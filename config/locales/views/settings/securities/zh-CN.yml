@@ -1,0 +1,10 @@
+---
+zh-CN:
+  settings:
+    securities:
+      show:
+        disable_mfa: 禁用双因素认证
+        disable_mfa_confirm: 确定要禁用双因素认证吗？这将降低您账户的安全性。
+        enable_mfa: 启用双因素认证
+        mfa_description: 通过要求在登录时输入验证器应用中的代码，为您的账户增加额外安全层
+        mfa_title: 双因素认证

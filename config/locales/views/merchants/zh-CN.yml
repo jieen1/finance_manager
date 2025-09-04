@@ -1,0 +1,26 @@
+---
+zh-CN:
+  family_merchants:
+    create:
+      error: '创建商家失败：%{error}'
+      success: 商家创建成功
+    destroy:
+      success: 商家删除成功
+    edit:
+      title: 编辑商家
+    form:
+      name_placeholder: 商家名称
+    index:
+      empty: 暂无商家
+      new: 新建商家
+      title: 商家管理
+    merchant:
+      confirm_accept: 删除商家
+      confirm_body: 确定要删除此商家吗？删除该商家将解除所有关联交易，并可能影响您的报表数据。
+      confirm_title: 删除商家？
+      delete: 删除商家
+      edit: 编辑商家
+    new:
+      title: 新建商家
+    update:
+      success: 商家更新成功

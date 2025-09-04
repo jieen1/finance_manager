@@ -1,0 +1,14 @@
+---
+zh-CN:
+  entries:
+    create:
+      success: 条目创建成功
+    destroy:
+      success: 条目删除成功
+    empty:
+      description: 尝试添加条目、编辑筛选条件或优化搜索
+      title: 未找到条目
+    loading:
+      loading: 正在加载条目...
+    update:
+      success: 条目更新成功
