@@ -7,6 +7,8 @@ FROM docker.1ms.run/library/ruby:$RUBY_VERSION-slim AS base
 # Rails app lives here
 WORKDIR /rails
 
+RUN sed -i s@/deb.debian.org/@/mirrors.tuna.tsinghua.edu.cn/@g /etc/apt/sources.list.d/debian.sources
+
 # Install base packages
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y curl libvips postgresql-client libyaml-0-2
