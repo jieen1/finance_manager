@@ -31,6 +31,8 @@ zh-CN:
       note_placeholder: 添加有关此记录的其他详细信息
       overview: 概览
       settings: 设置
+      account_value_on_date: 对应日期的账户资产
+      update_value: 更新
     confirm_create:
       confirm_new_balance: 确认新建余额
       confirm: 确认

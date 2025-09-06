@@ -2,16 +2,15 @@ class Depository < ApplicationRecord
   include Accountable
 
   SUBTYPES = {
-    "checking" => { short: "Checking", long: "Checking" },
-    "savings" => { short: "Savings", long: "Savings" },
-    "hsa" => { short: "HSA", long: "Health Savings Account" },
-    "cd" => { short: "CD", long: "Certificate of Deposit" },
-    "money_market" => { short: "MM", long: "Money Market" }
+    "checking" => { short: "经常账户", long: "经常账户" },
+    "savings" => { short: "储蓄", long: "储蓄账户" },
+    "wechat" => { short: "微信", long: "微信账户" },
+    "alipay" => { short: "支付宝", long: "支付宝账户" }
   }.freeze
 
   class << self
     def display_name
-      "Cash"
+      I18n.t("accountable.display_name.depository", default: "Cash")
     end
 
     def color

@@ -1,0 +1,13 @@
+---
+zh-CN:
+  accountable:
+    display_name:
+      depository: "现金"
+      investment: "投资"
+      crypto: "加密货币"
+      property: "房产"
+      vehicle: "车辆"
+      other_asset: "其他资产"
+      credit_card: "信用卡"
+      loan: "贷款"
+      other_liability: "其他负债"

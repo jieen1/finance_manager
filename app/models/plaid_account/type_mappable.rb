@@ -32,9 +32,8 @@ module PlaidAccount::TypeMappable
       subtype_mapping: {
         "checking" => "checking",
         "savings" => "savings",
-        "hsa" => "hsa",
-        "cd" => "cd",
-        "money market" => "money_market"
+        "wechat" => "wechat",
+        "alipay" => "alipay"
       }
     },
     credit: {
@@ -57,16 +56,9 @@ module PlaidAccount::TypeMappable
     investment: {
       accountable: Investment,
       subtype_mapping: {
-        "brokerage" => "brokerage",
-        "pension" => "pension",
-        "retirement" => "retirement",
-        "401k" => "401k",
-        "roth 401k" => "roth_401k",
-        "529" => "529_plan",
-        "hsa" => "hsa",
-        "mutual fund" => "mutual_fund",
-        "roth" => "roth_ira",
-        "ira" => "ira"
+        "股票" => "股票",
+        "基金" => "基金",
+        "期货" => "期货"
       }
     },
     other: {

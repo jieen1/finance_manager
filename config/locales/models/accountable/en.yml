@@ -1,0 +1,13 @@
+---
+en:
+  accountable:
+    display_name:
+      depository: "Cash"
+      investment: "Investment"
+      crypto: "Crypto"
+      property: "Property"
+      vehicle: "Vehicle"
+      other_asset: "Other Asset"
+      credit_card: "Credit Card"
+      loan: "Loan"
+      other_liability: "Other Liability"

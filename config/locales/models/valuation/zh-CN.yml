@@ -1,0 +1,18 @@
+---
+zh-CN:
+  valuation:
+    name:
+      opening_anchor:
+        property_vehicle: "原始购买价格"
+        loan: "原始本金"
+        investment: "期初账户资产"
+        default: "期初余额"
+      current_anchor:
+        property_vehicle: "当前市场价值"
+        loan: "当前贷款余额"
+        investment: "当前账户资产"
+        default: "当前余额"
+      recon:
+        property_investment: "手动价值更新"
+        loan: "手动本金更新"
+        default: "手动余额更新"

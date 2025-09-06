@@ -1,0 +1,18 @@
+---
+en:
+  valuation:
+    name:
+      opening_anchor:
+        property_vehicle: "Original purchase price"
+        loan: "Original principal"
+        investment: "Opening account value"
+        default: "Opening balance"
+      current_anchor:
+        property_vehicle: "Current market value"
+        loan: "Current loan balance"
+        investment: "Current account value"
+        default: "Current balance"
+      recon:
+        property_investment: "Manual value update"
+        loan: "Manual principal update"
+        default: "Manual balance update"
