@@ -13,9 +13,5 @@ class Crypto < ApplicationRecord
     def icon
       "bitcoin"
     end
-
-    def display_name
-      I18n.t("accountable.display_name.crypto", default: "Crypto")
-    end
   end
 end

@@ -9,9 +9,6 @@ class Depository < ApplicationRecord
   }.freeze
 
   class << self
-    def display_name
-      I18n.t("accountable.display_name.depository", default: "Cash")
-    end
 
     def color
       "#875BF7"
