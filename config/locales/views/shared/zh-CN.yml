@@ -12,3 +12,7 @@ zh-CN:
       syncing: 正在同步账户数据...
     trend_change:
       no_change: "无变化"
+    transaction_tabs:
+      expense: "支出"
+      income: "收入"
+      transfer: "转账"

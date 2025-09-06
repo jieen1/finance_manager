@@ -1,0 +1,16 @@
+---
+zh-CN:
+  transfer_matches:
+    new:
+      match_transfer: 匹配交易
+      from_account: 源账户
+      outflow_transaction: 出账交易
+      inflow_transaction: 入账交易
+      create_transfer_match: 匹配
+      to_account: 目标账户
+    matching_fields:
+      notify: 从另外的账户找不到匹配的交易，请选择一个账户，我们会自动创建一个入账交易
+      target_account: 目标账户
+      matching_transaction: 匹配交易
+      matching_method: 匹配方法
+      select_notify: 选择一个方法去匹配交易

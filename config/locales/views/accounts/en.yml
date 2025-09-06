@@ -59,8 +59,14 @@ en:
         manage: Manage accounts
     update:
       success: "%{type} account updated"
+    account_sidebar_tabs:
+      new_asset: New asset
+      asset: Asset
+      depts: Depts
+      all: All
+      new_debt: New debt
+      new_account: New account
   email_confirmations:
     new:
       invalid_token: Invalid or expired confirmation link.
-      success_login: Your email has been confirmed. Please log in with your new email
-        address.
+      success_login: Your email has been confirmed. Please log in with your new email address.

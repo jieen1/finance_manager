@@ -18,6 +18,7 @@ en:
       submit: Add transaction
       tags_label: Tags
       transfer: Transfer
+      details: Details
     new:
       new_transaction: New transaction
     show:
@@ -40,6 +41,13 @@ en:
       settings: Settings
       tags_label: Tags
       uncategorized: "(uncategorized)"
+      open_matcher: Open matcher
+      exclude: Exclude
+      exclude_desc: Excluded transactions will be removed from budgeting calculations and reports.
+      one_time: "One-time"
+      one_time_desc: "One-time transactions will be excluded from certain budgeting calculations and reports to help you see what's really important."
+      transfer_or_debt: Transfer or Debt Payment?
+      transfer_desc: Transfers and payments are special types of transactions that indicate money movement between 2 accounts.
     header:
       edit_categories: Edit categories
       edit_imports: Edit imports
@@ -49,6 +57,8 @@ en:
     index:
       transaction: transaction
       transactions: transactions
+      new_transaction: New transaction
+      import: Import
     searches:
       filters:
         amount_filter:

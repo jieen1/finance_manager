@@ -1,0 +1,16 @@
+---
+en:
+  transfer_matches:
+    new:
+      match_transfer: Match transfer
+      from_account: From account
+      outflow_transaction: Outflow transaction
+      inflow_transaction: Inflow transaction
+      create_transfer_match: Create transfer match
+      to_account: To account
+    matching_fields:
+      notify: We couldn't find any transactions to match from your other accounts.Please select an account and we will create a new inflow transaction for you.
+      target_account: Target account
+      matching_transaction: Matching transaction
+      matching_method: Matching method
+      select_notify: Select a method for matching your transactions.

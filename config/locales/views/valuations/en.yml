@@ -15,6 +15,9 @@ en:
       value: value
     new:
       title: New balance
+      amount: Amount
+      submit: Add balance
+      date_label: Date
     show:
       amount: Amount
       date_label: Date
@@ -28,3 +31,6 @@ en:
       note_placeholder: Add any additional details about this entry
       overview: Overview
       settings: Settings
+    confirm_create:
+      confirm_new_balance: Confirm new balance
+      confirm: Confirm

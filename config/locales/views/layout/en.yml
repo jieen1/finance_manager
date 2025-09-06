@@ -11,3 +11,6 @@ en:
       footer:
         privacy_policy: Privacy Policy
         terms_of_service: Terms of Service
+      htmldoc:
+        no_account: New to Maybe?
+        sign_up: Create account

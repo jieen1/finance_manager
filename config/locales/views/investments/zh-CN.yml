@@ -9,7 +9,7 @@ zh-CN:
     new:
       title: 输入账户余额
     show:
-      chart_title: 总价值
+      chart_title: 总市值
     value_tooltip:
       cash: 现金
       holdings: 持仓

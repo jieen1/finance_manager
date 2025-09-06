@@ -3,14 +3,14 @@
 <div class="space-y-4 text-sm text-secondary">
   <% if account.investment? %>
     <% brokerage_cash = reconciliation_dry_run.new_cash_balance || 0 %>
-    <% holdings_value = reconciliation_dry_run.new_balance - brokerage_cash %>
+    <% holdings_value = (reconciliation_dry_run.new_balance || 0) - brokerage_cash %>
 
-    <p>This will <%= action_verb %> the account value on <span class="font-medium text-primary"><%= entry.date.strftime("%B %d, %Y") %></span> to:</p>
+    <p>This will <%= action_verb %> the account value on <span class="font-medium text-primary"><%= I18n.l(entry.date, format: :long) %></span> to:</p>
 
     <div class="bg-container rounded-lg p-4 space-y-2 border border-primary">
       <div class="flex justify-between">
         <span>Total account value</span>
-        <span class="font-medium text-primary"><%= Money.new(reconciliation_dry_run.new_balance, account.currency).format %></span>
+        <span class="font-medium text-primary"><%= Money.new(reconciliation_dry_run.new_balance || 0, account.currency).format %></span>
       </div>
       <div class="flex justify-between text-xs">
         <span>Holdings value</span>
@@ -42,7 +42,7 @@
       <% else %>
         balance
       <% end %>
-      on <span class="font-medium text-primary"><%= entry.date.strftime("%B %d, %Y") %></span> to
+      on <span class="font-medium text-primary"><%= I18n.l(entry.date, format: :long) %></span> to
       <span class="font-medium text-primary"><%= entry.amount_money.format %></span>.
     </p>
   <% end %>

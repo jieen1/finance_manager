@@ -1,0 +1,21 @@
+---
+en:
+  UI:
+    account:
+      activity_feed:
+        new_transaction: New transaction
+        new: New
+        new_balance: New balance
+        activity: Activity
+        placeholder: Search entries by name
+      chart:
+        total_account_value: Total Account Value
+        total_value: Total Value
+        holdings: Holdings
+        cash: Cash
+        cash_value: Cash value
+        holdings_value: Holdings value
+        estimated_value: "Estimated %{account.accountable_type.humanize.downcase} value"
+        debt_balance: Debt balance
+        remaining_principal_balance: Remaining principal balance
+        balance: Balance

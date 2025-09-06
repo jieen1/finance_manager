@@ -11,3 +11,6 @@ zh-CN:
       footer:
         privacy_policy: 隐私政策
         terms_of_service: 服务条款
+      htmldoc:
+        no_account: 新用户？
+        sign_up: 创建账户

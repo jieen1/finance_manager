@@ -1,0 +1,21 @@
+---
+zh-CN:
+  UI:
+    account:
+      activity_feed:
+        new_transaction: 新交易
+        new: 新建
+        new_balance: 新增余额
+        activity: 活动记录
+        placeholder: 通过名称搜索
+      chart:
+        total_account_value: 账户总资产
+        total_value: 总资产
+        holdings: 持仓
+        cash: 现金
+        cash_value: 现金金额
+        holdings_value: 持仓市值
+        estimated_value: "预估%{account.accountable_type.humanize.downcase}金额"
+        debt_balance: 负债金额
+        remaining_principal_balance: 未偿还本金
+        balance: 余额

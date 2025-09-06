@@ -15,6 +15,9 @@ zh-CN:
       value: 价值
     new:
       title: 新建余额
+      amount: 金额
+      submit: 提交
+      date_label: 日期
     show:
       amount: 金额
       date_label: 日期
@@ -28,3 +31,6 @@ zh-CN:
       note_placeholder: 添加有关此记录的其他详细信息
       overview: 概览
       settings: 设置
+    confirm_create:
+      confirm_new_balance: 确认新建余额
+      confirm: 确认

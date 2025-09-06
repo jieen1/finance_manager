@@ -55,6 +55,13 @@ zh-CN:
         manage: 管理账户
     update:
       success: "%{type} 账户已更新"
+    account_sidebar_tabs:
+      new_asset: 新建资产
+      asset: 资产
+      depts: 负债
+      all: 所有
+      new_debt: 新建负债
+      new_account: 新建账户
   email_confirmations:
     new:
       invalid_token: 无效或过期的确认链接。
