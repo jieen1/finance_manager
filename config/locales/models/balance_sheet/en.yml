@@ -1,0 +1,7 @@
+---
+en:
+  balance_sheet:
+    classification_group:
+      display_name:
+        liability: Liabilities
+        asset: Assets

@@ -1,0 +1,33 @@
+---
+en:
+  period:
+    label_short:
+      last_day: "1D"
+      current_week: "WTD"
+      last_week: "7D"
+      current_month: "MTD"
+      last_30_days: "30D"
+      last_90_days: "90D"
+      current_year: "YTD"
+      last_365_days: "1Y"
+      last_5_years: "5Y"
+    label:
+      last_day: "Yesterday"
+      current_week: "This Week"
+      last_week: "Last 7 Days"
+      current_month: "This Month"
+      last_30_days: "Last 30 Days"
+      last_90_days: "Last 90 Days"
+      current_year: "This Year"
+      last_365_days: "Last 365 Days"
+      last_5_years: "Last 5 Years"
+    comparison_label:
+      last_day: "vs. Yesterday"
+      current_week: "vs. This Week"
+      last_week: "vs. Last 7 Days"
+      current_month: "vs. This Month"
+      last_30_days: "vs. Last Month"
+      last_90_days: "vs. Last Quarter"
+      current_year: "vs. This Year"
+      last_365_days: "vs. Last Year"
+      last_5_years: "vs. Last 5 Years"
