@@ -1,0 +1,7 @@
+---
+zh-CN:
+  balance_sheet:
+    classification_group:
+      display_name:
+        liability: 负债
+        asset: 资产

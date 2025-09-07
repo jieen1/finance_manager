@@ -12,3 +12,15 @@ en:
         no_account_subtitle: Since no accounts have been added, there's no data to
           display. Add your first accounts to start viewing dashboard data.
         no_account_title: No accounts yet
+      cashflow_sankey:
+        title: Cashflow
+        no_cashflow: No cash flow data for this time period
+        add_cashflow_or_expand_period: Add transactions to display cash flow data or expand the time period
+        add_transaction: Add transaction
+      no_account_graph_placeholder:
+        no_account: No accounts yet
+        add_account_desc: Add accounts to display net worth data
+        add_account: Add account
+      greet: Welcome back, 
+      desc: Here's what's happening with your finances
+      new: New

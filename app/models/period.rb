@@ -12,57 +12,57 @@ class Period
   PERIODS = {
     "last_day" => {
       date_range: -> { [ 1.day.ago.to_date, Date.current ] },
-      label_short: "1D",
-      label: "Last Day",
-      comparison_label: "vs. yesterday"
+      label_short: -> { I18n.t("period.label_short.last_day") },
+      label: -> { I18n.t("period.label.last_day") },
+      comparison_label: -> { I18n.t("period.comparison_label.last_day") }
     },
     "current_week" => {
       date_range: -> { [ Date.current.beginning_of_week, Date.current ] },
-      label_short: "WTD",
-      label: "Current Week",
-      comparison_label: "vs. start of week"
+      label_short: -> { I18n.t("period.label_short.current_week") },
+      label: -> { I18n.t("period.label.current_week") },
+      comparison_label: -> { I18n.t("period.comparison_label.current_week") }
     },
     "last_7_days" => {
       date_range: -> { [ 7.days.ago.to_date, Date.current ] },
-      label_short: "7D",
-      label: "Last 7 Days",
-      comparison_label: "vs. last week"
+      label_short: -> { I18n.t("period.label_short.last_week") },
+      label: -> { I18n.t("period.label.last_week") },
+      comparison_label: -> { I18n.t("period.comparison_label.last_week") }
     },
     "current_month" => {
       date_range: -> { [ Date.current.beginning_of_month, Date.current ] },
-      label_short: "MTD",
-      label: "Current Month",
-      comparison_label: "vs. start of month"
+      label_short: -> { I18n.t("period.label_short.current_month") },
+      label: -> { I18n.t("period.label.current_month") },
+      comparison_label: -> { I18n.t("period.comparison_label.current_month") }
     },
     "last_30_days" => {
       date_range: -> { [ 30.days.ago.to_date, Date.current ] },
-      label_short: "30D",
-      label: "Last 30 Days",
-      comparison_label: "vs. last month"
+      label_short: -> { I18n.t("period.label_short.last_30_days") },
+      label: -> { I18n.t("period.label.last_30_days") },
+      comparison_label: -> { I18n.t("period.comparison_label.last_30_days") }
     },
     "last_90_days" => {
       date_range: -> { [ 90.days.ago.to_date, Date.current ] },
-      label_short: "90D",
-      label: "Last 90 Days",
-      comparison_label: "vs. last quarter"
+      label_short: -> { I18n.t("period.label_short.last_90_days") },
+      label: -> { I18n.t("period.label.last_90_days") },
+      comparison_label: -> { I18n.t("period.comparison_label.last_90_days") }
     },
     "current_year" => {
       date_range: -> { [ Date.current.beginning_of_year, Date.current ] },
-      label_short: "YTD",
-      label: "Current Year",
-      comparison_label: "vs. start of year"
+      label_short: -> { I18n.t("period.label_short.current_year") },
+      label: -> { I18n.t("period.label.current_year") },
+      comparison_label: -> { I18n.t("period.comparison_label.current_year") }
     },
     "last_365_days" => {
       date_range: -> { [ 365.days.ago.to_date, Date.current ] },
-      label_short: "365D",
-      label: "Last 365 Days",
-      comparison_label: "vs. 1 year ago"
+      label_short: -> { I18n.t("period.label_short.last_365_days") },
+      label: -> { I18n.t("period.label.last_365_days") },
+      comparison_label: -> { I18n.t("period.comparison_label.last_365_days") }
     },
     "last_5_years" => {
       date_range: -> { [ 5.years.ago.to_date, Date.current ] },
-      label_short: "5Y",
-      label: "Last 5 Years",
-      comparison_label: "vs. 5 years ago"
+      label_short: -> { I18n.t("period.label_short.last_5_years") },
+      label: -> { I18n.t("period.label.last_5_years") },
+      comparison_label: -> { I18n.t("period.comparison_label.last_5_years") }
     }
   }
 
@@ -130,7 +130,8 @@ class Period
 
   def label
     if key_metadata
-      key_metadata.fetch(:label)
+      label_proc = key_metadata.fetch(:label)
+      label_proc.respond_to?(:call) ? label_proc.call : label_proc
     else
       "Custom Period"
     end
@@ -138,7 +139,8 @@ class Period
 
   def label_short
     if key_metadata
-      key_metadata.fetch(:label_short)
+      label_short_proc = key_metadata.fetch(:label_short)
+      label_short_proc.respond_to?(:call) ? label_short_proc.call : label_short_proc
     else
       "Custom"
     end
@@ -146,7 +148,8 @@ class Period
 
   def comparison_label
     if key_metadata
-      key_metadata.fetch(:comparison_label)
+      comparison_label_proc = key_metadata.fetch(:comparison_label)
+      comparison_label_proc.respond_to?(:call) ? comparison_label_proc.call : comparison_label_proc
     else
       "#{start_date.strftime(@date_format)} to #{end_date.strftime(@date_format)}"
     end

@@ -1,0 +1,33 @@
+---
+zh-CN:
+  period:
+    label_short:
+      last_day: "昨日"
+      current_week: "本周"
+      last_week: "过去一周"
+      current_month: "本月"
+      last_30_days: "过去一个月"
+      last_90_days: "过去一季度"
+      current_year: "今年"
+      last_365_days: "过去一年"
+      last_5_years: "过去5年"
+    label:
+      last_day: "昨日"
+      current_week: "本周"
+      last_week: "过去7天"
+      current_month: "本月"
+      last_30_days: "过去30天"
+      last_90_days: "过去90天"
+      current_year: "今年"
+      last_365_days: "过去365天"
+      last_5_years: "过去5年"
+    comparison_label:
+      last_day: "vs. 昨日"
+      current_week: "vs. 本周"
+      last_week: "vs. 最近7天"
+      current_month: "vs. 本月"
+      last_30_days: "vs. 最近一个月"
+      last_90_days: "vs. 最近一季度"
+      current_year: "vs. 今年"
+      last_365_days: "vs. 最近一年"
+      last_5_years: "vs. 过去5年"

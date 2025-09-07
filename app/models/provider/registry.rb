@@ -67,6 +67,10 @@ class Provider::Registry
 
         Provider::Openai.new(access_token)
       end
+
+      def tencent
+        Provider::Tencent.new
+      end
   end
 
   def initialize(concept)
@@ -92,13 +96,13 @@ class Provider::Registry
     def available_providers
       case concept
       when :exchange_rates
-        %i[synth]
+        %i[synth tencent]
       when :securities
-        %i[synth]
+        %i[synth tencent]
       when :llm
         %i[openai]
       else
-        %i[synth plaid_us plaid_eu github openai]
+        %i[synth tencent plaid_us plaid_eu github openai]
       end
     end
 end
