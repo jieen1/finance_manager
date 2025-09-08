@@ -6,10 +6,13 @@ module Security::Provided
   class_methods do
     def provider
       registry = Provider::Registry.for_concept(:securities)
-      registry.get_provider(:synth)
+      provider_name = Setting.securities_provider.to_sym
+      provider_instance = registry.get_provider(provider_name)
+      provider_instance
     end
 
     def search_provider(symbol, country_code: nil, exchange_operating_mic: nil)
+      
       return [] if provider.nil? || symbol.blank?
 
       params = {
@@ -20,7 +23,7 @@ module Security::Provided
       response = provider.search_securities(symbol, **params)
 
       if response.success?
-        response.data.map do |provider_security|
+        result = response.data.map do |provider_security|
           # Need to map to domain model so Combobox can display via to_combobox_option
           Security.new(
             ticker: provider_security.symbol,
@@ -30,7 +33,9 @@ module Security::Provided
             country_code: provider_security.country_code
           )
         end
+        result
       else
+        Rails.logger.warn("[Security::Provided] Provider搜索失败: #{response.error&.message}")
         []
       end
     end

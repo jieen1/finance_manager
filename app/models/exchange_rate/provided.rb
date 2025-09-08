@@ -4,7 +4,8 @@ module ExchangeRate::Provided
   class_methods do
     def provider
       registry = Provider::Registry.for_concept(:exchange_rates)
-      registry.get_provider(:synth)
+      provider_name = Setting.exchange_rates_provider&.to_sym || :synth
+      registry.get_provider(provider_name)
     end
 
     def find_or_fetch_rate(from:, to:, date: Date.current, cache: true)

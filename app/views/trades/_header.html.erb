@@ -48,7 +48,7 @@
 
             <div class="flex items-center justify-between text-sm">
               <dt class="text-secondary"><%= t(".purchase_price_label") %></dt>
-              <dd class="text-primary"><%= format_money trade.price_money %></dd>
+              <dd class="text-primary"><%= format_money trade.price_money, precision: 3 %></dd>
             </div>
           <% end %>
 

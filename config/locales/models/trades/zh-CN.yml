@@ -1,0 +1,6 @@
+---
+zh-CN:
+  trades:
+    trade_name: "%{prefix} %{qty}股%{ticker}"
+    buy: 买入
+    sell: 卖出

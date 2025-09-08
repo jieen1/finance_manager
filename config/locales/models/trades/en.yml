@@ -1,0 +1,6 @@
+---
+en:
+  trades:
+    trade_name: "%{prefix} %{qty} shares of %{ticker}"
+    buy: Buy
+    sell: Sell

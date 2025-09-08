@@ -3,6 +3,17 @@ class Security::Resolver
     @symbol = validate_symbol!(symbol)
     @exchange_operating_mic = exchange_operating_mic
     @country_code = country_code
+    
+    # 如果没有提供交易所信息，尝试从symbol中推断
+    if @exchange_operating_mic.nil? && @symbol.present?
+      inferred_exchange = infer_exchange_from_symbol(@symbol)
+      if inferred_exchange
+        @exchange_operating_mic = inferred_exchange[:exchange_operating_mic]
+        @country_code = inferred_exchange[:country_code]
+      else
+        Rails.logger.info("[Security::Resolver] 无法从symbol推断交易所: #{@symbol}")
+      end
+    end
   end
 
   # Attempts several paths to resolve a security:
@@ -25,6 +36,39 @@ class Security::Resolver
     def validate_symbol!(symbol)
       raise ArgumentError, "Symbol is required and cannot be blank" if symbol.blank?
       symbol.strip.upcase
+    end
+
+    def infer_exchange_from_symbol(symbol)
+      # 处理688110.SH格式
+      if symbol.include?('.')
+        symbol_part, exchange_part = symbol.split('.')
+        case exchange_part.upcase
+        when "SH"
+          { exchange_operating_mic: "XSHG", country_code: "CN" }
+        when "SZ"
+          { exchange_operating_mic: "XSHE", country_code: "CN" }
+        when "HK"
+          { exchange_operating_mic: "XHKG", country_code: "HK" }
+        else
+          nil
+        end
+      # 处理纯数字代码，根据代码特征推断交易所
+      elsif symbol.match?(/^\d+$/)
+        case symbol
+        when /^6\d{5}$/  # 6开头的6位数字，通常是上海主板
+          { exchange_operating_mic: "XSHG", country_code: "CN" }
+        when /^0\d{5}$/, /^3\d{5}$/  # 0或3开头的6位数字，通常是深圳主板/创业板
+          { exchange_operating_mic: "XSHE", country_code: "CN" }
+        when /^688\d{3}$/  # 688开头的6位数字，科创板
+          { exchange_operating_mic: "XSHG", country_code: "CN" }
+        when /^8\d{5}$/  # 8开头的6位数字，北交所
+          { exchange_operating_mic: "XSHG", country_code: "CN" }  # 北交所暂时归到上海
+        else
+          nil
+        end
+      else
+        nil
+      end
     end
 
     def offline_security

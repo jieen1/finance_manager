@@ -10,8 +10,13 @@ class Trade < ApplicationRecord
 
   class << self
     def build_name(type, qty, ticker)
-      prefix = type == "buy" ? "Buy" : "Sell"
-      "#{prefix} #{qty.to_d.abs} shares of #{ticker}"
+      prefix = type == "buy" ? I18n.t("trades.buy") : I18n.t("trades.sell")
+      I18n.t(
+        "trades.trade_name",
+        prefix: prefix,
+        qty: qty.to_d.abs,
+        ticker: ticker
+      )
     end
   end
 

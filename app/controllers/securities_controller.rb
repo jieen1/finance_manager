@@ -4,5 +4,6 @@ class SecuritiesController < ApplicationController
       params[:q],
       country_code: params[:country_code] == "US" ? "US" : nil
     )
+    combobox_options = @securities.map(&:to_combobox_option)
   end
 end

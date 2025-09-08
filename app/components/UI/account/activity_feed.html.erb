@@ -68,10 +68,10 @@
             <%= check_box_tag "selection_entry",
                               class: "checkbox checkbox--light",
                               data: { action: "bulk-select#togglePageSelection" } %>
-            <p>Date</p>
+            <p><%= t(".date_label") %></p>
           </div>
 
-          <%= tag.p "Amount", class: "col-span-4 justify-self-end" %>
+          <%= tag.p t(".amount_label"), class: "col-span-4 justify-self-end" %>
         </div>
 
         <div>

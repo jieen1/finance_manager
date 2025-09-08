@@ -7,7 +7,9 @@
                    end
    currency = Money::Currency.new(currency_value || options[:default_currency] || "CNY") %>
 
-<div class="form-field <%= options[:container_class] %>" data-controller="money-field">
+<div class="form-field <%= options[:container_class] %>" 
+     data-controller="money-field" 
+     data-money-field-precision-value="<%= options[:precision] if options[:precision] %>">
   <% if options[:label_tooltip] %>
     <div class="form-field__header">
       <%= form.label options[:label] || t(".label"), class: "form-field__label" do %>
@@ -48,10 +50,14 @@
           inline: true,
           placeholder: "100",
           value: if options[:value]
-            sprintf("%.#{currency.default_precision}f", options[:value])
+            precision = options[:precision] || currency.default_precision
+            sprintf("%.#{precision}f", options[:value])
           elsif form.object && form.object.respond_to?(amount_method)
             val = form.object.public_send(amount_method)
-            sprintf("%.#{currency.default_precision}f", val) if val.present?
+            if val.present?
+              precision = options[:precision] || currency.default_precision
+              sprintf("%.#{precision}f", val)
+            end
           end,
           min: options[:min] || -99999999999999,
           max: options[:max] || 99999999999999,

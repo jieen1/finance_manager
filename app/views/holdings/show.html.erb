@@ -31,7 +31,7 @@
 
           <div class="flex items-center justify-between text-sm">
             <dt class="text-secondary"><%= t(".avg_cost_label") %></dt>
-            <dd class="text-primary"><%= @holding.avg_cost ? format_money(@holding.avg_cost) : t(".unknown") %></dd>
+            <dd class="text-primary"><%= @holding.avg_cost ? format_money(@holding.avg_cost, precision: 3 ) : t(".unknown") %></dd>
           </div>
 
           <div class="flex items-center justify-between text-sm">
@@ -65,7 +65,7 @@
                       ".trade_history_entry",
                       qty: trade_entry.trade.qty,
                       security: trade_entry.trade.security.ticker,
-                      price: trade_entry.trade.price_money.format
+                      price: trade_entry.trade.price_money.format(precision: 3)
                     ) %></p>
                   </div>
                 </li>

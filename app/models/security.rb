@@ -18,8 +18,11 @@ class Security < ApplicationRecord
   end
 
   def to_combobox_option
-    SynthComboboxOption.new(
-      symbol: ticker,
+    option_class = combobox_option_class
+    Rails.logger.info("[Security] 使用combobox option类: #{option_class.name} for provider: #{Setting.securities_provider}")
+    
+    option_class.new(
+      symbol: ticker,  # 将ticker映射到symbol属性
       name: name,
       logo_url: logo_url,
       exchange_operating_mic: exchange_operating_mic,
@@ -31,5 +34,14 @@ class Security < ApplicationRecord
     def upcase_symbols
       self.ticker = ticker.upcase
       self.exchange_operating_mic = exchange_operating_mic.upcase if exchange_operating_mic.present?
+    end
+
+    def combobox_option_class
+      case Setting.securities_provider
+      when "tencent"
+        Security::TencentComboboxOption
+      else
+        Security::SynthComboboxOption
+      end
     end
 end

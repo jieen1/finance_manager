@@ -1,0 +1,43 @@
+<div class="space-y-4">
+  <div>
+    <h2 class="font-medium mb-1">数据提供商设置</h2>
+    <p class="text-secondary text-sm mb-4">选择用于获取股票行情数据的提供商。腾讯提供免费的行情数据，Synth提供更全面的数据但需要API密钥。</p>
+  </div>
+
+  <%= styled_form_with model: Setting.new,
+                       url: settings_hosting_path,
+                       method: :patch,
+                       data: {
+                         controller: "auto-submit-form",
+                         "auto-submit-form-trigger-event-value": "change"
+                       } do |form| %>
+    <% 
+      current_provider = Setting.securities_provider
+      Rails.logger.info("[ProviderSettings] 当前选择的provider: #{current_provider}")
+      Rails.logger.info("[ProviderSettings] 可用providers: #{@available_providers.inspect}")
+    %>
+    <%= form.select :securities_provider,
+                    options_for_select(
+                      @available_providers.map { |provider| 
+                        [provider[:display_name], provider[:name]] 
+                      },
+                      current_provider
+                    ),
+                    { label: "股票数据提供商" },
+                    { 
+                      data: { "auto-submit-form-target": "auto" },
+                      class: "w-full"
+                    } %>
+  <% end %>
+
+  <div class="text-sm text-secondary">
+    <% current_provider = @available_providers.find { |p| p[:name] == Setting.securities_provider } %>
+    <% if current_provider %>
+      <% if current_provider[:available] %>
+        <p class="text-green-600">✓ 当前使用: <%= current_provider[:display_name] %></p>
+      <% else %>
+        <p class="text-red-600">✗ <%= current_provider[:display_name] %> 不可用，请检查配置</p>
+      <% end %>
+    <% end %>
+  </div>
+</div>

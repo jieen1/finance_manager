@@ -85,11 +85,19 @@ class Family < ApplicationRecord
   end
 
   def missing_data_provider?
-    requires_data_provider? && Provider::Registry.get_provider(:synth).nil?
+    requires_data_provider? && securities_provider.nil?
   end
 
-  def oldest_entry_date
-    entries.order(:date).first&.date || Date.current
+  # Used for invalidating entry related aggregation queries
+  def entries_cache_version
+    @entries_cache_version ||= begin
+      ts = entries.maximum(:updated_at)
+      ts.present? ? ts.to_i : 0
+    end
+  end
+
+  def self_hoster?
+    Rails.application.config.app_mode.self_hosted?
   end
 
   # Used for invalidating family / balance sheet related aggregation queries
@@ -106,15 +114,19 @@ class Family < ApplicationRecord
     ].compact.join("_")
   end
 
-  # Used for invalidating entry related aggregation queries
-  def entries_cache_version
-    @entries_cache_version ||= begin
-      ts = entries.maximum(:updated_at)
-      ts.present? ? ts.to_i : 0
-    end
+  def oldest_entry_date
+    entries.order(:date).first&.date || Date.current
   end
 
-  def self_hoster?
-    Rails.application.config.app_mode.self_hosted?
+  private
+
+  def securities_provider
+    @securities_provider ||= begin
+      registry = Provider::Registry.for_concept(:securities)
+      provider_name = Setting.securities_provider.to_sym
+      registry.get_provider(provider_name)
+    rescue Provider::Registry::Error
+      nil
+    end
   end
 end

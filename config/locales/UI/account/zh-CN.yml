@@ -8,6 +8,8 @@ zh-CN:
         new_balance: 新增余额
         activity: 活动记录
         placeholder: 通过名称搜索
+        date_label: 日期
+        amount_label: 金额
       chart:
         total_account_value: 账户总资产
         total_value: 总资产

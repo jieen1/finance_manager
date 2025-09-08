@@ -8,6 +8,8 @@ en:
         new_balance: New balance
         activity: Activity
         placeholder: Search entries by name
+        date_label: Date
+        amount_label: Amount
       chart:
         total_account_value: Total Account Value
         total_value: Total Value
