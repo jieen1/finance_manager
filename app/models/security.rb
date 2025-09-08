@@ -19,7 +19,6 @@ class Security < ApplicationRecord
 
   def to_combobox_option
     option_class = combobox_option_class
-    Rails.logger.info("[Security] 使用combobox option类: #{option_class.name} for provider: #{Setting.securities_provider}")
     
     option_class.new(
       symbol: ticker,  # 将ticker映射到symbol属性
