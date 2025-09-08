@@ -78,6 +78,7 @@ class Security::Resolver
       )
 
       security.assign_attributes(
+        name: symbol, # 对于离线标的，使用ticker作为名称
         country_code: country_code,
         offline: true # This tells us that we shouldn't try to fetch prices later
       )
@@ -145,13 +146,23 @@ class Security::Resolver
     end
 
     def find_or_create_provider_match!(match)
+      Rails.logger.info("[Security::Resolver] 创建provider匹配: ticker=#{match.ticker}, name=#{match.name}, logo_url=#{match.logo_url}")
+      
       security = Security.find_or_initialize_by(
         ticker: match.ticker,
         exchange_operating_mic: match.exchange_operating_mic,
       )
 
-      security.country_code = match.country_code
+      # 确保所有从provider获取的字段都被正确保存
+      security.assign_attributes(
+        name: match.name,
+        logo_url: match.logo_url,
+        country_code: match.country_code
+      )
+      
+      Rails.logger.info("[Security::Resolver] 保存前: name=#{security.name}, logo_url=#{security.logo_url}")
       security.save!
+      Rails.logger.info("[Security::Resolver] 保存后: name=#{security.name}, logo_url=#{security.logo_url}")
 
       security
     end

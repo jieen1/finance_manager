@@ -44,11 +44,20 @@ class Provider::Tencent < Provider
       end
       
       result = filtered_stocks.map do |stock|
+        exchange_code = extract_exchange_code(stock["code"])
+        logo_url = ::Security::LogoGenerator.generate_logo_url(
+          name: stock["name"],
+          symbol: normalize_symbol(stock["code"]),
+          exchange_operating_mic: exchange_code
+        )
+        
+        Rails.logger.info("[TencentProvider] 生成Security: name=#{stock["name"]}, logo_url=#{logo_url}")
+        
         security = Security.new(
           symbol: normalize_symbol(stock["code"]),
           name: stock["name"],
-          logo_url: nil, # 腾讯接口不提供logo
-          exchange_operating_mic: extract_exchange_code(stock["code"]),
+          logo_url: logo_url,
+          exchange_operating_mic: exchange_code,
           country_code: extract_country_code(stock["code"])
         )
         security
@@ -67,7 +76,11 @@ class Provider::Tencent < Provider
         symbol: symbol,
         name: realtime_data[:name],
         links: {},
-        logo_url: nil,
+        logo_url: ::Security::LogoGenerator.generate_logo_url(
+          name: realtime_data[:name],
+          symbol: symbol,
+          exchange_operating_mic: exchange_operating_mic
+        ),
         description: nil,
         kind: "stock",
         exchange_operating_mic: exchange_operating_mic
