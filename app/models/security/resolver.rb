@@ -146,8 +146,6 @@ class Security::Resolver
     end
 
     def find_or_create_provider_match!(match)
-      Rails.logger.info("[Security::Resolver] 创建provider匹配: ticker=#{match.ticker}, name=#{match.name}, logo_url=#{match.logo_url}")
-      
       security = Security.find_or_initialize_by(
         ticker: match.ticker,
         exchange_operating_mic: match.exchange_operating_mic,

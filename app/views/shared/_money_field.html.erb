@@ -61,7 +61,7 @@
           end,
           min: options[:min] || -99999999999999,
           max: options[:max] || 99999999999999,
-          step: currency.step,
+          step: options[:step] || 1.0/10**(options[:precision] || currency.default_precision),
           disabled: options[:disabled],
           data: {
             "money-field-target": "amount",
