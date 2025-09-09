@@ -21,6 +21,7 @@ class TradeImport < Import
           qty: row.qty,
           currency: row.currency.presence || mapped_account.currency,
           price: row.price,
+          fee: row.fee || 0,
           entry: Entry.new(
             account: mapped_account,
             date: row.date_iso,
@@ -47,7 +48,7 @@ class TradeImport < Import
   end
 
   def column_keys
-    base = %i[date ticker exchange_operating_mic currency qty price name]
+    base = %i[date ticker exchange_operating_mic currency qty price fee name]
     base.unshift(:account) if account.nil?
     base
   end
@@ -64,10 +65,10 @@ class TradeImport < Import
 
   def csv_template
     template = <<-CSV
-      date*,ticker*,exchange_operating_mic,currency,qty*,price*,account,name
-      05/15/2024,AAPL,XNAS,USD,10,150.00,Trading Account,Apple Inc. Purchase
-      05/16/2024,GOOGL,XNAS,USD,-5,2500.00,Investment Account,Alphabet Inc. Sale
-      05/17/2024,TSLA,XNAS,USD,2,700.50,Retirement Account,Tesla Inc. Purchase
+      date*,ticker*,exchange_operating_mic,currency,qty*,price*,fee,account,name
+      05/15/2024,AAPL,XNAS,USD,10,150.00,9.99,Trading Account,Apple Inc. Purchase
+      05/16/2024,GOOGL,XNAS,USD,-5,2500.00,4.95,Investment Account,Alphabet Inc. Sale
+      05/17/2024,TSLA,XNAS,USD,2,700.50,0.00,Retirement Account,Tesla Inc. Purchase
     CSV
 
     csv = CSV.parse(template, headers: true)

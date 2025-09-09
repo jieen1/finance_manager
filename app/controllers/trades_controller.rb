@@ -54,13 +54,13 @@ class TradesController < ApplicationController
     def entry_params
       params.require(:entry).permit(
         :name, :date, :amount, :currency, :excluded, :notes, :nature,
-        entryable_attributes: [ :id, :qty, :price ]
+        entryable_attributes: [ :id, :qty, :price, :fee ]
       )
     end
 
     def create_params
       params.require(:model).permit(
-        :date, :amount, :currency, :qty, :price, :ticker, :manual_ticker, :type, :transfer_account_id
+        :date, :amount, :currency, :qty, :price, :fee, :ticker, :manual_ticker, :type, :transfer_account_id
       )
     end
 
@@ -72,11 +72,16 @@ class TradesController < ApplicationController
 
       qty = update_params[:entryable_attributes][:qty]
       price = update_params[:entryable_attributes][:price]
+      fee = update_params[:entryable_attributes][:fee] || 0
 
       if qty.present? && price.present?
         qty = update_params[:nature] == "inflow" ? -qty.to_d : qty.to_d
         update_params[:entryable_attributes][:qty] = qty
-        update_params[:amount] = qty * price.to_d
+        
+        # Fee calculation: for buys (positive qty) fee increases cost, for sells (negative qty) fee reduces proceeds
+        base_amount = qty * price.to_d
+        fee_impact = qty.positive? ? fee.to_d : -fee.to_d
+        update_params[:amount] = base_amount + fee_impact
       end
 
       update_params.except(:nature)

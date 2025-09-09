@@ -25,9 +25,10 @@ class Holding < ApplicationRecord
     account.balance.zero? ? 1 : amount / account.balance * 100
   end
 
-  # Basic approximation of cost-basis
+  # Basic approximation of cost-basis including fees
   def avg_cost
-    avg_cost = account.trades
+    # Calculate weighted average cost including fees
+    trades_with_costs = account.trades
       .with_entry
       .joins(ActiveRecord::Base.sanitize_sql_array([
         "LEFT JOIN exchange_rates ON (
@@ -38,9 +39,21 @@ class Holding < ApplicationRecord
       ]))
       .where(security_id: security.id)
       .where("trades.qty > 0 AND entries.date <= ?", date)
-      .average("trades.price * COALESCE(exchange_rates.rate, 1)")
+      .select("trades.qty, trades.price, trades.fee, COALESCE(exchange_rates.rate, 1) as rate")
 
-    Money.new(avg_cost || price, currency)
+    return Money.new(price, currency) if trades_with_costs.empty?
+
+    total_cost = 0
+    total_qty = 0
+
+    trades_with_costs.each do |trade|
+      cost_per_share = (trade.price * trade.rate) + (trade.fee / trade.qty)
+      total_cost += cost_per_share * trade.qty
+      total_qty += trade.qty
+    end
+
+    avg_cost = total_qty > 0 ? total_cost / total_qty : price
+    Money.new(avg_cost, currency)
   end
 
   def trend

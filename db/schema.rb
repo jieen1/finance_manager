@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_07_24_115507) do
+ActiveRecord::Schema[7.2].define(version: 2025_09_09_131916) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -29,7 +29,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_24_115507) do
     t.uuid "accountable_id"
     t.decimal "balance", precision: 19, scale: 4
     t.string "currency"
-    t.virtual "classification", type: :string, as: "\nCASE\n    WHEN ((accountable_type)::text = ANY ((ARRAY['Loan'::character varying, 'CreditCard'::character varying, 'OtherLiability'::character varying])::text[])) THEN 'liability'::text\n    ELSE 'asset'::text\nEND", stored: true
+    t.virtual "classification", type: :string, as: "\nCASE\n    WHEN ((accountable_type)::text = ANY (ARRAY[('Loan'::character varying)::text, ('CreditCard'::character varying)::text, ('OtherLiability'::character varying)::text])) THEN 'liability'::text\n    ELSE 'asset'::text\nEND", stored: true
     t.uuid "import_id"
     t.uuid "plaid_account_id"
     t.decimal "cash_balance", precision: 19, scale: 4, default: "0.0"
@@ -111,7 +111,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_24_115507) do
     t.uuid "account_id", null: false
     t.date "date", null: false
     t.decimal "balance", precision: 19, scale: 4, null: false
-    t.string "currency", default: "CNY", null: false
+    t.string "currency", default: "USD", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.decimal "cash_balance", precision: 19, scale: 4, default: "0.0"
@@ -257,7 +257,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_24_115507) do
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "currency", default: "CNY"
+    t.string "currency", default: "USD"
     t.string "locale", default: "en"
     t.string "stripe_customer_id"
     t.string "date_format", default: "%m-%d-%Y"
@@ -642,7 +642,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_24_115507) do
   create_table "security_prices", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.date "date", null: false
     t.decimal "price", precision: 19, scale: 4, null: false
-    t.string "currency", default: "CNY", null: false
+    t.string "currency", default: "USD", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.uuid "security_id"
@@ -746,6 +746,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_24_115507) do
     t.datetime "updated_at", null: false
     t.string "currency"
     t.jsonb "locked_attributes", default: {}
+    t.decimal "fee", precision: 19, scale: 4, default: "0.0"
     t.index ["security_id"], name: "index_trades_on_security_id"
   end
 

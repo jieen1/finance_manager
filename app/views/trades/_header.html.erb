@@ -50,6 +50,13 @@
               <dt class="text-secondary"><%= t(".purchase_price_label") %></dt>
               <dd class="text-primary"><%= format_money trade.price_money, precision: 3 %></dd>
             </div>
+
+            <% if trade.fee_money.positive? %>
+              <div class="flex items-center justify-between text-sm">
+                <dt class="text-secondary"><%= t(".fee_label") %></dt>
+                <dd class="text-primary"><%= format_money trade.fee_money, precision: 2 %></dd>
+              </div>
+            <% end %>
           <% end %>
 
           <% if trade.security.current_price.present? %>

@@ -42,6 +42,13 @@
                   min: 0,
                   precision: 3,
                   disabled: @entry.linked? %>
+
+            <%= ef.money_field :fee,
+                  label: t(".fee_label"),
+                  disable_currency: true,
+                  auto_submit: true,
+                  min: 0,
+                  disabled: @entry.linked? %>
           <% end %>
         <% end %>
       </div>

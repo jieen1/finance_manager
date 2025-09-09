@@ -16,7 +16,8 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
           entryable_attributes: {
             id: @entry.entryable_id,
             qty: 20,
-            price: 20
+            price: 20,
+            fee: 5.99
           }
         }
       }
@@ -28,9 +29,50 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal 20, @entry.trade.qty
     assert_equal 20, @entry.trade.price
+    assert_equal 5.99, @entry.trade.fee
     assert_equal "USD", @entry.currency
 
     assert_redirected_to account_url(@entry.account)
+  end
+
+  test "includes fee in amount calculation when updating buy trade" do
+    patch trade_url(@entry), params: {
+      entry: {
+        currency: "USD",
+        nature: "outflow", # Buy trade
+        entryable_attributes: {
+          id: @entry.entryable_id,
+          qty: 10,
+          price: 100,
+          fee: 9.99
+        }
+      }
+    }
+
+    @entry.reload
+    
+    # For buy: Amount should be (10 * 100) + 9.99 = 1009.99
+    assert_equal 1009.99, @entry.amount
+  end
+
+  test "includes fee in amount calculation when updating sell trade" do
+    patch trade_url(@entry), params: {
+      entry: {
+        currency: "USD",
+        nature: "inflow", # Sell trade
+        entryable_attributes: {
+          id: @entry.entryable_id,
+          qty: 10,
+          price: 100,
+          fee: 9.99
+        }
+      }
+    }
+
+    @entry.reload
+    
+    # For sell: Amount should be (-10 * 100) - 9.99 = -1009.99
+    assert_equal -1009.99, @entry.amount
   end
 
   test "creates deposit entry" do

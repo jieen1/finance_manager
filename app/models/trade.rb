@@ -1,12 +1,16 @@
 class Trade < ApplicationRecord
   include Entryable, Monetizable
 
-  monetize :price
+  monetize :price, :fee
 
   belongs_to :security
 
   validates :qty, presence: true
   validates :price, :currency, presence: true
+  validates :fee, numericality: { greater_than_or_equal_to: 0 }
+
+  # Set default fee value
+  after_initialize :set_default_fee, if: :new_record?
 
   class << self
     def build_name(type, qty, ticker)
@@ -26,8 +30,15 @@ class Trade < ApplicationRecord
     return nil if current_price.nil?
 
     current_value = current_price * qty.abs
-    cost_basis = price_money * qty.abs
+    # Include fee in cost basis calculation
+    cost_basis = (price_money * qty.abs) + fee_money
 
     Trend.new(current: current_value, previous: cost_basis)
+  end
+
+  private
+
+  def set_default_fee
+    self.fee ||= 0
   end
 end

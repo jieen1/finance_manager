@@ -11,9 +11,11 @@ zh-CN:
       submit: 添加交易
       ticker_placeholder: AAPL
       type: 类型
+      fee: 费用
     header:
       buy: 买入
       current_market_price_label: 当前市场价格
+      fee_label: 费用
       overview: 概览
       purchase_price_label: 购买价格
       purchase_qty_label: 购买数量
@@ -26,6 +28,7 @@ zh-CN:
       additional: 附加信息
       cost_per_share_label: 每股成本
       date_label: 日期
+      fee_label: 费用
       delete: 删除
       delete_subtitle: 此操作无法撤销
       delete_title: 删除交易

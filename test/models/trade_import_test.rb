@@ -62,4 +62,48 @@ class TradeImportTest < ActiveSupport::TestCase
 
     assert_equal "complete", @import.status
   end
+
+  test "includes fee in column keys" do
+    assert_includes @import.column_keys, :fee
+  end
+
+  test "csv template includes fee column" do
+    csv = @import.csv_template
+    assert_includes csv.headers, "fee"
+  end
+
+  test "imports trade with fee" do
+    aapl_resolver = mock
+    Security::Resolver.expects(:new)
+                      .with("AAPL", exchange_operating_mic: nil)
+                      .returns(aapl_resolver)
+                      .once
+
+    aapl = securities(:aapl)
+    aapl_resolver.stubs(:resolve).returns(aapl)
+
+    # Mock CSV row with fee
+    row = OpenStruct.new(
+      account: "Trading Account",
+      ticker: "AAPL",
+      exchange_operating_mic: nil,
+      currency: "USD",
+      qty: 10,
+      price: 150.00,
+      fee: 9.99,
+      name: "Apple Inc. Purchase",
+      date_iso: Date.current,
+      signed_amount: -1509.99 # (10 * 150) + 9.99
+    )
+
+    @import.stubs(:rows).returns([row])
+    @import.stubs(:mappings).returns(mock(accounts: mock(mappable_for: accounts(:depository))))
+
+    assert_difference -> { Trade.count } => 1 do
+      @import.import!
+    end
+
+    trade = Trade.last
+    assert_equal 9.99, trade.fee
+  end
 end

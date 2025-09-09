@@ -20,4 +20,41 @@ class TradeTest < ActiveSupport::TestCase
     name = Trade.build_name("buy", 0.25, "BTC")
     assert_equal "Buy 0.25 shares of BTC", name
   end
+
+  test "validates fee is non-negative" do
+    trade = Trade.new(qty: 10, price: 100, currency: "USD", fee: -5)
+    assert_not trade.valid?
+    assert_includes trade.errors[:fee], "must be greater than or equal to 0"
+  end
+
+  test "allows zero fee" do
+    trade = Trade.new(qty: 10, price: 100, currency: "USD", fee: 0)
+    assert trade.valid?
+  end
+
+  test "allows positive fee" do
+    trade = Trade.new(qty: 10, price: 100, currency: "USD", fee: 5.99)
+    assert trade.valid?
+  end
+
+  test "unrealized_gain_loss includes fee in cost basis" do
+    security = securities(:aapl)
+    trade = Trade.new(
+      qty: 10,
+      price: 100,
+      fee: 9.99,
+      currency: "USD",
+      security: security
+    )
+    
+    # Mock current price
+    security.stubs(:current_price).returns(Money.new(11000, "USD"))
+    
+    gain_loss = trade.unrealized_gain_loss
+    assert_not_nil gain_loss
+    
+    # Cost basis should include fee: (10 * 100) + 9.99 = 1009.99
+    expected_cost_basis = Money.new(100999, "USD")
+    assert_equal expected_cost_basis, gain_loss.previous
+  end
 end

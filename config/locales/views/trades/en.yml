@@ -5,6 +5,7 @@ en:
       account: Transfer account (optional)
       account_prompt: Search account
       amount: Amount
+      fee: Fee
       holding: Ticker symbol
       price: Price per share
       qty: Quantity
@@ -14,6 +15,7 @@ en:
     header:
       buy: Buy
       current_market_price_label: Current Market Price
+      fee_label: Fee
       overview: Overview
       purchase_price_label: Purchase Price
       purchase_qty_label: Purchase Quantity
@@ -26,6 +28,7 @@ en:
       additional: Additional
       cost_per_share_label: Cost per Share
       date_label: Date
+      fee_label: Fee
       delete: Delete
       delete_subtitle: This action cannot be undone
       delete_title: Delete Trade
