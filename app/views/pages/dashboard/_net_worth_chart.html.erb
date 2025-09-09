@@ -1,4 +1,4 @@
-<%# locals: (balance_sheet:, period:, **args) %>
+<%# locals: (balance_sheet:, period:, current_user: nil, **args) %>
 
 <div id="net-worth-chart">
   <% series = balance_sheet.net_worth_series(period: period) %>
@@ -10,13 +10,13 @@
         </div>
 
         <p class="text-primary -space-x-0.5 text-3xl font-medium <%= "animate-pulse" if balance_sheet.syncing? %>">
-          <%= series.trend.current.format %>
+          <%= series.trend(user: current_user).current.format %>
         </p>
 
-        <% if series.trend.nil? %>
+        <% if series.trend(user: current_user).nil? %>
           <p class="text-sm text-secondary"><%= t(".data_not_available") %></p>
         <% else %>
-          <%= render partial: "shared/trend_change", locals: { trend: series.trend, comparison_label: period.comparison_label } %>
+          <%= render partial: "shared/trend_change", locals: { trend: series.trend(user: current_user), comparison_label: period.comparison_label } %>
         <% end %>
       </div>
     </div>

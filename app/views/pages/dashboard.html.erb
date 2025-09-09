@@ -43,7 +43,8 @@
     <section class="bg-container py-4 rounded-xl shadow-border-xs">
       <%= render partial: "pages/dashboard/net_worth_chart", locals: {
         balance_sheet: @balance_sheet,
-        period: @period
+        period: @period,
+        current_user: @current_user
       } %>
     </section>
     <section>

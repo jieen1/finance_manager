@@ -22,6 +22,12 @@ zh-CN:
         theme_system: 系统默认
         theme_title: 主题
         timezone: 时区
+        trend_color_title: 涨跌颜色偏好
+        trend_color_subtitle: 选择您习惯的涨跌颜色显示方式
+        traditional_colors: 传统颜色
+        traditional_description: 绿色表示涨，红色表示跌
+        chinese_colors: 中国习惯
+        chinese_description: 红色表示涨，绿色表示跌
     profiles:
       destroy:
         cannot_remove_self: 您不能将自己从账户中移除。

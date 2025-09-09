@@ -27,7 +27,7 @@
         <%= render "shared/ruler" %>
 
         <% if @account.current_holdings.any? %>
-          <%= render partial: "holdings/holding", collection: @account.current_holdings, spacer_template: "shared/ruler" %>
+          <%= render partial: "holdings/holding", collection: @account.current_holdings, spacer_template: "shared/ruler", locals: { current_user: @current_user } %>
         <% end %>
       </div>
     </div>

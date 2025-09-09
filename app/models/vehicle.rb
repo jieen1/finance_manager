@@ -11,8 +11,12 @@ class Vehicle < ApplicationRecord
     first_valuation_amount
   end
 
-  def trend
-    Trend.new(current: account.balance_money, previous: first_valuation_amount)
+  def trend(user: nil)
+    Trend.new(
+      current: account.balance_money, 
+      previous: first_valuation_amount,
+      color_preference: user&.trend_color_preference
+    )
   end
 
   class << self

@@ -2,15 +2,17 @@ class Trend
   include ActiveModel::Validations
 
   DIRECTIONS = %w[up down].freeze
+  COLOR_PREFERENCES = %w[traditional chinese].freeze
 
-  attr_reader :current, :previous, :favorable_direction
+  attr_reader :current, :previous, :favorable_direction, :color_preference
 
   validates :current, presence: true
 
-  def initialize(current:, previous:, favorable_direction: nil)
+  def initialize(current:, previous:, favorable_direction: nil, color_preference: nil)
     @current = current
     @previous = previous || 0
     @favorable_direction = (favorable_direction.presence_in(DIRECTIONS) || "up").inquiry
+    @color_preference = (color_preference.presence_in(COLOR_PREFERENCES) || "traditional").inquiry
 
     validate!
   end
@@ -28,9 +30,21 @@ class Trend
   def color
     case direction
     when "up"
-      favorable_direction.down? ? red_hex : green_hex
+      if color_preference.chinese?
+        # 中国习惯：红色表示涨
+        red_hex
+      else
+        # 传统习惯：绿色表示涨
+        favorable_direction.down? ? red_hex : green_hex
+      end
     when "down"
-      favorable_direction.down? ? green_hex : red_hex
+      if color_preference.chinese?
+        # 中国习惯：绿色表示跌
+        green_hex
+      else
+        # 传统习惯：红色表示跌
+        favorable_direction.down? ? green_hex : red_hex
+      end
     else
       gray_hex
     end

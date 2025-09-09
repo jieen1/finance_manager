@@ -15,11 +15,12 @@ class Balance < ApplicationRecord
   scope :in_period, ->(period) { period.nil? ? all : where(date: period.date_range) }
   scope :chronological, -> { order(:date) }
 
-  def balance_trend
+  def balance_trend(user: nil)
     Trend.new(
       current: end_balance_money,
       previous: start_balance_money,
-      favorable_direction: favorable_direction
+      favorable_direction: favorable_direction,
+      color_preference: user&.trend_color_preference
     )
   end
 

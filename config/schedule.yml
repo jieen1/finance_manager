@@ -1,11 +1,26 @@
-import_market_data:
-  cron: "0 22 * * 1-5" # 5:00 PM EST / 6:00 PM EDT (NY time) Monday through Friday
+import_market_data_afternoon:
+  cron: "30 7 * * 1-5" # 3:30 PM Beijing time (7:30 AM UTC) Monday through Friday
   class: "ImportMarketDataJob"
   queue: "scheduled"
-  description: "Imports market data daily at 5:00 PM EST (1 hour after market close)"
+  description: "Imports market data daily at 3:30 PM Beijing time (after A-share market close)"
   args:
     mode: "full"
     clear_cache: false
+
+import_market_data_evening:
+  cron: "30 8 * * 1-5" # 4:30 PM Beijing time (8:30 AM UTC) Monday through Friday
+  class: "ImportMarketDataJob"
+  queue: "scheduled"
+  description: "Imports market data daily at 4:30 PM Beijing time (after H-share market close)"
+  args:
+    mode: "full"
+    clear_cache: false
+
+realtime_market_data:
+  cron: "* * * * 1-5" # Every minute Monday through Friday
+  class: "RealtimeMarketDataJob"
+  queue: "scheduled"
+  description: "Updates real-time market data during A-share and H-share market hours"
   
 clean_syncs:
   cron: "0 * * * *" # every hour

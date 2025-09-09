@@ -3,9 +3,11 @@ class HoldingsController < ApplicationController
 
   def index
     @account = Current.family.accounts.find(params[:account_id])
+    @current_user = Current.user
   end
 
   def show
+    @current_user = Current.user
   end
 
   def destroy

@@ -22,6 +22,12 @@ en:
         theme_system: System
         theme_title: Theme
         timezone: Timezone
+        trend_color_title: Trend Color Preference
+        trend_color_subtitle: Choose your preferred way to display trend colors
+        traditional_colors: Traditional Colors
+        traditional_description: Green for up, red for down
+        chinese_colors: Chinese Style
+        chinese_description: Red for up, green for down
     profiles:
       destroy:
         cannot_remove_self: You cannot remove yourself from the account.

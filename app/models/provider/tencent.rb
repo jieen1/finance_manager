@@ -152,6 +152,67 @@ class Provider::Tencent < Provider
     end
   end
   
+  # 批量获取实时行情数据
+  def fetch_batch_realtime_data(securities)
+    return {} if securities.empty?
+    
+    # 构建批量查询URL，最多支持100个股票
+    tencent_symbols = securities.map { |s| convert_to_tencent_symbol(s.ticker, s.exchange_operating_mic) }
+    batch_size = 100
+    results = {}
+    
+    tencent_symbols.each_slice(batch_size) do |batch|
+      symbols_param = batch.join(',')
+      url = "http://qt.gtimg.cn/q=#{symbols_param}"
+      
+      begin
+        response = client.get(url)
+        batch_results = parse_batch_realtime_response(response.body, batch)
+        results.merge!(batch_results)
+      rescue => e
+        Rails.logger.error("[TencentProvider] 批量查询失败: #{e.message}")
+        # 如果批量查询失败，回退到单个查询
+        batch.each do |tencent_symbol|
+          begin
+            single_result = fetch_single_realtime_data(tencent_symbol)
+            results[tencent_symbol] = single_result if single_result.present?
+          rescue => single_error
+            Rails.logger.error("[TencentProvider] 单个查询也失败 #{tencent_symbol}: #{single_error.message}")
+          end
+        end
+      end
+    end
+    
+    results
+  end
+
+  def parse_batch_realtime_response(response_body, tencent_symbols)
+    results = {}
+    
+    tencent_symbols.each do |tencent_symbol|
+      # 解析每个股票的数据
+      # v_sz000858="51~五 粮 液~000858~27.78~0.18~0.65~417909~116339~~1054.52";
+      match = response_body.match(/v_#{tencent_symbol}="([^"]+)"/)
+      
+      if match
+        fields = match[1].split('~')
+        results[tencent_symbol] = {
+          name: fields[1],
+          current_price: fields[3].to_f > 0 ? fields[3].to_f : nil,
+          change: fields[4].to_f,
+          change_percent: fields[5].to_f,
+          volume: fields[6].to_i,
+          turnover: fields[7].to_f,
+          market_cap: fields[9].to_f
+        }
+      else
+        Rails.logger.warn("[TencentProvider] 批量查询中未找到数据: #{tencent_symbol}")
+      end
+    end
+    
+    results
+  end
+  
   private
   
   def client
@@ -318,6 +379,26 @@ class Provider::Tencent < Provider
     }
     
     result
+  end
+
+
+  def fetch_single_realtime_data(tencent_symbol)
+    url = "http://qt.gtimg.cn/q=#{tencent_symbol}"
+    response = client.get(url)
+    match = response.body.match(/v_#{tencent_symbol}="([^"]+)"/)
+    
+    return {} if match.nil?
+    
+    fields = match[1].split('~')
+    {
+      name: fields[1],
+      current_price: fields[3].to_f > 0 ? fields[3].to_f : nil,
+      change: fields[4].to_f,
+      change_percent: fields[5].to_f,
+      volume: fields[6].to_i,
+      turnover: fields[7].to_f,
+      market_cap: fields[9].to_f
+    }
   end
   
   # 获取指定年份的历史价格数据

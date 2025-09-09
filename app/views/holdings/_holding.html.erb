@@ -1,4 +1,4 @@
-<%# locals: (holding:) %>
+<%# locals: (holding:, current_user: nil) %>
 
 <%= turbo_frame_tag dom_id(holding) do %>
   <div class="grid grid-cols-12 items-center text-primary text-sm font-medium p-4">
@@ -46,9 +46,9 @@
     </div>
 
     <div class="col-span-2 text-right">
-      <% if holding.trend %>
-        <%= tag.p format_money(holding.trend.value), style: "color: #{holding.trend.color};" %>
-        <%= tag.p "(#{number_to_percentage(holding.trend.percent, precision: 1)})", style: "color: #{holding.trend.color};" %>
+      <% if holding.trend(user: current_user) %>
+        <%= tag.p format_money(holding.trend(user: current_user).value), style: "color: #{holding.trend(user: current_user).color};" %>
+        <%= tag.p "(#{number_to_percentage(holding.trend(user: current_user).percent, precision: 1)})", style: "color: #{holding.trend(user: current_user).color};" %>
       <% else %>
         <%= tag.p "--", class: "text-secondary mb-4" %>
       <% end %>

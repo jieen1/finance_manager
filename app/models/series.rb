@@ -40,7 +40,8 @@ class Series
             value: curr_value[:value],
             trend: Trend.new(
               current: curr_value[:value],
-              previous: prev_value&.[](:value)
+              previous: prev_value&.[](:value),
+              color_preference: user&.trend_color_preference
             )
           )
         end
@@ -56,11 +57,12 @@ class Series
     @favorable_direction = favorable_direction
   end
 
-  def trend
+  def trend(user: nil)
     @trend ||= Trend.new(
       current: values.last&.value,
       previous: values.first&.value,
-      favorable_direction: favorable_direction
+      favorable_direction: favorable_direction,
+      color_preference: user&.trend_color_preference
     )
   end
 

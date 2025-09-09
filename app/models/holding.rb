@@ -56,8 +56,8 @@ class Holding < ApplicationRecord
     Money.new(avg_cost, currency)
   end
 
-  def trend
-    @trend ||= calculate_trend
+  def trend(user: nil)
+    @trend ||= calculate_trend(user: user)
   end
 
   def trades
@@ -74,13 +74,15 @@ class Holding < ApplicationRecord
   end
 
   private
-    def calculate_trend
+    def calculate_trend(user: nil)
       return nil unless amount_money
 
       start_amount = qty * avg_cost
 
-      Trend.new \
+      Trend.new(
         current: amount_money,
-        previous: start_amount
+        previous: start_amount,
+        color_preference: user&.trend_color_preference || account.family.users.first&.trend_color_preference
+      )
     end
 end
