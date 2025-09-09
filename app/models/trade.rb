@@ -36,7 +36,7 @@ class Trade < ApplicationRecord
     Trend.new(
       current: current_value, 
       previous: cost_basis,
-      color_preference: account.family.users.first&.trend_color_preference
+      color_preference: entry.account.family.users.first&.trend_color_preference
     )
   end
 

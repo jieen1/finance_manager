@@ -71,54 +71,16 @@
 
 <%= settings_section title: t(".trend_color_title"), subtitle: t(".trend_color_subtitle") do %>
   <div>
-    <%= form_with model: @user, class: "space-y-4", data: { controller: "auto-submit-form" } do |form| %>
+    <%= styled_form_with model: @user, class: "space-y-4", data: { controller: "auto-submit-form" } do |form| %>
       <%= form.hidden_field :redirect_to, value: "preferences" %>
 
-      <% color_option_class = "text-center transition-all duration-200 p-4 rounded-lg hover:bg-surface-hover cursor-pointer [&:has(input:checked)]:bg-surface-hover [&:has(input:checked)]:border [&:has(input:checked)]:border-primary [&:has(input:checked)]:shadow-xs" %>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <% [
-          { 
-            value: "traditional", 
-            title: t(".traditional_colors"),
-            description: t(".traditional_description"),
-            up_color: "var(--color-success)",
-            down_color: "var(--color-destructive)"
-          },
-          { 
-            value: "chinese", 
-            title: t(".chinese_colors"),
-            description: t(".chinese_description"),
-            up_color: "var(--color-destructive)",
-            down_color: "var(--color-success)"
-          }
-        ].each do |option| %>
-          <%= form.label :"trend_color_#{option[:value]}", class: "group" do %>
-            <div class="<%= color_option_class %>">
-              <div class="text-sm font-medium text-primary mb-2">
-                <%= option[:title] %>
-              </div>
-              <div class="text-xs text-secondary mb-3">
-                <%= option[:description] %>
-              </div>
-              <div class="flex items-center justify-center gap-4 mb-2">
-                <div class="flex items-center gap-1">
-                  <span class="text-xs text-secondary">涨</span>
-                  <div class="w-4 h-4 rounded" style="background-color: <%= option[:up_color] %>"></div>
-                </div>
-                <div class="flex items-center gap-1">
-                  <span class="text-xs text-secondary">跌</span>
-                  <div class="w-4 h-4 rounded" style="background-color: <%= option[:down_color] %>"></div>
-                </div>
-              </div>
-              <%= form.radio_button :trend_color_preference, option[:value], 
-                  checked: @user.trend_color_preference == option[:value], 
-                  class: "sr-only",
-                  data: { auto_submit_form_target: "auto" } %>
-            </div>
-          <% end %>
-        <% end %>
-      </div>
+      <%= form.select :trend_color_preference,
+          [
+            [t(".traditional_colors"), "traditional"],
+            [t(".chinese_colors"), "chinese"]
+          ],
+          { label: t(".trend_color_title") },
+          { data: { auto_submit_form_target: "auto" } } %>
     <% end %>
   </div>
 <% end %>
