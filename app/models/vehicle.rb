@@ -15,7 +15,7 @@ class Vehicle < ApplicationRecord
     Trend.new(
       current: account.balance_money, 
       previous: first_valuation_amount,
-      color_preference: user&.trend_color_preference
+      color_preference: Current.user&.trend_color_preference
     )
   end
 

@@ -82,7 +82,7 @@ class Holding < ApplicationRecord
       Trend.new(
         current: amount_money,
         previous: start_amount,
-        color_preference: user&.trend_color_preference || account.family.users.first&.trend_color_preference
+        color_preference: Current.user&.trend_color_preference || account.family.users.first&.trend_color_preference
       )
     end
 end

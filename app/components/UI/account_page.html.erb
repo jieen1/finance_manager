@@ -4,7 +4,7 @@
   <%= tag.div class: "space-y-4 pb-32" do %>
     <%= render "accounts/show/header", account: account, title: title, subtitle: subtitle %>
 
-    <%= render UI::Account::Chart.new(account: account, period: chart_period, view: chart_view) %>
+    <%= render UI::Account::Chart.new(account: account, period: chart_period, view: chart_view, user: Current.user) %>
 
     <div class="min-h-[800px]" data-testid="account-details">
       <% if tabs.count > 1 %>

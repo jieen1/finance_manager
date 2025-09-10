@@ -46,9 +46,9 @@
     </div>
 
     <div class="col-span-2 text-right">
-      <% if holding.trend(user: current_user) %>
-        <%= tag.p format_money(holding.trend(user: current_user).value), style: "color: #{holding.trend(user: current_user).color};" %>
-        <%= tag.p "(#{number_to_percentage(holding.trend(user: current_user).percent, precision: 1)})", style: "color: #{holding.trend(user: current_user).color};" %>
+      <% if holding.trend %>
+        <%= tag.p format_money(holding.trend.value), style: "color: #{holding.trend.color};" %>
+        <%= tag.p "(#{number_to_percentage(holding.trend.percent, precision: 1)})", style: "color: #{holding.trend.color};" %>
       <% else %>
         <%= tag.p "--", class: "text-secondary mb-4" %>
       <% end %>

@@ -12,7 +12,8 @@ class AccountableSparklinesController < ApplicationController
           currency: family.currency,
           period: Period.last_30_days,
           favorable_direction: @accountable.favorable_direction,
-          interval: "1 day"
+          interval: "1 day",
+          user: Current.user
         )
 
         builder.balance_series
@@ -36,6 +37,6 @@ class AccountableSparklinesController < ApplicationController
     end
 
     def cache_key
-      family.build_cache_key("#{@accountable.name}_sparkline", invalidate_on_data_updates: true)
+      family.build_cache_key("#{@accountable.name}_sparkline_#{Current.user&.trend_color_preference}", invalidate_on_data_updates: true)
     end
 end

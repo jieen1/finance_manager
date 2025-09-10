@@ -41,7 +41,7 @@ class Series
             trend: Trend.new(
               current: curr_value[:value],
               previous: prev_value&.[](:value),
-              color_preference: user&.trend_color_preference
+              color_preference: Current.user&.trend_color_preference
             )
           )
         end
@@ -57,16 +57,17 @@ class Series
     @favorable_direction = favorable_direction
   end
 
-  def trend(user: nil)
-    @trend ||= Trend.new(
+  def trend
+    # 不缓存Trend对象，确保颜色偏好始终是新鲜的
+    Trend.new(
       current: values.last&.value,
       previous: values.first&.value,
       favorable_direction: favorable_direction,
-      color_preference: user&.trend_color_preference
+      color_preference: Current.user&.trend_color_preference
     )
   end
 
-  def as_json
+  def as_json(options = nil)
     {
       start_date: start_date,
       end_date: end_date,

@@ -1,10 +1,11 @@
 class UI::Account::Chart < ApplicationComponent
   attr_reader :account
 
-  def initialize(account:, period: nil, view: nil)
+  def initialize(account:, period: nil, view: nil, user: nil)
     @account = account
     @period = period
     @view = view
+    @user = user
   end
 
   def period

@@ -5,7 +5,7 @@ class Balance::ChartSeriesBuilder
     @period = period
     @interval = interval
     @favorable_direction = favorable_direction
-    @user = user
+    # 保持 user 参数向后兼容，但内部使用 Current.user
   end
 
   def balance_series
@@ -53,7 +53,7 @@ class Balance::ChartSeriesBuilder
             current: Money.new(datum.send(column), currency),
             previous: Money.new(datum.send(previous_column), currency),
             favorable_direction: favorable_direction,
-            color_preference: @user&.trend_color_preference
+            color_preference: Current.user&.trend_color_preference
           )
         )
       end

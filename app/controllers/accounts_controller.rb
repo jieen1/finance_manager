@@ -23,6 +23,7 @@ class AccountsController < ApplicationController
     @pagy, @entries = pagy(entries, limit: params[:per_page] || "10")
 
     @activity_feed_data = Account::ActivityFeedData.new(@account, @entries)
+    @current_user = Current.user
   end
 
   def sync
@@ -34,7 +35,7 @@ class AccountsController < ApplicationController
   end
 
   def sparkline
-    etag_key = @account.family.build_cache_key("#{@account.id}_sparkline", invalidate_on_data_updates: true)
+    etag_key = @account.family.build_cache_key("#{@account.id}_sparkline_#{Current.user&.trend_color_preference}", invalidate_on_data_updates: true)
 
     # Short-circuit with 304 Not Modified when the client already has the latest version.
     # We defer the expensive series computation until we know the content is stale.

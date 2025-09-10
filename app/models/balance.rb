@@ -20,7 +20,7 @@ class Balance < ApplicationRecord
       current: end_balance_money,
       previous: start_balance_money,
       favorable_direction: favorable_direction,
-      color_preference: user&.trend_color_preference
+      color_preference: Current.user&.trend_color_preference
     )
   end
 

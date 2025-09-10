@@ -1,4 +1,6 @@
 class User < ApplicationRecord
+  include TrendColorCacheClearer
+  
   has_secure_password
 
   belongs_to :family
