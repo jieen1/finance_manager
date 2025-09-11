@@ -59,6 +59,8 @@ zh-CN:
       import: 导入
       new_transaction: 新建交易
     searches:
+      form:
+        filter: 过滤
       filters:
         amount_filter:
           equal_to: 等于
@@ -90,3 +92,7 @@ zh-CN:
         equal_to: 等于
         greater_than: 大于
         less_than: 小于
+    summary:
+      total_transactions: 总交易数
+      income: 收入
+      expenses: 支出
