@@ -80,9 +80,8 @@
                     Current.family.tags.alphabetically.pluck(:name, :id),
                     {
                       include_blank: t(".none"),
-                      multiple: true,
                       label:    t(".tags_label"),
-                      container_class: "h-40"
+                      container_class: "h-20 mb-3"
                     },
                     { "data-auto-submit-form-target": "auto" } %>
             <% end %>
