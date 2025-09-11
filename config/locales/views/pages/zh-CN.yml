@@ -16,7 +16,7 @@ zh-CN:
         no_cashflow: 所选期限内没有现金流数据
         add_cashflow_or_expand_period: 添加交易或选择不同期限来显示现金流数据
         add_transaction: 添加交易
-      no_account_graph_placeholder:
+      no_accounts_graph_placeholder:
         no_account: 没有账号
         add_account_desc: 添加账号后将展示净资产信息
         add_account: 添加账号
