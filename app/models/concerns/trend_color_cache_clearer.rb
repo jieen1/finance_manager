@@ -9,8 +9,8 @@ module TrendColorCacheClearer
 
   def clear_trend_color_cache
     # 清除所有相关的缓存
-    Rails.cache.delete_matched("*sparkline*")
-    Rails.cache.delete_matched("*trend*")
+    Rails.cache.delete_matched(".*sparkline.*")
+    Rails.cache.delete_matched(".*trend.*")
     
     # 清除实例变量缓存
     family.accounts.find_each do |account|

@@ -1,0 +1,19 @@
+---
+en:
+  category:
+    label:
+      uncategorized: Uncategorized
+      income: Income
+      loan_payments: Loan Payments
+      fees: Fees
+      entertainment: Entertainment
+      food_drink: Food & Drink
+      shopping: Shopping
+      home_improvement: Home Improvement
+      healthcare: Healthcare
+      personal_care: Personal Care
+      services: Services
+      gifts_donations: Gifts & Donations
+      transportation: Transportation
+      travel: Travel
+      rent_utilities: Rent & Utilities

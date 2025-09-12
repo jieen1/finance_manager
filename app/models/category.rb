@@ -62,7 +62,7 @@ class Category < ApplicationRecord
 
     def uncategorized
       new(
-        name: "Uncategorized",
+        name: I18n.t("category.label.uncategorized"),
         color: UNCATEGORIZED_COLOR,
         lucide_icon: "circle-dashed"
       )
@@ -71,20 +71,20 @@ class Category < ApplicationRecord
     private
       def default_categories
         [
-          [ "Income", "#e99537", "circle-dollar-sign", "income" ],
-          [ "Loan Payments", "#6471eb", "credit-card", "expense" ],
-          [ "Fees", "#6471eb", "credit-card", "expense" ],
-          [ "Entertainment", "#df4e92", "drama", "expense" ],
-          [ "Food & Drink", "#eb5429", "utensils", "expense" ],
-          [ "Shopping", "#e99537", "shopping-cart", "expense" ],
-          [ "Home Improvement", "#6471eb", "house", "expense" ],
-          [ "Healthcare", "#4da568", "pill", "expense" ],
-          [ "Personal Care", "#4da568", "pill", "expense" ],
-          [ "Services", "#4da568", "briefcase", "expense" ],
-          [ "Gifts & Donations", "#61c9ea", "hand-helping", "expense" ],
-          [ "Transportation", "#df4e92", "bus", "expense" ],
-          [ "Travel", "#df4e92", "plane", "expense" ],
-          [ "Rent & Utilities", "#db5a54", "lightbulb", "expense" ]
+          [ I18n.t("category.label.income"), "#e99537", "circle-dollar-sign", "income" ],
+          [ I18n.t("category.label.loan_payments"), "#6471eb", "credit-card", "expense" ],
+          [ I18n.t("category.label.fees"), "#6471eb", "credit-card", "expense" ],
+          [ I18n.t("category.label.entertainment"), "#df4e92", "drama", "expense" ],
+          [ I18n.t("category.label.food_drink"), "#eb5429", "utensils", "expense" ],
+          [ I18n.t("category.label.shopping"), "#e99537", "shopping-cart", "expense" ],
+          [ I18n.t("category.label.home_improvement"), "#6471eb", "house", "expense" ],
+          [ I18n.t("category.label.healthcare"), "#4da568", "pill", "expense" ],
+          [ I18n.t("category.label.personal_care"), "#4da568", "pill", "expense" ],
+          [ I18n.t("category.label.services"), "#4da568", "briefcase", "expense" ],
+          [ I18n.t("category.label.gifts_donations"), "#61c9ea", "hand-helping", "expense" ],
+          [ I18n.t("category.label.transportation"), "#df4e92", "bus", "expense" ],
+          [ I18n.t("category.label.travel"), "#df4e92", "plane", "expense" ],
+          [ I18n.t("category.label.rent_utilities"), "#db5a54", "lightbulb", "expense" ]
         ]
       end
   end
