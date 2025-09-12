@@ -32,6 +32,8 @@ zh-CN:
         account_type_mapping_title: 分配账户类型
         category_mapping_description: 将您导入文件中的所有类别分配到Maybe的现有类别。您也可以添加新类别或保留未分类状态。
         category_mapping_title: 分配类别
+        merchant_mapping_description: 将您导入文件中的所有商家分配到Maybe的现有商家。您也可以添加新商家或保留未分类状态。
+        merchant_mapping_title: 分配商家
         tag_mapping_description: 将您导入文件中的所有标签分配到Maybe的现有标签。您也可以添加新标签或保留未分类状态。
         tag_mapping_title: 分配标签
     uploads:

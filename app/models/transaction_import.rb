@@ -12,10 +12,12 @@ class TransactionImport < Import
 
         category = mappings.categories.mappable_for(row.category)
         tags = row.tags_list.map { |tag| mappings.tags.mappable_for(tag) }.compact
+        merchant = mappings.merchants.mappable_for(row.merchant_name)
 
         Transaction.new(
           category: category,
           tags: tags,
+          merchant: merchant,
           entry: Entry.new(
             account: mapped_account,
             date: row.date_iso,
@@ -39,12 +41,14 @@ class TransactionImport < Import
   def column_keys
     base = %i[date amount name currency category tags notes]
     base.unshift(:account) if account.nil?
+    base << :merchant
     base
   end
 
   def mapping_steps
     base = [ Import::CategoryMapping, Import::TagMapping ]
     base << Import::AccountMapping if account.nil?
+    base << Import::MerchantMapping
     base
   end
 
@@ -56,10 +60,10 @@ class TransactionImport < Import
 
   def csv_template
     template = <<-CSV
-      date*,amount*,name,currency,category,tags,account,notes
-      05/15/2024,-45.99,Grocery Store,USD,Food,groceries|essentials,Checking Account,Monthly grocery run
-      05/16/2024,1500.00,Salary,,Income,,Main Account,
-      05/17/2024,-12.50,Coffee Shop,,,coffee,,
+      date*,amount*,name,currency,category,tags,account,notes,merchant
+      05/15/2024,-45.99,Grocery Store,USD,Food,groceries|essentials,Checking Account,Monthly grocery run,Whole Foods
+      05/16/2024,1500.00,Salary,,Income,,Main Account,,Employer
+      05/17/2024,-12.50,Coffee Shop,,,coffee,,,Starbucks
     CSV
 
     csv = CSV.parse(template, headers: true)

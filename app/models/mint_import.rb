@@ -13,7 +13,8 @@ class MintImport < Import
         name: (row[name_col_label] || default_row_name).to_s,
         category: row[category_col_label].to_s,
         tags: row[tags_col_label].to_s,
-        notes: row[notes_col_label].to_s
+        notes: row[notes_col_label].to_s,
+        merchant: (row[merchant_col_label] || "").to_s
       }
     end
 
@@ -28,6 +29,7 @@ class MintImport < Import
         account = mappings.accounts.mappable_for(row.account)
         category = mappings.categories.mappable_for(row.category)
         tags = row.tags_list.map { |tag| mappings.tags.mappable_for(tag) }.compact
+        merchant = mappings.merchants.mappable_for(row.merchant_name)
 
         entry = account.entries.build \
           date: row.date_iso,
@@ -35,7 +37,7 @@ class MintImport < Import
           name: row.name,
           currency: row.currency,
           notes: row.notes,
-          entryable: Transaction.new(category: category, tags: tags),
+          entryable: Transaction.new(category: category, tags: tags, merchant: merchant),
           import: self
 
         entry.save!
@@ -44,7 +46,7 @@ class MintImport < Import
   end
 
   def mapping_steps
-    [ Import::CategoryMapping, Import::TagMapping, Import::AccountMapping ]
+    [ Import::CategoryMapping, Import::TagMapping, Import::AccountMapping, Import::MerchantMapping ]
   end
 
   def required_column_keys
@@ -52,14 +54,14 @@ class MintImport < Import
   end
 
   def column_keys
-    %i[date amount name currency category tags account notes]
+    %i[date amount name currency category tags account notes merchant]
   end
 
   def csv_template
     template = <<-CSV
-      Date,Amount,Account Name,Description,Category,Labels,Currency,Notes,Transaction Type
-      01/01/2024,-8.55,Checking,Starbucks,Food & Drink,Coffee|Breakfast,USD,Morning coffee,debit
-      04/15/2024,2000,Savings,Paycheck,Income,,USD,Bi-weekly salary,credit
+      Date,Amount,Account Name,Description,Category,Labels,Currency,Notes,Transaction Type,Merchant
+      01/01/2024,-8.55,Checking,Starbucks,Food & Drink,Coffee|Breakfast,USD,Morning coffee,debit,Starbucks
+      04/15/2024,2000,Savings,Paycheck,Income,,USD,Bi-weekly salary,credit,Employer
     CSV
 
     CSV.parse(template, headers: true)

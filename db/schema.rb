@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_09_09_131916) do
+ActiveRecord::Schema[7.2].define(version: 2025_09_12_062000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -347,7 +347,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_09_131916) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "exchange_operating_mic"
+    t.string "merchant"
     t.index ["import_id"], name: "index_import_rows_on_import_id"
+    t.index ["merchant"], name: "index_import_rows_on_merchant"
   end
 
   create_table "imports", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -380,6 +382,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_09_131916) do
     t.string "exchange_operating_mic_col_label"
     t.string "amount_type_strategy", default: "signed_amount"
     t.string "amount_type_inflow_value"
+    t.string "merchant_col_label"
     t.index ["family_id"], name: "index_imports_on_family_id"
   end
 

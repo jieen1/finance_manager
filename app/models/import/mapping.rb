@@ -12,6 +12,7 @@ class Import::Mapping < ApplicationRecord
   scope :tags, -> { where(type: "Import::TagMapping") }
   scope :accounts, -> { where(type: "Import::AccountMapping") }
   scope :account_types, -> { where(type: "Import::AccountTypeMapping") }
+  scope :merchants, -> { where(type: "Import::MerchantMapping") }
 
   class << self
     def mappable_for(key)

@@ -111,7 +111,8 @@ class Import < ApplicationRecord
     mappings = {
       transactions: rows.count,
       categories: Import::CategoryMapping.for_import(self).creational.count,
-      tags: Import::TagMapping.for_import(self).creational.count
+      tags: Import::TagMapping.for_import(self).creational.count,
+      merchants: Import::MerchantMapping.for_import(self).creational.count
     }
 
     mappings.merge(
@@ -146,7 +147,8 @@ class Import < ApplicationRecord
         category: row[category_col_label].to_s,
         tags: row[tags_col_label].to_s,
         entity_type: row[entity_type_col_label].to_s,
-        notes: row[notes_col_label].to_s
+        notes: row[notes_col_label].to_s,
+        merchant: (row[merchant_col_label] || "").to_s
       }
     end
 

@@ -18,6 +18,10 @@ class Import::Row < ApplicationRecord
     end
   end
 
+  def merchant_name
+    read_attribute(:merchant) || name
+  end
+
   def date_iso
     Date.strptime(date, import.date_format).iso8601
   end

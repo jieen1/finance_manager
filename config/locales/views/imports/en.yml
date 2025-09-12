@@ -41,6 +41,10 @@ en:
           to Maybe's existing categories.  You can also add new categories or leave
           them uncategorized.
         category_mapping_title: Assign your categories
+        merchant_mapping_description: Assign all of your imported file's merchants
+          to Maybe's existing merchants.  You can also add new merchants or leave
+          them uncategorized.
+        merchant_mapping_title: Assign your merchants
         tag_mapping_description: Assign all of your imported file's tags to Maybe's
           existing tags.  You can also add new tags or leave them uncategorized.
         tag_mapping_title: Assign your tags

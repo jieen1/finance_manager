@@ -4,7 +4,8 @@ module ImportsHelper
       "Import::AccountTypeMapping" => "Account Type",
       "Import::AccountMapping" => "Account",
       "Import::CategoryMapping" => "Category",
-      "Import::TagMapping" => "Tag"
+      "Import::TagMapping" => "Tag",
+      "Import::MerchantMapping" => "Merchant"
     }.fetch(mapping_class.name)
   end
 
@@ -18,6 +19,7 @@ module ImportsHelper
       tags: "Tags",
       account: "Account",
       notes: "Notes",
+      merchant: "Merchant",
       qty: "Quantity",
       ticker: "Ticker",
       exchange: "Exchange",
@@ -31,7 +33,8 @@ module ImportsHelper
       transactions: DryRunResource.new(label: "Transactions", icon: "credit-card", text_class: "text-cyan-500", bg_class: "bg-cyan-500/5"),
       accounts: DryRunResource.new(label: "Accounts", icon: "layers", text_class: "text-orange-500", bg_class: "bg-orange-500/5"),
       categories: DryRunResource.new(label: "Categories", icon: "shapes", text_class: "text-blue-500", bg_class: "bg-blue-500/5"),
-      tags: DryRunResource.new(label: "Tags", icon: "tags", text_class: "text-violet-500", bg_class: "bg-violet-500/5")
+      tags: DryRunResource.new(label: "Tags", icon: "tags", text_class: "text-violet-500", bg_class: "bg-violet-500/5"),
+      merchants: DryRunResource.new(label: "Merchants", icon: "store", text_class: "text-green-500", bg_class: "bg-green-500/5")
     }
 
     map[key]
