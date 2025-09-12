@@ -27,7 +27,7 @@
 
           <div class="flex items-center justify-between text-sm">
             <dt class="text-secondary"><%= t(".current_market_price_label") %></dt>
-            <dd class="text-primary"><%= @holding.security.current_price ? format_money(@holding.security.current_price) : t(".unknown") %></dd>
+            <dd class="text-primary"><%= @holding.security.current_price ? format_money(@holding.security.current_price, precision: 3) : t(".unknown") %></dd>
           </div>
 
           <div class="flex items-center justify-between text-sm">

@@ -62,7 +62,7 @@
           <% if trade.security.current_price.present? %>
             <div class="flex items-center justify-between text-sm">
               <dt class="text-secondary"><%= t(".current_market_price_label") %></dt>
-              <dd class="text-primary"><%= format_money trade.security.current_price %></dd>
+              <dd class="text-primary"><%= format_money trade.security.current_price, precision: 3 %></dd>
             </div>
           <% end %>
 
