@@ -4,17 +4,21 @@ module ExchangeRate::Provided
   class_methods do
     def provider
       registry = Provider::Registry.for_concept(:exchange_rates)
-      provider_name = Setting.exchange_rates_provider&.to_sym || :synth
+      provider_name = Setting.securities_provider.to_sym
       registry.get_provider(provider_name)
+    rescue => e
+      Rails.logger.error("[ExchangeRate::Provided] Provider error: #{e.message}")
+      nil
     end
 
     def find_or_fetch_rate(from:, to:, date: Date.current, cache: true)
       rate = find_by(from_currency: from, to_currency: to, date: date)
-      return rate if rate.present?
+      return rate if rate&.present?
+      
+      provider_instance = provider
+      return nil unless provider_instance.present? # No provider configured (some self-hosted apps)
 
-      return nil unless provider.present? # No provider configured (some self-hosted apps)
-
-      response = provider.fetch_exchange_rate(from: from, to: to, date: date)
+      response = provider_instance.fetch_exchange_rate(from: from, to: to, date: date)
 
       return nil unless response.success? # Provider error
 
