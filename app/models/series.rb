@@ -58,7 +58,6 @@ class Series
   end
 
   def trend
-    # 不缓存Trend对象，确保颜色偏好始终是新鲜的
     Trend.new(
       current: values.last&.value,
       previous: values.first&.value,

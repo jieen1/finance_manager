@@ -105,7 +105,7 @@ class Holding < ApplicationRecord
       yesterday_value = Money.new(yesterday_price.price * qty, currency)
       
       # 计算今日持仓价值
-      today_value = current_price * qty
+      today_value = Money.new(current_price * qty, currency)
 
       Trend.new(
         current: today_value,
