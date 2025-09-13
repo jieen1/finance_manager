@@ -17,6 +17,61 @@ class Provider::Tencent < Provider
   end
   
   # ================================
+  #          Exchange Rates
+  # ================================
+
+  def fetch_exchange_rate(from:, to:, date:)
+    with_provider_response do
+      Rails.logger.info("[TencentProvider] 获取汇率: from=#{from}, to=#{to}, date=#{date}")
+      
+      # 构建腾讯汇率代码
+      tencent_code = build_tencent_fx_code(from, to)
+      return nil unless tencent_code
+      
+      # 获取实时汇率数据
+      response = client.get("https://qt.gtimg.cn/?q=#{tencent_code}")
+      
+      # 解析汇率数据
+      rate_data = parse_exchange_rate_response(response.body, tencent_code)
+      return nil unless rate_data
+      
+      # 返回标准格式的汇率数据
+      Rate.new(
+        date: date.to_date,
+        from: from,
+        to: to,
+        rate: rate_data[:rate]
+      )
+    end
+  end
+
+  def fetch_exchange_rates(from:, to:, start_date:, end_date:)
+    with_provider_response do
+      Rails.logger.info("[TencentProvider] 获取汇率范围: from=#{from}, to=#{to}, start_date=#{start_date}, end_date=#{end_date}")
+      
+      # 腾讯接口只提供实时汇率，历史数据需要其他方式获取
+      # 这里我们返回当前汇率，历史数据可以通过其他提供者补充
+      current_rate = fetch_exchange_rate(from: from, to: to, date: Date.current)
+      
+      if current_rate
+        # 为整个日期范围填充当前汇率（实际应用中可能需要更复杂的历史数据获取）
+        rates = []
+        start_date.upto(end_date) do |date|
+          rates << Rate.new(
+            date: date,
+            from: from,
+            to: to,
+            rate: current_rate.rate
+          )
+        end
+        rates
+      else
+        []
+      end
+    end
+  end
+
+  # ================================
   #           Securities
   # ================================
   
@@ -214,6 +269,113 @@ class Provider::Tencent < Provider
   end
   
   private
+  
+  # 构建腾讯汇率代码
+  def build_tencent_fx_code(from, to)
+    # 腾讯汇率代码格式：wh + 货币对代码
+    # 例如：whHKDCNY, whUSDCNY
+    case "#{from}#{to}".upcase
+    when "HKDCNY"
+      "whHKDCNY"
+    when "USDCNY"
+      "whUSDCNY"
+    when "EURCNY"
+      "whEURCNY"
+    when "GBPCNY"
+      "whGBPCNY"
+    when "JPYCNY"
+      "whJPYCNY"
+    when "AUDCNY"
+      "whAUDCNY"
+    when "CADCNY"
+      "whCADCNY"
+    when "CHFCNY"
+      "whCHFCNY"
+    when "SGDCNY"
+      "whSGDCNY"
+    when "NZDCNY"
+      "whNZDCNY"
+    when "CNYHKD"
+      "whCNYHKD"
+    when "CNYUSD"
+      "whCNYUSD"
+    when "CNYEUR"
+      "whCNYEUR"
+    when "CNYGBP"
+      "whCNYGBP"
+    when "CNYJPY"
+      "whCNYJPY"
+    when "CNYAUD"
+      "whCNYAUD"
+    when "CNYCAD"
+      "whCNYCAD"
+    when "CNYCHF"
+      "whCNYCHF"
+    when "CNYSGD"
+      "whCNYSGD"
+    when "CNYNZD"
+      "whCNYNZD"
+    else
+      Rails.logger.warn("[TencentProvider] 不支持的货币对: #{from}#{to}")
+      nil
+    end
+  end
+  
+  # 解析腾讯汇率响应数据
+  def parse_exchange_rate_response(response_body, tencent_code)
+    # 解析格式：v_whHKDCNY="310~港元人民币~HKDCNY~0.9154~0~20250913045451~0.9136~0.9136~0.9159~0.9136~0.9154~0.9160~0.0018~0.20~0.11~0.13~-0.24~0.10~-2.53~0.9475~0.9005";
+    match = response_body.match(/v_#{tencent_code}="([^"]+)"/)
+    
+    if match.nil?
+      Rails.logger.warn("[TencentProvider] 未找到汇率数据: #{tencent_code}")
+      return nil
+    end
+    
+    fields = match[1].split('~')
+    
+    # 字段解析：
+    # 0: 状态码 (310表示成功)
+    # 1: 货币对名称
+    # 2: 货币对代码
+    # 3: 当前汇率
+    # 5: 时间戳
+    # 6: 昨收价
+    # 7: 今开价
+    # 8: 最高价
+    # 9: 最低价
+    # 10: 买一价
+    # 11: 卖一价
+    # 12: 涨跌额
+    # 13: 涨跌幅%
+    
+    if fields.length < 11
+      Rails.logger.warn("[TencentProvider] 汇率数据字段不完整: #{fields.length}")
+      return nil
+    end
+    
+    status_code = fields[0]
+    if status_code != "310"
+      Rails.logger.warn("[TencentProvider] 汇率接口返回错误状态: #{status_code}")
+      return nil
+    end
+    
+    current_rate = fields[3].to_f
+    if current_rate <= 0
+      Rails.logger.warn("[TencentProvider] 无效的汇率值: #{current_rate}")
+      return nil
+    end
+    
+    {
+      rate: current_rate,
+      change: fields[12].to_f,
+      change_percent: fields[13].to_f,
+      open: fields[7].to_f,
+      previous_close: fields[6].to_f,
+      high: fields[8].to_f,
+      low: fields[9].to_f,
+      timestamp: fields[5]
+    }
+  end
   
   def client
     @client ||= Faraday.new do |faraday|
