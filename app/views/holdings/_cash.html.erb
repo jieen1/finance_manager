@@ -3,7 +3,7 @@
 <% currency = Money::Currency.new(account.currency) %>
 
 <div class="grid grid-cols-12 items-center text-primary text-sm font-medium p-4">
-  <div class="col-span-4 flex items-center gap-4">
+  <div class="col-span-2 flex items-center gap-4">
     <%= render DS::FilledIcon.new(
       variant: :text,
       text: currency.symbol,
@@ -30,6 +30,10 @@
 
   <div class="col-span-2 text-right">
     <%= tag.p format_money account.cash_balance_money %>
+  </div>
+
+  <div class="col-span-2 text-right">
+    <%= tag.p "--", class: "text-secondary" %>
   </div>
 
   <div class="col-span-2 text-right">

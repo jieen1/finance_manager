@@ -2,7 +2,7 @@
 
 <%= turbo_frame_tag dom_id(holding) do %>
   <div class="grid grid-cols-12 items-center text-primary text-sm font-medium p-4">
-    <div class="col-span-4 flex items-center gap-4">
+    <div class="col-span-2 flex items-center gap-4">
       <% if holding.security.logo_url.present? %>
         <%= image_tag holding.security.logo_url, class: "w-9 h-9 rounded-full", loading: "lazy" %>
       <% else %>
@@ -43,6 +43,15 @@
         <%= tag.p "--", class: "text-secondary" %>
       <% end %>
       <%= tag.p t(".shares", qty: number_with_precision(holding.qty, precision: 1)), class: "font-normal text-secondary" %>
+    </div>
+
+    <div class="col-span-2 text-right">
+      <% if holding.daily_pnl %>
+        <%= tag.p format_money(holding.daily_pnl.value), style: "color: #{holding.daily_pnl.color};" %>
+        <%= tag.p "(#{number_to_percentage(holding.daily_pnl.percent, precision: 1)})", style: "color: #{holding.daily_pnl.color};" %>
+      <% else %>
+        <%= tag.p "--", class: "text-secondary mb-4" %>
+      <% end %>
     </div>
 
     <div class="col-span-2 text-right">

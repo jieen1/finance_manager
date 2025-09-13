@@ -60,6 +60,10 @@ class Holding < ApplicationRecord
     @trend ||= calculate_trend(user: user)
   end
 
+  def daily_pnl(user: nil)
+    @daily_pnl ||= calculate_daily_pnl(user: user)
+  end
+
   def trades
     account.entries.where(entryable: account.trades.where(security: security)).reverse_chronological
   end
@@ -82,6 +86,30 @@ class Holding < ApplicationRecord
       Trend.new(
         current: amount_money,
         previous: start_amount,
+        color_preference: Current.user&.trend_color_preference || account.family.users.first&.trend_color_preference
+      )
+    end
+
+    def calculate_daily_pnl(user: nil)
+      return nil unless amount_money
+
+      # 获取昨日收盘价
+      yesterday_price = security.prices.find_by(date: Date.current - 1.day)
+      return nil unless yesterday_price
+
+      # 获取当前价格（今日价格）
+      current_price = security.current_price
+      return nil unless current_price
+
+      # 计算昨日持仓价值
+      yesterday_value = Money.new(yesterday_price.price * qty, currency)
+      
+      # 计算今日持仓价值
+      today_value = current_price * qty
+
+      Trend.new(
+        current: today_value,
+        previous: yesterday_value,
         color_preference: Current.user&.trend_color_preference || account.family.users.first&.trend_color_preference
       )
     end
