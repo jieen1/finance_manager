@@ -97,7 +97,9 @@ class Api::V1::TradesController < Api::V1::BaseController
     account = family.accounts.find(trade_params[:account_id])
     
     # Use Trade::CreateForm for consistent business logic
-    create_form = Trade::CreateForm.new(trade_params.merge(account: account))
+    # Remove account_id from params since we pass account object instead
+    form_params = trade_params.except(:account_id)
+    create_form = Trade::CreateForm.new(form_params.merge(account: account))
     @entry = create_form.create
 
     if @entry.persisted?
@@ -253,6 +255,7 @@ class Api::V1::TradesController < Api::V1::BaseController
     end
 
     def trade_params
+      # Follow the exact same pattern as TransactionsController
       params.require(:trade).permit(
         :account_id, :date, :amount, :currency, :qty, :price, :fee,
         :ticker, :manual_ticker, :type

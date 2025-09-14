@@ -120,14 +120,16 @@ POST /api/v1/trades
 **Request Body:**
 ```json
 {
-  "account_id": "uuid",
-  "date": "2024-01-15",
-  "type": "buy",
-  "ticker": "605117|XSHG",
-  "qty": 10,
-  "price": 150.00,
-  "fee": 9.99,
-  "currency": "USD"
+  "trade": {
+    "account_id": "uuid",
+    "date": "2024-01-15",
+    "type": "buy",
+    "ticker": "605117|XSHG",
+    "qty": 10,
+    "price": 150.00,
+    "fee": 9.99,
+    "currency": "USD"
+  }
 }
 ```
 
@@ -270,15 +272,22 @@ curl -X POST https://api.maybefinance.com/api/v1/trades \
   -H "X-Api-Key: YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "account_id": "account-uuid",
-    "date": "2024-01-15",
-    "type": "buy",
-    "ticker": "605117|XSHG",
-    "qty": 10,
-    "price": 150.00,
-    "fee": 9.99
+    "trade": {
+      "account_id": "account-uuid",
+      "date": "2024-01-15",
+      "type": "buy",
+      "ticker": "605117|XSHG",
+      "qty": 10,
+      "price": 150.00,
+      "fee": 9.99
+    }
   }'
 ```
+
+**Important Notes:**
+- **必须使用嵌套结构**：所有参数必须包装在 `"trade"` 对象中
+- 不要在URL中添加查询参数
+- 使用 `Content-Type: application/json` header
 
 ### Create a Sell Trade
 ```bash
@@ -286,13 +295,15 @@ curl -X POST https://api.maybefinance.com/api/v1/trades \
   -H "X-Api-Key: YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "account_id": "account-uuid",
-    "date": "2024-01-15",
-    "type": "sell",
-    "manual_ticker": "0700.HK",
-    "qty": 5,
-    "price": 2500.00,
-    "fee": 4.95
+    "trade": {
+      "account_id": "account-uuid",
+      "date": "2024-01-15",
+      "type": "sell",
+      "manual_ticker": "0700.HK",
+      "qty": 5,
+      "price": 2500.00,
+      "fee": 4.95
+    }
   }'
 ```
 
