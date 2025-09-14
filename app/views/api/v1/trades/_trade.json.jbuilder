@@ -9,7 +9,9 @@ json.notes trade.entry.notes
 json.type trade.qty.positive? ? "buy" : "sell"
 json.quantity trade.qty.abs
 json.price trade.price_money.format(precision: 3)
+json.price_currency trade.currency
 json.fee trade.fee_money.format(precision: 3)
+json.fee_currency trade.fee_currency
 
 # Security information
 json.security do

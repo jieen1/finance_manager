@@ -142,6 +142,7 @@ POST /api/v1/trades
 - `qty` (required) - Quantity of shares/units
 - `price` (required) - Price per share/unit
 - `fee` (optional) - Trading fee (default: 0)
+- `fee_currency` (optional) - Currency for the fee (defaults to trade currency)
 - `currency` (optional) - Currency code (defaults to family currency)
 
 **Note:** Either `ticker` or `manual_ticker` must be provided.
@@ -279,7 +280,8 @@ curl -X POST https://api.maybefinance.com/api/v1/trades \
       "ticker": "605117|XSHG",
       "qty": 10,
       "price": 150.00,
-      "fee": 9.99
+      "fee": 9.99,
+      "fee_currency": "EUR"
     }
   }'
 ```

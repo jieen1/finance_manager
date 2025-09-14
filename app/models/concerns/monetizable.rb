@@ -6,10 +6,18 @@ module Monetizable
       fields.each do |field|
         define_method("#{field}_money") do |**args|
           value = self.send(field, **args)
+          currency_field = "#{field}_currency"
+          
+          # If field has corresponding currency field, use it; otherwise use default currency
+          currency = if respond_to?(currency_field) && send(currency_field).present?
+                      send(currency_field)
+                    else
+                      monetizable_currency
+                    end
 
-          return nil if value.nil? || monetizable_currency.nil?
+          return nil if value.nil? || currency.nil?
 
-          Money.new(value, monetizable_currency)
+          Money.new(value, currency)
         end
       end
     end

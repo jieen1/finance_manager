@@ -2,7 +2,7 @@ class Trade::CreateForm
   include ActiveModel::Model
 
   attr_accessor :account, :date, :amount, :currency, :qty,
-                :price, :fee, :ticker, :manual_ticker, :type, :transfer_account_id
+                :price, :fee, :fee_currency, :ticker, :manual_ticker, :type, :transfer_account_id
 
   # Either creates a trade, transaction, or transfer based on type
   # Returns the model, regardless of success or failure
@@ -18,6 +18,33 @@ class Trade::CreateForm
   end
 
   private
+
+    def calculate_fee_impact(signed_qty, fee_amount, fee_currency_value)
+      # If fee and price use same currency, calculate directly
+      if fee_currency_value == currency
+        signed_qty.positive? ? fee_amount : -fee_amount
+      else
+        # If different currencies, need currency conversion
+        converted_fee = convert_currency(fee_amount, fee_currency_value, currency, date)
+        signed_qty.positive? ? converted_fee : -converted_fee
+      end
+    end
+
+    def convert_currency(amount, from_currency, to_currency, date)
+      # Implement currency conversion logic
+      # Use existing ExchangeRate model
+      return amount if from_currency == to_currency
+      
+      rate = ExchangeRate.find_or_fetch_rate(
+        from: from_currency, 
+        to: to_currency, 
+        date: date
+      )&.rate
+      
+      return amount unless rate
+      amount * rate
+    end
+
     # Users can either look up a ticker from our provider (Synth) or enter a manual, "offline" ticker (that we won't fetch prices for)
     def security
       ticker_symbol, exchange_operating_mic = ticker.present? ? ticker.split("|") : [ manual_ticker, nil ]
@@ -31,10 +58,11 @@ class Trade::CreateForm
     def create_trade
       signed_qty = type == "sell" ? -qty.to_d : qty.to_d
       fee_amount = fee.present? ? fee.to_d : 0
+      fee_currency_value = fee_currency.present? ? fee_currency : currency
       
       # Fee calculation: for buys (positive qty) fee increases cost, for sells (negative qty) fee reduces proceeds
       base_amount = signed_qty * price.to_d
-      fee_impact = signed_qty.positive? ? fee_amount : -fee_amount
+      fee_impact = calculate_fee_impact(signed_qty, fee_amount, fee_currency_value)
       signed_amount = base_amount + fee_impact
 
       trade_entry = account.entries.new(
@@ -47,6 +75,7 @@ class Trade::CreateForm
           price: price,
           fee: fee_amount,
           currency: currency,
+          fee_currency: fee_currency_value,
           security: security
         )
       )

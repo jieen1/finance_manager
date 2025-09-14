@@ -8,9 +8,11 @@ class Trade < ApplicationRecord
   validates :qty, presence: true
   validates :price, :currency, presence: true
   validates :fee, numericality: { greater_than_or_equal_to: 0 }
+  validates :fee_currency, presence: true, if: -> { fee.present? }
 
-  # Set default fee value
+  # Set default fee value and fee_currency
   after_initialize :set_default_fee, if: :new_record?
+  after_initialize :set_default_fee_currency, if: :new_record?
 
   class << self
     def build_name(type, qty, ticker)
@@ -40,9 +42,19 @@ class Trade < ApplicationRecord
     )
   end
 
+  # Override fee_money to use fee_currency when available
+  def fee_money
+    return nil if fee.nil? || fee_currency.nil?
+    Money.new(fee, fee_currency)
+  end
+
   private
 
   def set_default_fee
     self.fee ||= 0
+  end
+
+  def set_default_fee_currency
+    self.fee_currency ||= currency if currency.present?
   end
 end

@@ -45,7 +45,8 @@
 
             <%= ef.money_field :fee,
                   label: t(".fee_label"),
-                  disable_currency: true,
+                  currency_method: :fee_currency,
+                  default_currency: trade.fee_currency || trade.currency,
                   auto_submit: true,
                   min: 0,
                   disabled: @entry.linked? %>

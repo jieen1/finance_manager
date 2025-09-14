@@ -37,6 +37,30 @@ class TradeTest < ActiveSupport::TestCase
     assert trade.valid?
   end
 
+  test "allows different currencies for price and fee" do
+    trade = Trade.new(
+      qty: 10, 
+      price: 100, 
+      currency: "USD", 
+      fee: 5.99, 
+      fee_currency: "EUR"
+    )
+    assert trade.valid?
+  end
+
+  test "defaults fee_currency to currency when not specified" do
+    trade = Trade.new(qty: 10, price: 100, currency: "USD", fee: 5.99)
+    trade.valid?
+    assert_equal "USD", trade.fee_currency
+  end
+
+  test "fee_money uses fee_currency when available" do
+    trade = Trade.new(qty: 10, price: 100, currency: "USD", fee: 5.99, fee_currency: "EUR")
+    fee_money = trade.fee_money
+    assert_equal "EUR", fee_money.currency.iso_code
+    assert_equal 5.99, fee_money.amount
+  end
+
   test "unrealized_gain_loss includes fee in cost basis" do
     security = securities(:aapl)
     trade = Trade.new(

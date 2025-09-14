@@ -257,7 +257,7 @@ class Api::V1::TradesController < Api::V1::BaseController
     def trade_params
       # Follow the exact same pattern as TransactionsController
       params.require(:trade).permit(
-        :account_id, :date, :amount, :currency, :qty, :price, :fee,
+        :account_id, :date, :amount, :currency, :qty, :price, :fee, :fee_currency,
         :ticker, :manual_ticker, :type
       )
     end

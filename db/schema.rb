@@ -750,6 +750,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_12_062000) do
     t.string "currency"
     t.jsonb "locked_attributes", default: {}
     t.decimal "fee", precision: 19, scale: 4, default: "0.0"
+    t.string "fee_currency"
+    t.index ["fee_currency"], name: "index_trades_on_fee_currency"
     t.index ["security_id"], name: "index_trades_on_security_id"
   end
 
