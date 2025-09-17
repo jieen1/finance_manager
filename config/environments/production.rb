@@ -48,15 +48,41 @@ Rails.application.configure do
   # Can be used together with config.force_ssl for Strict-Transport-Security and secure cookies.
   config.assume_ssl = ActiveModel::Type::Boolean.new.cast(ENV.fetch("RAILS_ASSUME_SSL", true))
 
-  # Log to Logtail if API key is present, otherwise log to STDOUT
+  # 配置日志输出到文件，支持日志切分
+  log_dir = Rails.root.join("log")
+  FileUtils.mkdir_p(log_dir) unless Dir.exist?(log_dir)
+  
+  # 创建带日志切分的logger
   base_logger = if ENV["LOGTAIL_API_KEY"].present? && ENV["LOGTAIL_INGESTING_HOST"].present?
-    Logtail::Logger.create_default_logger(
+    # 如果配置了Logtail，同时输出到Logtail和文件
+    logtail_logger = Logtail::Logger.create_default_logger(
       ENV["LOGTAIL_API_KEY"],
       ingesting_host: ENV["LOGTAIL_INGESTING_HOST"]
     )
+    
+    # 创建文件logger
+    file_logger = ActiveSupport::Logger.new(
+      log_dir.join("production.log"),
+      ENV.fetch("RAILS_LOG_ROTATE_COUNT", 5).to_i,
+      ENV.fetch("RAILS_LOG_ROTATE_SIZE", 100).to_i * 1024 * 1024 # 默认100MB
+    )
+    file_logger.formatter = ::Logger::Formatter.new
+    
+    # 使用MultiLogger同时输出到Logtail和文件
+    require 'logger'
+    multi_logger = Logger.new(STDOUT)
+    multi_logger.extend(ActiveSupport::Logger.broadcast(logtail_logger))
+    multi_logger.extend(ActiveSupport::Logger.broadcast(file_logger))
+    multi_logger
   else
-    ActiveSupport::Logger.new(STDOUT)
-      .tap { |logger| logger.formatter = ::Logger::Formatter.new }
+    # 只输出到文件
+    file_logger = ActiveSupport::Logger.new(
+      log_dir.join("production.log"),
+      ENV.fetch("RAILS_LOG_ROTATE_COUNT", 5).to_i,
+      ENV.fetch("RAILS_LOG_ROTATE_SIZE", 100).to_i * 1024 * 1024 # 默认100MB
+    )
+    file_logger.formatter = ::Logger::Formatter.new
+    file_logger
   end
 
   config.logger = ActiveSupport::TaggedLogging.new(base_logger)

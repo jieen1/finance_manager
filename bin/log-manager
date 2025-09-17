@@ -1,0 +1,116 @@
+#!/bin/bash
+
+# 日志管理脚本
+# 用于查看、清理和管理应用日志
+
+LOG_DIR="/rails/log"
+PRODUCTION_LOG="$LOG_DIR/production.log"
+
+# 显示帮助信息
+show_help() {
+    echo "日志管理脚本"
+    echo ""
+    echo "用法: $0 [命令]"
+    echo ""
+    echo "命令:"
+    echo "  tail         实时查看日志"
+    echo "  tail-error   只查看错误日志"
+    echo "  view         查看最近的日志"
+    echo "  clean        清理旧日志文件"
+    echo "  size         显示日志文件大小"
+    echo "  help         显示此帮助信息"
+    echo ""
+    echo "示例:"
+    echo "  $0 tail              # 实时查看所有日志"
+    echo "  $0 tail-error        # 实时查看错误日志"
+    echo "  $0 view              # 查看最近100行日志"
+    echo "  $0 clean             # 清理超过7天的日志"
+}
+
+# 实时查看日志
+tail_logs() {
+    if [ -f "$PRODUCTION_LOG" ]; then
+        echo "正在实时查看日志文件: $PRODUCTION_LOG"
+        echo "按 Ctrl+C 退出"
+        echo "----------------------------------------"
+        tail -f "$PRODUCTION_LOG"
+    else
+        echo "日志文件不存在: $PRODUCTION_LOG"
+        exit 1
+    fi
+}
+
+# 只查看错误日志
+tail_error_logs() {
+    if [ -f "$PRODUCTION_LOG" ]; then
+        echo "正在实时查看错误日志: $PRODUCTION_LOG"
+        echo "按 Ctrl+C 退出"
+        echo "----------------------------------------"
+        tail -f "$PRODUCTION_LOG" | grep -i "error\|fatal\|exception"
+    else
+        echo "日志文件不存在: $PRODUCTION_LOG"
+        exit 1
+    fi
+}
+
+# 查看最近的日志
+view_logs() {
+    if [ -f "$PRODUCTION_LOG" ]; then
+        echo "最近的日志内容:"
+        echo "----------------------------------------"
+        tail -n 100 "$PRODUCTION_LOG"
+    else
+        echo "日志文件不存在: $PRODUCTION_LOG"
+        exit 1
+    fi
+}
+
+# 清理旧日志
+clean_logs() {
+    echo "正在清理旧日志文件..."
+    
+    # 清理超过7天的日志文件
+    find "$LOG_DIR" -name "*.log.*" -type f -mtime +7 -delete
+    
+    # 清理超过30天的压缩日志
+    find "$LOG_DIR" -name "*.log.*.gz" -type f -mtime +30 -delete
+    
+    echo "日志清理完成"
+}
+
+# 显示日志文件大小
+show_log_size() {
+    echo "日志文件大小信息:"
+    echo "----------------------------------------"
+    
+    if [ -d "$LOG_DIR" ]; then
+        du -sh "$LOG_DIR"/*
+        echo ""
+        echo "总大小:"
+        du -sh "$LOG_DIR"
+    else
+        echo "日志目录不存在: $LOG_DIR"
+    fi
+}
+
+# 主逻辑
+case "${1:-help}" in
+    "tail")
+        tail_logs
+        ;;
+    "tail-error")
+        tail_error_logs
+        ;;
+    "view")
+        view_logs
+        ;;
+    "clean")
+        clean_logs
+        ;;
+    "size")
+        show_log_size
+        ;;
+    "help"|*)
+        show_help
+        ;;
+esac
