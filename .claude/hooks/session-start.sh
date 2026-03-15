@@ -31,6 +31,12 @@ if [ -f "package.json" ]; then
   npm install --silent 2>&1 || echo "Warning: npm install failed (non-fatal)"
 fi
 
+# Sync superpowers commands and skills into project .claude directory
+PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
+mkdir -p "$PROJECT_DIR/.claude/commands" "$PROJECT_DIR/.claude/skills"
+cp -r "$SUPERPOWERS_DIR/commands/"*.md "$PROJECT_DIR/.claude/commands/" 2>/dev/null || true
+cp -rT "$SUPERPOWERS_DIR/skills/" "$PROJECT_DIR/.claude/skills/" 2>/dev/null || true
+
 # Run superpowers session-start hook to inject context
 if [ -f "$SUPERPOWERS_DIR/hooks/run-hook.cmd" ]; then
   CLAUDE_PLUGIN_ROOT="$SUPERPOWERS_DIR" bash "$SUPERPOWERS_DIR/hooks/run-hook.cmd" session-start 2>/dev/null || true
