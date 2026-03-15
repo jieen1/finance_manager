@@ -1,0 +1,32 @@
+<svg width="70" height="70" viewBox="0 0 70 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="53" y1="8" x2="17" y2="62" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2a2830"/>
+      <stop offset="1" stop-color="#19181d"/>
+    </linearGradient>
+    <linearGradient id="border" x1="37" y1="1.5" x2="32" y2="69" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#52EDFF"/>
+      <stop offset="0.27" stop-color="#4361EE"/>
+      <stop offset="0.63" stop-color="#7209B7"/>
+      <stop offset="1" stop-color="#F12980"/>
+    </linearGradient>
+  </defs>
+  <!-- Background squircle -->
+  <path d="M1.66199 28.3573C3.33915 4.37286 8.83917 -0.408237 32.8236 1.26892L41.868 1.90136C65.8524 3.57851 70.6335 9.07854 68.9563 33.063L68.3239 42.1073C66.6467 66.0917 61.1467 70.8728 37.1623 69.1957L28.1179 68.5632C4.13349 66.8861 -0.647606 61.3861 1.02955 37.4016L1.66199 28.3573Z" fill="url(#bg)"/>
+  <!-- Border -->
+  <path d="M2.82179 28.4384C3.23922 22.4687 3.89051 17.7733 4.98031 14.1012C6.06625 10.4421 7.56711 7.86966 9.64032 6.06745C11.7135 4.26524 14.4698 3.13701 18.2445 2.57088C22.0324 2.00274 26.7729 2.01127 32.7425 2.42871L41.7868 3.06115C47.7565 3.47859 52.452 4.12988 56.124 5.21968C59.7831 6.30562 62.3556 7.80648 64.1578 9.87969C65.96 11.9529 67.0882 14.7092 67.6544 18.4838C68.2225 22.2718 68.214 27.0122 67.7965 32.9819L67.1641 42.0262C66.7466 47.9959 66.0953 52.6913 65.0056 56.3634C63.9196 60.0225 62.4188 62.5949 60.3455 64.3971C58.2723 66.1994 55.516 67.3276 51.7414 67.8937C47.9534 68.4619 43.213 68.4533 37.2434 68.0359L28.199 67.4034C22.2294 66.986 17.5339 66.3347 13.8619 65.2449C10.2028 64.159 7.6303 62.6581 5.82808 60.5849C4.02587 58.5117 2.89764 55.7554 2.33151 51.9808C1.76337 48.1928 1.77191 43.4524 2.18934 37.4827L2.82179 28.4384Z" stroke="url(#border)" stroke-width="2.5"/>
+  <!-- Bar 1: short (cyan) -->
+  <rect x="10" y="42" width="13" height="18" rx="4" fill="#22CCEE"/>
+  <!-- Bar 2: medium (blue) -->
+  <rect x="28.5" y="30" width="13" height="30" rx="4" fill="#1570EF"/>
+  <rect x="28.5" y="30" width="13" height="7" rx="3" fill="#22CCEE" opacity="0.45"/>
+  <!-- Bar 3: tall (purple) -->
+  <rect x="47" y="16" width="13" height="44" rx="4" fill="#6927DA"/>
+  <rect x="47" y="16" width="13" height="7" rx="3" fill="#1570EF" opacity="0.45"/>
+  <!-- Trend line -->
+  <polyline points="16.5,42 35,30 53.5,16" stroke="#F23E94" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Dots -->
+  <circle cx="16.5" cy="42" r="3.5" fill="#22CCEE"/>
+  <circle cx="35" cy="30" r="3.5" fill="#1570EF"/>
+  <circle cx="53.5" cy="16" r="3.5" fill="#F23E94"/>
+</svg>

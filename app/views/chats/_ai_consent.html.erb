@@ -9,7 +9,7 @@
     <% if Current.user.ai_available? %>
       Maybe AI 可以回答财务问题并根据您的数据提供洞察。使用此功能需要明确启用。
     <% else %>
-      要使用 AI 助手，您需要在自托管实例中设置 <code class="bg-surface-inset px-1 py-0.5 rounded font-mono text-xs">OPENAI_ACCESS_TOKEN</code> 环境变量。
+      要使用 AI 助手，请在自托管实例中设置 <code class="bg-surface-inset px-1 py-0.5 rounded font-mono text-xs">OPENAI_ACCESS_TOKEN</code> 或 <code class="bg-surface-inset px-1 py-0.5 rounded font-mono text-xs">MINIMAX_API_KEY</code> 环境变量。
     <% end %>
   </p>
 

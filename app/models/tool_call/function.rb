@@ -18,7 +18,9 @@ class ToolCall::Function < ToolCall
   def to_result
     {
       call_id: provider_call_id,
-      output: function_result
+      output: function_result,
+      function_name: function_name,
+      function_arguments: function_arguments
     }
   end
 end

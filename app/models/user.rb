@@ -90,7 +90,9 @@ class User < ApplicationRecord
   end
 
   def ai_available?
-    !Rails.application.config.app_mode.self_hosted? || ENV["OPENAI_ACCESS_TOKEN"].present?
+    return true unless Rails.application.config.app_mode.self_hosted?
+
+    Provider::Registry.for_concept(:llm).providers.any?(&:present?)
   end
 
   def ai_enabled?

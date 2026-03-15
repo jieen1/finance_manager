@@ -71,6 +71,14 @@ class Provider::Registry
       def tencent
         Provider::Tencent.new
       end
+
+      def minimax
+        api_key = ENV.fetch("MINIMAX_API_KEY", Setting.minimax_api_key)
+
+        return nil unless api_key.present?
+
+        Provider::Minimax.new(api_key)
+      end
   end
 
   def initialize(concept)
@@ -79,7 +87,7 @@ class Provider::Registry
   end
 
   def providers
-    available_providers.map { |p| self.class.send(p) }
+    available_providers.map { |p| self.class.send(p) }.compact
   end
 
   def get_provider(name)
@@ -100,7 +108,7 @@ class Provider::Registry
       when :securities
         %i[synth tencent]
       when :llm
-        %i[openai]
+        %i[openai minimax]
       else
         %i[synth tencent plaid_us plaid_eu github openai]
       end
