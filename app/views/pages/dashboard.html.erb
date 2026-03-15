@@ -3,11 +3,11 @@
     <div class="bg-gray-100 mb-4 rounded-xl p-4 flex gap-2 items-start">
       <%= icon "triangle-alert", color: "warning" %>
       <div class="text-sm space-y-2">
-        <p class="font-medium">We've made a tough decision to shut down the hosted version of Maybe. Here's what's happening next:</p>
+        <p class="font-medium">我们做出了一个艰难的决定，关闭 Maybe 的托管版本。以下是接下来的安排：</p>
         <ul class="list-disc list-inside space-y-1 ml-2">
-          <li><%= link_to "Read why we're doing this here", "https://x.com/Shpigford/status/1947725345244709240", class: "underline" %></li>
-          <li>You will be refunded in full.</li>
-          <li>You have until July 31, 2025 to export your data. You can do that <%= link_to "here", settings_profile_path, class: "underline" %>.</li>
+          <li><%= link_to "点击此处了解原因", "https://x.com/Shpigford/status/1947725345244709240", class: "underline" %></li>
+          <li>您将获得全额退款。</li>
+          <li>您有时间至 2025 年 7 月 31 日导出数据，可在<%= link_to "此处", settings_profile_path, class: "underline" %>操作。</li>
         </ul>
       </div>
     </div>

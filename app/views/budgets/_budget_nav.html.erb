@@ -1,8 +1,8 @@
 <%# locals: (budget:) %>
 
 <% steps = [
-  { name: "Setup", path: edit_budget_path(budget), is_complete: budget.initialized?, step_number: 1 },
-  { name: "Categories", path: budget_budget_categories_path(budget), is_complete: budget.allocations_valid?, step_number: 2 },
+  { name: "设置", path: edit_budget_path(budget), is_complete: budget.initialized?, step_number: 1 },
+  { name: "分类", path: budget_budget_categories_path(budget), is_complete: budget.allocations_valid?, step_number: 2 },
 ] %>
 
 <ul class="flex items-center gap-2">

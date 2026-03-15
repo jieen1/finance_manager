@@ -7,13 +7,13 @@
     </div>
 
     <div class="text-center space-y-2">
-      <h1 class="font-medium text-primary text-center text-3xl">Import in progress</h1>
-      <p class="text-sm text-secondary">Your import is in progress. Check the imports menu for status updates or click 'Check Status' to refresh the page for updates. Feel free to continue using the app.</p>
+      <h1 class="font-medium text-primary text-center text-3xl">导入进行中</h1>
+      <p class="text-sm text-secondary">您的导入正在进行中。请查看导入菜单了解状态更新，或点击"查看状态"刷新页面。您可以继续正常使用应用。</p>
     </div>
 
     <div class="space-y-2 flex flex-col">
-      <%= render DS::Link.new(text: "Check status", href: import_path(import), variant: "primary", full_width: true) %>
-      <%= render DS::Link.new(text: "Back to dashboard", href: root_path, variant: "secondary", full_width: true) %>
+      <%= render DS::Link.new(text: "查看状态", href: import_path(import), variant: "primary", full_width: true) %>
+      <%= render DS::Link.new(text: "返回首页", href: root_path, variant: "secondary", full_width: true) %>
     </div>
   </div>
 </div>

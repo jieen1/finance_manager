@@ -2,7 +2,7 @@ class FamilyMerchantsController < ApplicationController
   before_action :set_merchant, only: %i[edit update destroy]
 
   def index
-    @breadcrumbs = [ [ "Home", root_path ], [ "Merchants", nil ] ]
+    @breadcrumbs = [ [ "首页", root_path ], [ "商家", nil ] ]
 
     @family_merchants = Current.family.merchants.alphabetically
 

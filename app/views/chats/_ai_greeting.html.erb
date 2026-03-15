@@ -2,27 +2,27 @@
   <%= render "chats/ai_avatar" %>
 
   <div class="max-w-[85%] text-sm space-y-4 text-primary">
-    <p>Hey <%= Current.user&.first_name || "there" %>! I'm an AI built by Maybe to help with your finances. I have access to the web and your account data.</p>
+    <p>你好，<%= Current.user&.first_name || "朋友" %>！我是 Maybe 的 AI 助手，专门帮助您管理财务。我可以访问网络和您的账户数据。</p>
 
     <p>
-      You can use <span class="bg-container border border-secondary px-1.5 py-0.5 rounded font-mono text-xs">/</span> to access commands
+      您可以使用 <span class="bg-container border border-secondary px-1.5 py-0.5 rounded font-mono text-xs">/</span> 访问命令
     </p>
 
     <div class="space-y-3">
-      <p>Here's a few questions you can ask:</p>
+      <p>以下是一些您可以提问的问题：</p>
 
       <% questions = [
         {
           icon: "chart-area",
-          text: "Evaluate investment portfolio"
+          text: "评估投资组合"
         },
         {
           icon: "wallet-minimal",
-          text: "Show spending insights"
+          text: "显示消费洞察"
         },
         {
           icon: "alert-triangle",
-          text: "Find unusual patterns"
+          text: "查找异常模式"
         }
       ] %>
 

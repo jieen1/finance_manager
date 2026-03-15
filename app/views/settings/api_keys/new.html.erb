@@ -1,20 +1,20 @@
-<%= content_for :page_title, "Create New API Key" %>
+<%= content_for :page_title, "创建新 API 密钥" %>
 
-<%= settings_section title: "Create New API Key", subtitle: "Generate a new API key to access your Maybe data programmatically." do %>
+<%= settings_section title: "创建新 API 密钥", subtitle: "生成新的 API 密钥以通过程序访问您的财务数据。" do %>
   <%= styled_form_with model: @api_key, url: settings_api_key_path, class: "space-y-4" do |form| %>
     <%= form.text_field :name,
         placeholder: "e.g., My Budget App, Portfolio Tracker",
-        label: "API Key Name",
-        help_text: "Choose a descriptive name to help you identify this key later." %>
+        label: "API 密钥名称",
+        help_text: "选择一个便于识别的名称。" %>
 
     <div>
-      <%= form.label :scopes, "Permissions", class: "block text-sm font-medium text-primary mb-2" %>
-      <p class="text-sm text-secondary mb-3">Select the permissions this API key should have:</p>
+      <%= form.label :scopes, "权限", class: "block text-sm font-medium text-primary mb-2" %>
+      <p class="text-sm text-secondary mb-3">选择此 API 密钥应具备的权限：</p>
 
       <div class="space-y-2">
         <% [
-          ["read", "Read Only", "View your accounts, transactions, and balances"],
-          ["read_write", "Read/Write", "View your data and create new transactions"]
+          ["read", "只读", "查看账户、交易和余额"],
+          ["read_write", "读写", "查看数据并创建新交易"]
         ].each do |value, label, description| %>
           <div class="bg-surface-inset rounded-lg p-3 border border-primary">
             <label class="flex items-start gap-3 cursor-pointer">
@@ -34,10 +34,9 @@
       <div class="flex items-start gap-2">
         <%= icon("alert-triangle", class: "w-5 h-5 text-warning-600 mt-0.5") %>
         <div>
-          <h4 class="font-medium text-warning-800 text-sm">Security Warning</h4>
+          <h4 class="font-medium text-warning-800 text-sm">安全提示</h4>
           <p class="text-warning-700 text-sm mt-1">
-            Your API key will be displayed only once after creation. Make sure to copy and store it securely.
-            Anyone with access to this key can access your data according to the permissions you select.
+            API 密钥仅在创建后显示一次，请立即复制并安全保存。
           </p>
         </div>
       </div>
@@ -45,13 +44,13 @@
 
     <div class="flex justify-end gap-3 pt-4 border-t border-primary">
       <%= render DS::Link.new(
-        text: "Cancel",
+        text: "取消",
         href: settings_api_key_path,
         variant: "ghost"
       ) %>
 
       <%= render DS::Button.new(
-        text: "Create API Key",
+        text: "创建 API 密钥",
         variant: "primary",
         type: "submit"
       ) %>

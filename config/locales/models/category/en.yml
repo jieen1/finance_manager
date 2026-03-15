@@ -1,0 +1,18 @@
+en:
+  category:
+    label:
+      uncategorized: Uncategorized
+      income: Income
+      food_drink: Food & Drink
+      shopping: Shopping
+      transportation: Transportation
+      housing: Housing
+      entertainment: Entertainment
+      healthcare: Healthcare
+      education: Education
+      communication: Communication
+      personal_care: Personal Care
+      social_gifts: Social & Gifts
+      travel: Travel
+      finance_fees: Finance Fees
+      utilities: Utilities

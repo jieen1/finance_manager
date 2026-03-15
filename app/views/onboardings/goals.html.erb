@@ -15,8 +15,8 @@
 <div class="grow max-w-lg w-full mx-auto bg-surface flex flex-col justify-center md:py-0 py-6 px-4 md:px-0">
   <div>
     <div class="space-y-1 mb-6 text-center">
-      <h1 class="text-2xl font-medium md:text-2xl">What brings you to Maybe?</h1>
-      <p class="text-secondary text-sm">Select one or more goals that you have with using Maybe as your personal finance tool.</p>
+      <h1 class="text-2xl font-medium md:text-2xl">您使用 Maybe 的主要目标是？</h1>
+      <p class="text-secondary text-sm">选择一个或多个您希望通过 Maybe 实现的财务目标。</p>
     </div>
 
     <%= form_with model: @user do |form| %>
@@ -26,14 +26,14 @@
 
       <div class="space-y-3">
         <% [
-          { icon: "layers", label: "See all my accounts in one place", value: "unified_accounts" },
-          { icon: "banknote", label: "Understand cashflow and expenses", value: "cashflow" },
-          { icon: "pie-chart", label: "Manage financial plans and budgeting", value: "budgeting" },
-          { icon: "users", label: "Manage finances with a partner", value: "partner" },
-          { icon: "area-chart", label: "Track investments", value: "investments" },
-          { icon: "bot", label: "Let AI help me understand my finances", value: "ai_insights" },
-          { icon: "settings-2", label: "Analyze and optimize accounts", value: "optimization" },
-          { icon: "frown", label: "Reduce financial stress or anxiety", value: "reduce_stress" }
+          { icon: "layers",     label: "统一管理所有账户",       value: "unified_accounts" },
+          { icon: "banknote",   label: "了解收支和消费习惯",     value: "cashflow" },
+          { icon: "pie-chart",  label: "制定家庭预算计划",       value: "budgeting" },
+          { icon: "users",      label: "与伴侣共同管理家庭财务", value: "partner" },
+          { icon: "area-chart", label: "追踪投资和理财产品",     value: "investments" },
+          { icon: "bot",        label: "让AI帮我分析财务状况",   value: "ai_insights" },
+          { icon: "piggy-bank", label: "存钱备用金或应急资金",   value: "emergency_fund" },
+          { icon: "frown",      label: "减轻财务焦虑和压力",     value: "reduce_stress" }
         ].each do |goal| %>
           <label class="flex items-center gap-2.5 p-4 rounded-lg border border-tertiary cursor-pointer hover:bg-container transition-colors [&:has(input:checked)]:border-solid [&:has(input:checked)]:bg-container">
             <%= form.check_box :goals, { multiple: true, class: "sr-only" }, goal[:value], nil %>
@@ -45,7 +45,7 @@
 
       <div class="mt-6">
         <%= render DS::Button.new(
-          text: "Next",
+          text: "下一步",
           full_width: true
         ) %>
       </div>

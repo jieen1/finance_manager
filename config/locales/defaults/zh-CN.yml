@@ -94,6 +94,7 @@ zh-CN:
       exclusion: 是保留关键字
       greater_than: 必须大于%{count}
       greater_than_or_equal_to: 必须大于或等于%{count}
+      in: 必须在%{count}范围内
       inclusion: 不包含于列表中
       invalid: 是无效的
       less_than: 必须小于%{count}

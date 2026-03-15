@@ -14,3 +14,5 @@ zh-CN:
       htmldoc:
         no_account: 新用户？
         sign_up: 创建账户
+        existing_account: 已有账户？
+        sign_in: 登录

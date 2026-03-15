@@ -7,12 +7,12 @@
     </div>
 
     <div class="text-center space-y-2">
-      <h1 class="font-medium text-primary text-center text-3xl">Reverting import failed</h1>
-      <p class="text-sm text-secondary">Please try again or contact support.</p>
+      <h1 class="font-medium text-primary text-center text-3xl">撤销导入失败</h1>
+      <p class="text-sm text-secondary">请重新尝试或联系客服。</p>
     </div>
 
     <%= render DS::Button.new(
-      text: "Try again",
+      text: "重新尝试",
       full_width: true,
       href: revert_import_path(import)
     ) %>

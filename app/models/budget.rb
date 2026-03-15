@@ -95,7 +95,7 @@ class Budget < ApplicationRecord
   end
 
   def name
-    start_date.strftime("%B %Y")
+    start_date.strftime("%Y年%m月")
   end
 
   def initialized?

@@ -5,47 +5,47 @@
     <% brokerage_cash = reconciliation_dry_run.new_cash_balance || 0 %>
     <% holdings_value = (reconciliation_dry_run.new_balance || 0) - brokerage_cash %>
 
-    <p>This will <%= action_verb %> the account value on <span class="font-medium text-primary"><%= I18n.l(entry.date, format: :long) %></span> to:</p>
+    <p>此操作将把 <span class="font-medium text-primary"><%= I18n.l(entry.date, format: :long) %></span> 的账户价值<%= action_verb %>为：</p>
 
     <div class="bg-container rounded-lg p-4 space-y-2 border border-primary">
       <div class="flex justify-between">
-        <span>Total account value</span>
+        <span>账户总价值</span>
         <span class="font-medium text-primary"><%= Money.new(reconciliation_dry_run.new_balance || 0, account.currency).format %></span>
       </div>
       <div class="flex justify-between text-xs">
-        <span>Holdings value</span>
+        <span>持仓价值</span>
         <span><%= Money.new(holdings_value, account.currency).format %></span>
       </div>
       <div class="flex justify-between text-xs">
-        <span>Brokerage cash</span>
+        <span>券商现金</span>
         <span class="<%= brokerage_cash.negative? ? "text-red-500" : "text-green-500" %>"><%= Money.new(brokerage_cash, account.currency).format %></span>
       </div>
     </div>
   <% else %>
-    <p><%= action_verb.capitalize %>
+    <p>将
       <% if account.depository? %>
-        account balance
+        账户余额
       <% elsif account.credit_card? %>
-        credit card balance
+        信用卡余额
       <% elsif account.loan? %>
-        loan balance
+        贷款余额
       <% elsif account.property? %>
-        property value
+        房产价值
       <% elsif account.vehicle? %>
-        vehicle value
+        车辆价值
       <% elsif account.crypto? %>
-        crypto balance
+        加密货币余额
       <% elsif account.other_asset? %>
-        asset value
+        资产价值
       <% elsif account.other_liability? %>
-        liability balance
+        负债余额
       <% else %>
-        balance
+        余额
       <% end %>
-      on <span class="font-medium text-primary"><%= I18n.l(entry.date, format: :long) %></span> to
-      <span class="font-medium text-primary"><%= entry.amount_money.format %></span>.
+      在 <span class="font-medium text-primary"><%= I18n.l(entry.date, format: :long) %></span> 设置为
+      <span class="font-medium text-primary"><%= entry.amount_money.format %></span>。
     </p>
   <% end %>
 
-  <p>All future transactions and balances will be recalculated based on this <%= is_update ? "change" : "update" %>.</p>
+  <p>所有未来的交易和余额将根据此次<%= is_update ? "变更" : "更新" %>重新计算。</p>
 </div>

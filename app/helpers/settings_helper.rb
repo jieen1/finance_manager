@@ -1,19 +1,19 @@
 module SettingsHelper
   SETTINGS_ORDER = [
-    { name: "Account", path: :settings_profile_path },
-    { name: "Preferences", path: :settings_preferences_path },
-    { name: "Security", path: :settings_security_path },
-    { name: "Self hosting", path: :settings_hosting_path, condition: :self_hosted? },
-    { name: "API Key", path: :settings_api_key_path },
-    { name: "Billing", path: :settings_billing_path, condition: :not_self_hosted? },
-    { name: "Accounts", path: :accounts_path },
-    { name: "Imports", path: :imports_path },
-    { name: "Tags", path: :tags_path },
-    { name: "Categories", path: :categories_path },
-    { name: "Rules", path: :rules_path },
-    { name: "Merchants", path: :family_merchants_path },
-    { name: "What's new", path: :changelog_path },
-    { name: "Feedback", path: :feedback_path }
+    { name: "账户设置", path: :settings_profile_path },
+    { name: "偏好设置", path: :settings_preferences_path },
+    { name: "安全设置", path: :settings_security_path },
+    { name: "自托管设置", path: :settings_hosting_path, condition: :self_hosted? },
+    { name: "API 密钥", path: :settings_api_key_path },
+    { name: "订阅账单", path: :settings_billing_path, condition: :not_self_hosted? },
+    { name: "账户管理", path: :accounts_path },
+    { name: "导入管理", path: :imports_path },
+    { name: "标签管理", path: :tags_path },
+    { name: "类别管理", path: :categories_path },
+    { name: "规则管理", path: :rules_path },
+    { name: "商家管理", path: :family_merchants_path },
+    { name: "最新动态", path: :changelog_path },
+    { name: "意见反馈", path: :feedback_path }
   ]
 
   def adjacent_setting(current_path, offset)

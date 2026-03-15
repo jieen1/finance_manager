@@ -2,6 +2,27 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Local Development Setup
+
+See [LOCAL_DEVELOPMENT.md](./LOCAL_DEVELOPMENT.md) for detailed local development instructions.
+
+### Quick Start
+
+1. Install dependencies: `bundle install`
+2. Start Docker services: PostgreSQL and Redis (see LOCAL_DEVELOPMENT.md)
+3. Prepare database: `bin/rails db:prepare`
+4. Start dev server: `bin/dev`
+5. Visit http://localhost:3000
+
+### Test Credentials
+
+- **Email**: test@example.com
+- **Password**: TestPass123!
+- **Name**: Test User
+- **Trial**: 14 days
+
+To register a new test account, visit `/registration/new`
+
 ## Common Development Commands
 
 ### Development Server
@@ -112,6 +133,26 @@ Sidekiq handles asynchronous tasks:
   - Always use functional tokens (e.g., `text-primary` not `text-white`)
   - Prefer semantic HTML elements over JS components
   - Use `icon` helper for icons, never `lucide_icon` directly
+
+### Entry Amount Sign Convention
+Entry `amount` is a signed value where **positive = outflow** and **negative = inflow** relative to the account:
+- Negative on a checking account = income (increases asset balance)
+- Positive on a checking account = expense (decreases asset balance)
+- Negative on a credit card = payment received (reduces liability)
+- Negative on an investment account = sell (increases cash balance)
+
+Entry is a Rails delegated type with three subtypes:
+- `Valuation` - absolute account value on a date
+- `Transaction` - alters balance by the amount (income/expense)
+- `Trade` - buy/sell of a holding (investment accounts only, has `qty` and `price`)
+
+### Data Provider Pattern
+Third-party data providers follow a specific architecture:
+- Concrete providers inherit from `Provider` and live in `app/models/provider/`
+- Generic data concepts (exchange rates, security prices) have interfaces in `app/models/provider/concepts/`
+- Domain models access provider data through `Provided` concerns (e.g., `ExchangeRate::Provided`) which choose the provider and expose convenience methods
+- Domain models should NOT call `Provider::Registry` directly; use the model's `Provided` concern instead
+- Providers return `Provider::ProviderResponse` via `with_provider_response` which auto-catches errors
 
 ### Multi-Currency Support
 - All monetary values stored in base currency (user's primary currency)

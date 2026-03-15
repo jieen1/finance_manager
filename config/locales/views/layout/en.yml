@@ -14,3 +14,5 @@ en:
       htmldoc:
         no_account: New to Maybe?
         sign_up: Create account
+        existing_account: Already have an account?
+        sign_in: Sign in

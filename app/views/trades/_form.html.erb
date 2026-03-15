@@ -10,11 +10,11 @@
 
     <div class="space-y-2">
       <%= form.select :type, [
-          ["Buy", "buy"],
-          ["Sell", "sell"],
-          ["Deposit", "deposit"],
-          ["Withdrawal", "withdrawal"],
-          ["Interest", "interest"]
+          ["买入", "buy"],
+          ["卖出", "sell"],
+          ["存款", "deposit"],
+          ["取款", "withdrawal"],
+          ["利息", "interest"]
       ],
       { label: t(".type"), selected: type },
       { data: {
@@ -34,7 +34,7 @@
                             required: true %>
           </div>
         <% else %>
-          <%= form.text_field :manual_ticker, label: "Ticker symbol", placeholder: "AAPL", required: true %>
+          <%= form.text_field :manual_ticker, label: "股票代码", placeholder: "AAPL", required: true %>
         <% end %>
       <% end %>
 

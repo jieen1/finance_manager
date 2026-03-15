@@ -28,6 +28,6 @@ class CategoryTest < ActiveSupport::TestCase
       category.subcategories.create!(name: "Invalid category", family: @family)
     end
 
-    assert_equal "Validation failed: Parent can't have more than 2 levels of subcategories", error.message
+    assert_includes error.message, "can't have more than 2 levels of subcategories"
   end
 end

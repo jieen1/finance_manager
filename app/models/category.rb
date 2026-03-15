@@ -71,20 +71,20 @@ class Category < ApplicationRecord
     private
       def default_categories
         [
-          [ I18n.t("category.label.income"), "#e99537", "circle-dollar-sign", "income" ],
-          [ I18n.t("category.label.loan_payments"), "#6471eb", "credit-card", "expense" ],
-          [ I18n.t("category.label.fees"), "#6471eb", "credit-card", "expense" ],
-          [ I18n.t("category.label.entertainment"), "#df4e92", "drama", "expense" ],
-          [ I18n.t("category.label.food_drink"), "#eb5429", "utensils", "expense" ],
-          [ I18n.t("category.label.shopping"), "#e99537", "shopping-cart", "expense" ],
-          [ I18n.t("category.label.home_improvement"), "#6471eb", "house", "expense" ],
-          [ I18n.t("category.label.healthcare"), "#4da568", "pill", "expense" ],
-          [ I18n.t("category.label.personal_care"), "#4da568", "pill", "expense" ],
-          [ I18n.t("category.label.services"), "#4da568", "briefcase", "expense" ],
-          [ I18n.t("category.label.gifts_donations"), "#61c9ea", "hand-helping", "expense" ],
-          [ I18n.t("category.label.transportation"), "#df4e92", "bus", "expense" ],
-          [ I18n.t("category.label.travel"), "#df4e92", "plane", "expense" ],
-          [ I18n.t("category.label.rent_utilities"), "#db5a54", "lightbulb", "expense" ]
+          [ I18n.t("category.label.income"),       "#4da568", "circle-dollar-sign", "income" ],
+          [ I18n.t("category.label.food_drink"),   "#eb5429", "utensils",           "expense" ],
+          [ I18n.t("category.label.shopping"),     "#e99537", "shopping-cart",      "expense" ],
+          [ I18n.t("category.label.transportation"), "#df4e92", "bus",              "expense" ],
+          [ I18n.t("category.label.housing"),      "#6471eb", "house",              "expense" ],
+          [ I18n.t("category.label.entertainment"), "#df4e92", "drama",             "expense" ],
+          [ I18n.t("category.label.healthcare"),   "#4da568", "pill",               "expense" ],
+          [ I18n.t("category.label.education"),    "#61c9ea", "graduation-cap",     "expense" ],
+          [ I18n.t("category.label.communication"), "#6471eb", "smartphone",        "expense" ],
+          [ I18n.t("category.label.personal_care"), "#4da568", "sparkles",         "expense" ],
+          [ I18n.t("category.label.social_gifts"), "#61c9ea", "hand-helping",       "expense" ],
+          [ I18n.t("category.label.travel"),       "#df4e92", "plane",              "expense" ],
+          [ I18n.t("category.label.finance_fees"), "#6471eb", "credit-card",        "expense" ],
+          [ I18n.t("category.label.utilities"),    "#db5a54", "lightbulb",          "expense" ]
         ]
       end
   end

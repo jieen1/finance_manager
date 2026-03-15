@@ -14,14 +14,14 @@
   <%= render DS::Menu.new(icon_vertical: true) do |menu| %>
     <% menu.with_item(
       variant: "link",
-      text: "Edit chat title",
+      text: "编辑对话标题",
       href: edit_chat_path(chat, ctx: "list"),
       icon: "pencil",
       frame: dom_id(chat, "title")) %>
 
     <% menu.with_item(
       variant: "button",
-      text: "Delete chat",
+      text: "删除对话",
       href: chat_path(chat),
       icon: "trash-2",
       method: :delete,

@@ -7,10 +7,10 @@
     </div>
 
     <div class="text-center space-y-2">
-      <h1 class="font-medium text-primary text-center text-3xl">Import failed</h1>
-      <p class="text-sm text-secondary">Please check that your file format, for any errors and that all required fields are filled, then come back and try again.</p>
+      <h1 class="font-medium text-primary text-center text-3xl">导入失败</h1>
+      <p class="text-sm text-secondary">请检查文件格式是否正确、是否存在错误以及所有必填字段是否已填写，然后重新尝试。</p>
     </div>
 
-    <%= render DS::Button.new(text: "Try again", href: publish_import_path(import), full_width: true) %>
+    <%= render DS::Button.new(text: "重新尝试", href: publish_import_path(import), full_width: true) %>
   </div>
 </div>
