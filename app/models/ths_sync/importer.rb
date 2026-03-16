@@ -39,18 +39,22 @@ module ThsSync
     private
 
     def sync_trades(client, fund_key:)
+      # Collect ALL records first, then process
+      all_records = []
       page = 1
       loop do
         data = client.money_history(fund_key: fund_key, page: page, count: 50)
         records = data.dig("ex_data", "list") || []
         break if records.empty?
-
-        records.each { |record| store_and_import(record) }
-
+        all_records.concat(records)
         break if records.size < 50
         page += 1
-        break if page > 100
+        break if page > 200
       end
+
+      # Sort by date ASC so op=18 dedup keeps the earliest (缴款日, not 上市日)
+      all_records.sort_by! { |r| [r["entry_date"].to_s, r["entry_time"].to_s] }
+      all_records.each { |record| store_and_import(record) }
     rescue ThsClient::ApiError => e
       results[:errors] << "money_history page=#{page}: #{e.message}"
     end
@@ -83,9 +87,9 @@ module ThsSync
         external_id: ext_id
       )
 
-      # Already imported - check if fee needs update
+      # Already imported - check if fee needs update or data changed
       if ext_record.persisted? && ext_record.status == "imported"
-        maybe_update_fee(ext_record, record)
+        maybe_update_trade(ext_record, record)
         return
       end
 
@@ -96,6 +100,16 @@ module ThsSync
         status: "pending"
       )
       ext_record.save!
+
+      # op=18(转入/中签): 同一code只导入第一条，后续的是账户间转移
+      if record["op"].to_s == "18"
+        @imported_op18_codes ||= Set.new
+        if @imported_op18_codes.include?(record["code"])
+          ext_record.mark_skipped!("duplicate op=18 for #{record["code"]}")
+          return
+        end
+        @imported_op18_codes.add(record["code"])
+      end
 
       if rec_type == "trade"
         import_trade(ext_record, record)
@@ -133,21 +147,31 @@ module ThsSync
       end
     end
 
-    # When fee was 0 (same-day trade before settlement), update with real fee next day
-    def maybe_update_fee(ext_record, record)
-      if ThsSync::TradeMapper.fee_changed?(ext_record.entry, record)
-        entry = ext_record.entry
-        trade = entry.entryable
-        new_fee = record["fee_total"].to_f
+    # Update existing trade if data changed (fee update after settlement, or qty correction)
+    def maybe_update_trade(ext_record, record)
+      entry = ext_record.entry
+      return (results[:skipped] += 1) unless entry
 
-        trade.update!(fee: new_fee)
-        # Recalculate entry amount with new fee
-        signed_qty = trade.qty
+      trade = entry.entryable
+      new_fee = record["fee_total"].to_f
+      new_qty = record["entry_count"].to_f.abs
+      new_price = record["entry_price"].to_f
+
+      old_fee = trade.fee.to_f
+      old_qty = trade.qty.abs.to_f
+      old_price = trade.price.to_f
+
+      fee_changed = new_fee > 0 && (new_fee - old_fee).abs > 0.001
+      qty_changed = (new_qty - old_qty).abs > 0.001
+      price_changed = (new_price - old_price).abs > 0.001
+
+      if fee_changed || qty_changed || price_changed
+        signed_qty = trade.qty.positive? ? new_qty : -new_qty
         fee_impact = signed_qty.positive? ? new_fee : -new_fee
-        new_amount = (signed_qty * trade.price) + fee_impact
-        entry.update!(amount: new_amount)
+        new_amount = (signed_qty * new_price) + fee_impact
 
-        # Update raw_data with latest values
+        trade.update!(qty: signed_qty, price: new_price, fee: new_fee)
+        entry.update!(amount: new_amount)
         ext_record.update!(raw_data: record)
 
         entry.account.sync_later
@@ -156,7 +180,7 @@ module ThsSync
         results[:skipped] += 1
       end
     rescue => e
-      results[:errors] << "fee_update #{ext_record.external_id}: #{e.message}"
+      results[:errors] << "update #{ext_record.external_id}: #{e.message}"
       results[:skipped] += 1
     end
 

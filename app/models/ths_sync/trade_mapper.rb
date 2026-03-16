@@ -19,21 +19,25 @@ module ThsSync
     # Only real stock buy/sell operations
     # op=1: 普通买入
     # op=2: 普通卖出
-    # op=18: 转入(新股中签配售) → 作为买入
+    # op=1: 普通买入
+    # op=2: 普通卖出
+    # op=5: 逆回购买入 → buy
+    # op=18: 转入(新股中签配售) → buy
+    # op=35: 逆回购到期 → sell
     OP_TO_TYPE = {
       "1" => "buy",
       "2" => "sell",
-      "18" => "buy"  # 中签/转入
+      "5" => "buy",     # 逆回购买入
+      "18" => "buy",    # 中签/转入
+      "35" => "sell"    # 逆回购到期
     }.freeze
 
-    # Operations to completely ignore (not store as trade)
-    # op=5: 逆回购买入
-    # op=35: 逆回购到期卖出
-    # op=6: 派息/分红
+    # Operations to skip (not a trade)
+    # op=6: 派息/分红 (需单独处理为收入)
     # op=95: 缴税
     # op=234: 组合费用(code=00000)
-    # op=19: 转出(弃购退款)
-    SKIP_OPS = %w[5 35 6 95 234 19].freeze
+    # op=19: 转出(中签流转，和op=18成对，不重复计入)
+    SKIP_OPS = %w[6 95 234 19].freeze
 
     def self.external_id(record)
       # 唯一键不含fee（因为当日fee=0，次日结算后才有值，但是同一笔交易）
