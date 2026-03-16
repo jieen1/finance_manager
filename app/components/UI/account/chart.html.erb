@@ -20,18 +20,20 @@
     <%= form_with url: account_path(account), method: :get, data: { controller: "auto-submit-form" } do |form| %>
       <div class="flex items-center gap-2">
         <% if account.investment? %>
-          <%= form.select :chart_view,
-            [[t(".total_value"), "balance"], [t(".holdings"), "holdings_balance"], [t(".cash"), "cash_balance"]],
-            { selected: view },
-            class: "bg-container border border-secondary rounded-lg text-sm pr-7 cursor-pointer text-primary focus:outline-hidden focus:ring-0",
-            data: { "auto-submit-form-target": "auto" } %>
+          <div class="aurora-select-wrap" data-controller="aurora-select">
+            <%= form.select :chart_view,
+              [[t(".total_value"), "balance"], [t(".holdings"), "holdings_balance"], [t(".cash"), "cash_balance"]],
+              { selected: view },
+              data: { "auto-submit-form-target": "auto", "aurora-select-target": "select" } %>
+          </div>
         <% end %>
 
-        <%= form.select :period,
-                    Period.as_options,
-                    { selected: period.key },
-                    data: { "auto-submit-form-target": "auto" },
-                    class: "bg-container border border-secondary rounded-lg px-3 py-2 text-sm pr-7 cursor-pointer text-primary focus:outline-hidden focus:ring-0" %>
+        <div class="aurora-select-wrap" data-controller="aurora-select">
+          <%= form.select :period,
+                      Period.as_options,
+                      { selected: period.key },
+                      data: { "auto-submit-form-target": "auto", "aurora-select-target": "select" } %>
+        </div>
       </div>
     <% end %>
   </div>

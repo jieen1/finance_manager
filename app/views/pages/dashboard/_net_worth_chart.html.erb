@@ -22,11 +22,12 @@
     </div>
 
     <%= form_with url: root_path, method: :get, data: { controller: "auto-submit-form" } do |form| %>
-      <%= form.select :period,
-                    Period.as_options,
-                    { selected: period.key },
-                    data: { "auto-submit-form-target": "auto" },
-                    class: "bg-container border border-secondary font-medium rounded-lg px-3 py-2 text-sm pr-7 cursor-pointer text-primary focus:outline-hidden focus:ring-0" %>
+      <div class="aurora-select-wrap" data-controller="aurora-select">
+        <%= form.select :period,
+                      Period.as_options,
+                      { selected: period.key },
+                      data: { "auto-submit-form-target": "auto", "aurora-select-target": "select" } %>
+      </div>
     <% end %>
   </div>
 

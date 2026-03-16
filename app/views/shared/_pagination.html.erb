@@ -53,10 +53,10 @@
     </div>
   </div>
   <div class="flex items-center">
-    <%= select_tag :per_page,
-                   options_for_select(["10", "20", "30", "50"], pagy.limit),
-                   data: { controller: "selectable-link" },
-                   class: "py-1 pr-7 pl-2 text-xs font-medium rounded-lg focus:outline-hidden focus:ring-0 cursor-pointer",
-                   style: "background:var(--aurora-bg-3);color:var(--aurora-t1);border:1px solid var(--aurora-bd)" %>
+    <div class="aurora-select-wrap" data-controller="aurora-select">
+      <%= select_tag :per_page,
+                     options_for_select(["10", "20", "30", "50"], pagy.limit),
+                     data: { controller: "selectable-link", "aurora-select-target": "select" } %>
+    </div>
   </div>
 </nav>
