@@ -1,54 +1,26 @@
-/* Button Backgrounds */
+/* Button Backgrounds — Aurora emerald accent */
 @utility button-bg-primary {
-  @apply bg-gray-900;
-  /* Maps to fg-primary light */
-
-  @variant theme-dark {
-    @apply bg-white;
-    /* Maps to fg-primary dark */
-  }
+  background-color: var(--aurora-em);
 }
 
 @utility button-bg-primary-hover {
-  @apply bg-gray-800;
-  /* Maps to fg-primary-variant light */
-
-  @variant theme-dark {
-    @apply bg-gray-50;
-    /* Maps to fg-primary-variant dark */
-  }
+  background-color: var(--aurora-em-lt);
 }
 
 @utility button-bg-secondary {
-  @apply bg-gray-50; /* Maps to fg-secondary light */
-
-  @variant theme-dark {
-    @apply bg-gray-700; /* Maps to fg-secondary dark */
-  }
+  background-color: var(--aurora-bg-3);
 }
 
 @utility button-bg-secondary-hover {
-  @apply bg-gray-100; /* Maps to fg-secondary-variant light */
-
-  @variant theme-dark {
-    @apply bg-gray-600; /* Maps to fg-secondary-variant dark */
-  }
+  background-color: var(--aurora-bg-4);
 }
 
 @utility button-bg-disabled {
-  @apply bg-gray-50;
-
-  @variant theme-dark {
-    @apply bg-gray-700;
-  }
+  background-color: var(--aurora-bg-3);
 }
 
 @utility button-bg-destructive {
-  @apply bg-red-500;
-
-  @variant theme-dark {
-    @apply bg-red-400;
-  }
+  background-color: var(--aurora-rose);
 }
 
 @utility button-bg-destructive-hover {
@@ -60,50 +32,27 @@
 }
 
 @utility button-bg-ghost-hover {
-  @apply bg-gray-50;
-
-  @variant theme-dark {
-    @apply bg-gray-800 fg-inverse;
-  }
+  background-color: rgba(255,255,255,.04);
 }
 
 @utility button-bg-outline-hover {
-  @apply bg-gray-100;
-
-  @variant theme-dark {
-    @apply bg-gray-700;
-  }
+  background-color: var(--aurora-bg-3);
 }
 
-/* Tab Styles */
+/* Tab Styles — Aurora */
 @utility tab-item-active {
-  @apply bg-white;
-
-  @variant theme-dark {
-    @apply bg-gray-700;
-  }
+  background: rgba(255,255,255,.06);
+  box-shadow: 0 2px 8px rgba(0,0,0,.25);
 }
 
 @utility tab-item-hover {
-  @apply bg-gray-200;
-
-  @variant theme-dark {
-    @apply bg-gray-800;
-  }
+  background-color: var(--aurora-bg-3);
 }
 
 @utility tab-bg-group {
-  @apply bg-gray-50;
-
-  @variant theme-dark {
-    @apply bg-alpha-black-700;
-  }
+  background: rgba(255,255,255,.03);
 }
 
 @utility bg-nav-indicator {
-  @apply bg-black;
-
-  @variant theme-dark {
-    @apply bg-white;
-  }
+  background-color: var(--aurora-em);
 }

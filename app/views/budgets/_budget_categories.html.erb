@@ -9,7 +9,7 @@
     <p class="ml-auto">金额</p>
   </div>
 
-  <div class="bg-container py-1 shadow-border-xs rounded-md">
+  <div class="py-1 rounded-md" style="background:var(--aurora-bg-2)">
     <% if budget.family.categories.expenses.empty? %>
       <div class="py-8">
         <%= render "budget_categories/no_categories" %>

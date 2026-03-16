@@ -1,17 +1,17 @@
 <%# locals: (breadcrumbs:) %>
 
-<div class="py-2 flex items-center gap-2">
+<div class="flex items-center gap-1.5" style="font-size:13px;font-weight:500;color:var(--aurora-t1)">
   <% breadcrumbs.each_with_index do |(name, path), index| %>
     <% if index > 0 %>
       <%= icon("chevron-right", color: "gray", size: "sm") %>
     <% end %>
 
     <% if path.present? && index < breadcrumbs.size - 1 %>
-      <%= link_to name, path, class: "text-sm text-gray-500 font-medium" %>
+      <%= link_to name, path, style: "color:var(--aurora-t1)" %>
     <% elsif index == breadcrumbs.size - 1 %>
-      <span class="text-primary font-medium text-sm"><%= name %></span>
+      <span class="font-semibold" style="color:var(--aurora-t0)"><%= name %></span>
     <% else %>
-      <span class="text-sm text-gray-500 font-medium"><%= name %></span>
+      <span style="color:var(--aurora-t1)"><%= name %></span>
     <% end %>
   <% end %>
 </div>

@@ -2,7 +2,7 @@
               id: "transactions-search",
               scope: :q,
               method: :get,
-              data: { controller: "auto-submit-form" } do |form| %>
+              data: { controller: "auto-submit-form", turbo_frame: "transactions_list" } do |form| %>
   <%= hidden_field_tag :per_page, params[:per_page] %>
 
   <div class="flex gap-2 mb-4">

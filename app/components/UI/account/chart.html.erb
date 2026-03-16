@@ -1,4 +1,4 @@
-<div id="<%= dom_id(account, :chart) %>" class="bg-container shadow-border-xs rounded-xl space-y-2">
+<div id="<%= dom_id(account, :chart) %>" class="aurora-card space-y-2">
   <div class="flex justify-between flex-col-reverse lg:flex-row gap-2 px-4 pt-4 mb-2">
     <div class="space-y-2 w-full">
       <div class="flex items-center gap-1">
@@ -9,7 +9,7 @@
         <% end %>
       </div>
       <div class="flex flex-row gap-2 items-baseline">
-        <%= tag.p view_balance_money.format, class: "text-primary text-3xl font-medium truncate" %>
+        <%= tag.p view_balance_money.format, class: "text-primary truncate aurora-mono", style: "font-size:28px;font-weight:700;letter-spacing:-.05em" %>
 
         <% if converted_balance_money %>
           <%= tag.p converted_balance_money.format, class: "text-sm font-medium text-secondary" %>

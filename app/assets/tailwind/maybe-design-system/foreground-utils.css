@@ -1,17 +1,9 @@
 @utility fg-gray {
-  @apply text-gray-500;
-
-  @variant theme-dark {
-    @apply text-gray-400;
-  }
+  color: var(--aurora-t1);
 }
 
 @utility fg-contrast {
-  @apply text-gray-400;
-
-  @variant theme-dark {
-    @apply text-gray-500;
-  }
+  color: var(--aurora-t2);
 }
 
 @utility fg-inverse {
@@ -23,41 +15,21 @@
 }
 
 @utility fg-primary {
-  @apply text-gray-900;
-
-  @variant theme-dark {
-    @apply text-white;
-  }
+  color: var(--aurora-t0);
 }
 
 @utility fg-primary-variant {
-  @apply text-gray-800;
-
-  @variant theme-dark {
-    @apply text-gray-50;
-  }
+  color: var(--aurora-t0);
 }
 
 @utility fg-secondary {
-  @apply text-gray-50;
-
-  @variant theme-dark {
-    @apply text-gray-700;
-  }
+  color: var(--aurora-t1);
 }
 
 @utility fg-secondary-variant {
-  @apply text-gray-100;
-
-  @variant theme-dark {
-    @apply text-gray-600;
-  }
+  color: var(--aurora-t2);
 }
 
 @utility fg-subdued {
-  @apply text-gray-400;
-
-  @variant theme-dark {
-    @apply text-gray-500;
-  }
+  color: var(--aurora-t2);
 }

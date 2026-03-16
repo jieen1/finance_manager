@@ -1,9 +1,5 @@
 @utility text-primary {
-  @apply text-gray-900;
-
-  @variant theme-dark {
-   @apply text-white;
-  }
+  color: var(--aurora-t0);
 }
 
 @utility text-inverse {
@@ -15,25 +11,13 @@
 }
 
 @utility text-secondary {
-  @apply text-gray-500;
-
-  @variant theme-dark {
-    @apply text-gray-400;
-  }
+  color: var(--aurora-t1);
 }
 
 @utility text-subdued {
-  @apply text-gray-400;
-
-  @variant theme-dark {
-    @apply text-gray-600;
-  }
+  color: var(--aurora-t2);
 }
 
 @utility text-link {
-  @apply text-blue-600;
-
-  @variant theme-dark {
-    @apply text-blue-500;
-  }
+  color: var(--aurora-em);
 }

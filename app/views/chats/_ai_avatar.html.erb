@@ -1,7 +1,8 @@
 <%# locals: (theme: "light") %>
 
-<div class="shrink-0 w-8 h-8 antialiased" style="filter: drop-shadow(0px 6px 8px rgba(244, 78, 247, 0.10));">
-  <%# Never use svg as an image tag, it appears blurry in Safari %>
-  <%= inline_svg_tag "ai-dark.svg", alt: "AI", class: "w-full h-full hidden theme-dark:block" %>
-  <%= inline_svg_tag "ai.svg", alt: "AI", class: "w-full h-full theme-dark:hidden" %>
+<div class="shrink-0 flex items-center justify-center" style="width:30px;height:30px;border-radius:10px;background:linear-gradient(135deg,var(--aurora-em),#059669);box-shadow:0 2px 8px var(--aurora-em-glow)">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 2L14.5 8.5L21 9.5L16 14L17.5 21L12 17.5L6.5 21L8 14L3 9.5L9.5 8.5L12 2Z" fill="white" fill-opacity="0.9"/>
+    <circle cx="12" cy="12" r="4" fill="white" fill-opacity="0.3"/>
+  </svg>
 </div>

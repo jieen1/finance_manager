@@ -1,4 +1,4 @@
-<%= tag.div id: id, data: { bulk_select_target: "group" }, class: "bg-container-inset rounded-xl p-1 w-full" do %>
+<%= tag.div id: id, data: { bulk_select_target: "group" }, class: "rounded-xl p-1 w-full", style: "background:var(--aurora-bg-3)" do %>
   <details class="group">
     <summary>
       <div class="py-2 px-4 flex items-center justify-between font-medium text-xs text-secondary">
@@ -34,7 +34,7 @@
     </div>
   </details>
 
-  <div class="bg-container shadow-border-xs rounded-lg">
+  <div class="rounded-lg" style="background:var(--aurora-bg-2)">
     <% entries.each do |entry| %>
       <%= render entry, view_ctx: "account" %>
     <% end %>

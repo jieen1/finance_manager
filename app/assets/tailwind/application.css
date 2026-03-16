@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 
 @import "./maybe-design-system.css";
+@import "./aurora.css";
 
 @import "./geist-font.css";
 @import "./geist-mono-font.css";

@@ -11,18 +11,21 @@
 
 <%= render "layouts/shared/htmldoc" do %>
   <div
-    class="flex flex-col lg:flex-row h-full bg-surface"
+    class="flex flex-col lg:flex-row h-full"
+    style="background: var(--aurora-bg-0)"
     data-controller="app-layout"
     data-app-layout-expanded-sidebar-class="<%= expanded_sidebar_class %>"
     data-app-layout-collapsed-sidebar-class="<%= collapsed_sidebar_class %>"
     data-app-layout-user-id-value="<%= Current.user.id %>">
+
+    <%# MOBILE - Sidebar overlay %>
     <div
-      class="hidden fixed inset-0 bg-surface z-20 h-full w-full pt-[calc(env(safe-area-inset-top)+0.75rem)] pr-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pl-3 overflow-y-auto transition-all duration-300"
+      class="hidden fixed inset-0 z-20 h-full w-full pt-[calc(env(safe-area-inset-top)+0.75rem)] pr-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pl-3 overflow-y-auto transition-all duration-300"
+      style="background: var(--aurora-bg-0)"
       data-app-layout-target="mobileSidebar">
       <div class="mb-2">
         <%= icon("x", as_button: true, data: { action: "app-layout#closeMobileSidebar" }) %>
       </div>
-
       <%= render(
         "accounts/account_sidebar_tabs",
         family: Current.family,
@@ -32,76 +35,84 @@
     </div>
 
     <%# MOBILE - Top nav %>
-    <nav class="lg:hidden flex justify-between items-center p-3">
+    <nav class="lg:hidden flex justify-between items-center p-3" style="background: var(--aurora-bg-1)">
       <%= icon("panel-left", as_button: true, data: { action: "app-layout#openMobileSidebar"}) %>
 
       <%= link_to root_path, class: "block" do %>
-        <%= image_tag "logomark-color.svg", class: "w-9 h-9 mx-auto" %>
+        <svg viewBox="0 0 36 36" fill="none" class="w-9 h-9 mx-auto">
+          <rect x="2" y="2" width="32" height="32" rx="10" fill="var(--aurora-bg-3)"/>
+          <path d="M9 24 C12 22 15 14 18 12 C21 10 24 18 27 10" stroke="url(#logoG)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+          <circle cx="27" cy="10" r="2.5" fill="#10b981" filter="drop-shadow(0 0 4px rgba(16,185,129,.6))"/>
+        </svg>
       <% end %>
 
       <%= render "users/user_menu", user: Current.user, placement: "bottom-end", offset: 12 %>
     </nav>
 
-    <%# DESKTOP - Left navbar %>
+    <%# DESKTOP - Aurora Nav (icon-only dock) %>
     <div class="hidden lg:block">
-      <nav class="h-full flex flex-col shrink-0 w-[84px] py-4 mr-3">
-        <div class="pl-2 mb-3">
+      <nav class="aurora-nav h-full">
+        <%# Logo %>
+        <div class="flex items-center justify-center mb-4 flex-shrink-0">
           <%= link_to root_path, class: "block" do %>
-            <%= image_tag "logomark-color.svg", class: "w-9 h-9 mx-auto" %>
+            <svg viewBox="0 0 36 36" fill="none" class="w-8 h-8 transition-transform duration-300 hover:scale-110">
+              <rect x="2" y="2" width="32" height="32" rx="10" fill="var(--aurora-bg-3)"/>
+              <path d="M9 24 C12 22 15 14 18 12 C21 10 24 18 27 10" stroke="url(#logoG)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+              <circle cx="27" cy="10" r="2.5" fill="#10b981" filter="drop-shadow(0 0 4px rgba(16,185,129,.6))"/>
+            </svg>
           <% end %>
         </div>
 
-        <ul class="space-y-0.5">
-          <% desktop_nav_items.reject { |item| item[:mobile_only] }.each do |nav_item| %>
-            <li>
-              <%= render "layouts/shared/nav_item", **nav_item %>
-            </li>
+        <%# Nav items %>
+        <div class="flex flex-col gap-1 w-full px-2 flex-1">
+          <% desktop_nav_items.each do |nav_item| %>
+            <%= link_to nav_item[:path], class: "aurora-nav-icon #{'active' if nav_item[:active]}", title: nav_item[:name] do %>
+              <%= icon(nav_item[:icon], custom: nav_item[:icon_custom]) %>
+            <% end %>
           <% end %>
-        </ul>
 
-        <div class="pl-2 mt-auto mx-auto flex flex-col gap-2">
-          <%= render DS::Button.new(
-            variant: "icon",
-            icon: "message-circle-question",
-            data: { action: "intercom#show" }
-          ) %>
+          <%= link_to settings_profile_path, class: "aurora-nav-icon #{'active' if page_active?(settings_profile_path)}", title: "设置" do %>
+            <%= icon("settings") %>
+          <% end %>
+        </div>
 
+        <%# Bottom avatar %>
+        <div class="mt-auto w-full flex justify-center pb-2">
           <%= render "users/user_menu", user: Current.user %>
         </div>
       </nav>
     </div>
 
-    <%# DESKTOP - Left sidebar %>
+    <%# DESKTOP - Left sidebar (accounts) %>
     <%= tag.div class: class_names(
-        "hidden lg:block py-4 overflow-y-auto shrink-0 max-w-[320px] transition-all duration-300",
+        "hidden lg:flex flex-col flex-shrink-0 overflow-y-auto aurora-scroll-hidden transition-all duration-300",
         Current.user.show_sidebar? ? expanded_sidebar_class : collapsed_sidebar_class,
        ),
+       style: "max-width:280px;background:var(--aurora-glass);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-right:1px solid var(--aurora-glass-b)",
        data: { app_layout_target: "leftSidebar" } do %>
       <% if content_for?(:sidebar) %>
         <%= yield :sidebar %>
       <% else %>
         <div class="h-full flex flex-col">
-          <div class="overflow-y-auto grow">
+          <div class="overflow-y-auto grow aurora-scroll-hidden">
             <%= render "accounts/account_sidebar_tabs", family: Current.family, active_tab: @account_group_tab %>
           </div>
 
           <% if Current.family.trialing? && !self_hosted? %>
-            <div class="px-4 py-3 space-y-4 bg-container shadow-border-xs rounded-xl">
+            <div class="mx-3 mb-3 p-4 space-y-4 aurora-card" style="border-radius: var(--aurora-rs)">
               <div class="flex items-start justify-between">
                 <div>
                   <p class="text-sm font-medium text-primary">免费试用</p>
-                  <p class="text-sm text-secondary"><%= Current.family.days_left_in_trial %> 天剩余</p>
+                  <p class="text-sm text-secondary">剩余 <%= Current.family.days_left_in_trial %> 天</p>
                 </div>
-
                 <%= render DS::Link.new(
                   text: "升级",
                   href: upgrade_subscription_path,
                 ) %>
               </div>
-
               <div class="flex items-center gap-0.5 h-1.5">
-                <div class="h-full bg-warning rounded-full" style="width: <%= Current.family.percentage_of_trial_completed %>%"></div>
-                <div class="h-full bg-surface-inset rounded-full" style="width: <%= Current.family.percentage_of_trial_remaining %>%"></div>
+                <div class="h-full rounded-full aurora-progress-bar" style="width: <%= Current.family.percentage_of_trial_completed %>%;background:linear-gradient(90deg,var(--aurora-em-dk),var(--aurora-em-lt))"></div>
+                <div class="h-full rounded-full" style="width: <%= Current.family.percentage_of_trial_remaining %>%;background:var(--aurora-bg-4)"></div>
               </div>
             </div>
           <% end %>
@@ -110,10 +121,13 @@
     <% end %>
 
     <%# SHARED - Main content %>
-    <%= tag.main class: class_names("grow overflow-y-auto px-3 lg:px-10 py-4 w-full mx-auto max-w-5xl"), data: { app_layout_target: "content" } do %>
-      <div class="hidden lg:flex gap-2 items-center justify-between mb-6">
+    <div class="flex-1 flex flex-col min-w-0">
+      <%# Aurora topbar %>
+      <div class="hidden lg:flex aurora-topbar">
         <div class="flex items-center gap-2">
-          <%= icon("panel-left", as_button: true, data: { action: "app-layout#toggleLeftSidebar" }) %>
+          <button class="aurora-btn-ghost p-1.5" data-action="app-layout#toggleLeftSidebar">
+            <%= icon("panel-left", size: "sm") %>
+          </button>
 
           <% if content_for?(:breadcrumbs) %>
             <%= yield :breadcrumbs %>
@@ -121,21 +135,36 @@
             <%= render "layouts/shared/breadcrumbs", breadcrumbs: @breadcrumbs %>
           <% end %>
         </div>
-        <%= icon("panel-right", as_button: true, data: { action: "app-layout#toggleRightSidebar" }) %>
+
+        <div class="flex items-center gap-2">
+          <%= render DS::Link.new(
+            icon: "plus",
+            text: "添加",
+            href: new_account_path,
+            frame: :modal,
+            class: "aurora-btn-primary"
+          ) %>
+          <button class="aurora-btn-ghost p-1.5" data-action="app-layout#toggleRightSidebar">
+            <%= icon("panel-right", size: "sm") %>
+          </button>
+        </div>
       </div>
 
-      <% if content_for?(:page_header) %>
-        <%= yield :page_header %>
+      <%# Scrollable content area %>
+      <%= tag.main class: "flex-1 overflow-y-auto px-3 lg:px-6 py-4 aurora-scroll", data: { app_layout_target: "content" } do %>
+        <% if content_for?(:page_header) %>
+          <%= yield :page_header %>
+        <% end %>
+        <%= yield %>
       <% end %>
+    </div>
 
-      <%= yield %>
-    <% end %>
-
-    <%# DESKTOP - Right sidebar %>
+    <%# DESKTOP - Right sidebar (AI chat) %>
     <%= tag.div class: class_names(
-          "hidden lg:block h-full overflow-y-auto shrink-0 max-w-[400px] transition-all duration-300",
+          "hidden lg:flex flex-col h-full flex-shrink-0 overflow-y-auto transition-all duration-300",
           Current.user.show_ai_sidebar? ? expanded_sidebar_class : collapsed_sidebar_class,
         ),
+        style: "max-width:340px;background:var(--aurora-glass);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-left:1px solid var(--aurora-glass-b)",
         data: { app_layout_target: "rightSidebar" } do %>
       <%= tag.div id: "chat-container", class: "relative h-full", data: { controller: "chat hotkey", turbo_permanent: true } do %>
         <div class="flex flex-col h-full justify-between shrink-0">
@@ -155,10 +184,21 @@
     <% end %>
 
     <%# MOBILE - Bottom Nav %>
-    <%= tag.nav class: "lg:hidden bg-surface shrink-0 z-10 pb-[env(safe-area-inset-bottom)] border-t border-tertiary flex justify-around" do %>
+    <%= tag.nav class: "lg:hidden shrink-0 z-10 pb-[env(safe-area-inset-bottom)] flex justify-around",
+               style: "background:var(--aurora-bg-1);border-top:1px solid var(--aurora-bd)" do %>
       <% mobile_nav_items.each do |nav_item| %>
         <%= render "layouts/shared/nav_item", **nav_item %>
       <% end %>
     <% end %>
   </div>
+
+  <%# SVG gradients for logo %>
+  <svg style="width:0;height:0;position:absolute" aria-hidden="true">
+    <defs>
+      <linearGradient id="logoG" x1="0" y1="1" x2="1" y2="0">
+        <stop offset="0%" stop-color="#059669"/>
+        <stop offset="100%" stop-color="#6ee7b7"/>
+      </linearGradient>
+    </defs>
+  </svg>
 <% end %>

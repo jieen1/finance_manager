@@ -12,7 +12,7 @@
       </div>
 
       <div class="ml-auto text-right grow">
-        <%= tag.p format_money(account_group.total_money), class: "text-sm font-medium text-primary" %>
+        <%= tag.p format_money(account_group.total_money), class: "text-sm font-medium text-primary aurora-mono" %>
         <%= turbo_frame_tag "#{account_group.key}_sparkline", src: accountable_sparkline_path(account_group.key), loading: "lazy", data: { controller: "turbo-frame-timeout", turbo_frame_timeout_timeout_value: 10000 } do %>
           <div class="flex items-center w-8 h-4 ml-auto">
             <div class="w-6 h-px bg-loader"></div>
@@ -25,21 +25,22 @@
       <% account_group.accounts.each do |account| %>
         <%= link_to account_path(account),
                   class: class_names(
-                    "block flex items-center gap-2 px-3 py-2 rounded-lg",
-                    page_active?(account_path(account)) ? "bg-container" : "hover:bg-surface-hover"
+                    "block flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200",
+                    page_active?(account_path(account)) ? "bg-container" : ""
                   ),
-                  title: account.name do %>
+                  style: page_active?(account_path(account)) ? "" : "",
+                  title: account.name,
+                  data: { turbo_frame: :_top } do %>
           <%= render "accounts/logo", account: account, size: "sm", color: account_group.color %>
 
           <div class="min-w-0 grow">
             <div class="flex items-center gap-2 mb-0.5">
               <%= tag.p account.name, class: class_names("text-sm text-primary font-medium truncate", "animate-pulse" => account.syncing?) %>
             </div>
-            <%= tag.p account.short_subtype_label, class: "text-sm text-secondary truncate" %>
           </div>
 
-          <div class="ml-auto text-right grow h-10">
-            <%= tag.p format_money(account.balance_money), class: "text-sm font-medium text-primary whitespace-nowrap" %>
+          <div class="ml-auto text-right flex-shrink-0">
+            <%= tag.p format_money(account.balance_money), class: "text-sm font-medium text-primary whitespace-nowrap aurora-mono" %>
             <%= turbo_frame_tag dom_id(account, :sparkline), src: sparkline_account_path(account), loading: "lazy", data: { controller: "turbo-frame-timeout", turbo_frame_timeout_timeout_value: 10000 } do %>
               <div class="flex items-center w-8 h-4 ml-auto">
                 <div class="w-6 h-px bg-loader"></div>

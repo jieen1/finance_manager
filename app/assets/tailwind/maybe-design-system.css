@@ -14,9 +14,9 @@
 @custom-variant theme-dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 @theme {
-  /* Font families */
-  --font-sans: 'Geist', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  /* Font families — Aurora uses Inter + JetBrains Mono */
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   /* Base colors */
   --color-white: #ffffff;

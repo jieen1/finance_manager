@@ -22,13 +22,6 @@ nav_sections = [
       { label: t(".merchants_label"), path: family_merchants_path, icon: "store" }
     ]
   },
-  {
-    header: t(".other_section_title"),
-    items: [
-      { label: t(".whats_new_label"), path: changelog_path, icon: "box" },
-      { label: t(".feedback_label"), path: feedback_path, icon: "megaphone" }
-    ]
-  }
 ]
 %>
 
@@ -48,7 +41,7 @@ nav_sections = [
     <% nav_sections.each do |section| %>
       <section class="space-y-2">
         <div class="flex items-center gap-2 px-3">
-          <h3 class="uppercase text-secondary font-medium text-xs"><%= section[:header] %></h3>
+          <h3 class="uppercase text-secondary font-medium text-xs whitespace-nowrap"><%= section[:header] %></h3>
           <%= render "shared/ruler", classes: "w-full" %>
         </div>
         <ul class="space-y-1">

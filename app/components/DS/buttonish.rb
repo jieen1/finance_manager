@@ -1,8 +1,8 @@
 class DS::Buttonish < DesignSystemComponent
   VARIANTS = {
     primary: {
-      container_classes: "text-inverse bg-inverse hover:bg-inverse-hover disabled:bg-gray-500 theme-dark:disabled:bg-gray-400",
-      icon_classes: "fg-inverse"
+      container_classes: "text-white bg-[var(--aurora-em)] hover:bg-[var(--aurora-em-lt)] disabled:bg-gray-500 theme-dark:disabled:bg-gray-400 shadow-[0_4px_16px_var(--aurora-em-glow)]",
+      icon_classes: "text-white"
     },
     secondary: {
       container_classes: "text-primary bg-gray-50 theme-dark:bg-gray-700 hover:bg-gray-100 theme-dark:hover:bg-gray-600 disabled:bg-gray-200 theme-dark:disabled:bg-gray-600",

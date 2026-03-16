@@ -43,7 +43,7 @@
 
   <%= button_to clear_filter_transactions_path(param_key: param_key, param_value: param_value, **request.query_parameters),
         method: :delete,
-        data: { turbo: false },
+        data: { turbo_frame: "transactions_list" },
         class: "flex items-center cursor-pointer" do %>
     <%= icon "x", size: "sm", class: "hover:text-primary" %>
   <% end %>

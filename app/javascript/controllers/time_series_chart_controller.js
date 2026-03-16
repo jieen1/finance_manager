@@ -200,7 +200,7 @@ export default class extends Controller {
             this._normalDataPoints[this._normalDataPoints.length - 1].date,
           ])
           .tickSize(0)
-          .tickFormat(d3.timeFormat("%b %d, %Y")),
+          .tickFormat(d3.timeFormat("%Y年%m月%d日")),
       )
       .select(".domain")
       .remove();

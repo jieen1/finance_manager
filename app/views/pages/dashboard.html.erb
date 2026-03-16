@@ -1,6 +1,6 @@
 <% content_for :page_header do %>
   <% unless Current.family.self_hoster? %>
-    <div class="bg-gray-100 mb-4 rounded-xl p-4 flex gap-2 items-start">
+    <div class="aurora-card mb-4 p-4 flex gap-2 items-start" style="border-radius:var(--aurora-rs);background:var(--aurora-amber-d)">
       <%= icon "triangle-alert", color: "warning" %>
       <div class="text-sm space-y-2">
         <p class="font-medium">我们做出了一个艰难的决定，关闭 Maybe 的托管版本。以下是接下来的安排：</p>
@@ -12,47 +12,141 @@
       </div>
     </div>
   <% end %>
-
-  <div class="space-y-1 mb-6 flex gap-4 justify-between items-center lg:items-start">
-
-    <div class="space-y-1">
-      <h1 class="text-xl lg:text-3xl font-medium text-primary"><%= t(".greet") %><%= Current.user.first_name %> <%= Current.user.last_name %></h1>
-      <p class="text-sm lg:text-base text-secondary"><%= t(".desc") %></p>
-    </div>
-
-    <%= render DS::Link.new(
-      icon: "plus",
-      text: t(".new"),
-      href: new_account_path,
-      frame: :modal,
-      class: "hidden lg:inline-flex"
-    ) %>
-
-    <%= render DS::Link.new(
-        variant: "icon-inverse",
-        icon: "plus",
-        href: new_account_path,
-        frame: :modal,
-        class: "rounded-full lg:hidden"
-      ) %>
-  </div>
 <% end %>
 
-<div class="w-full space-y-6 pb-24">
+<div class="w-full space-y-4 pb-24">
   <% if Current.family.accounts.any? %>
-    <section class="bg-container py-4 rounded-xl shadow-border-xs">
-      <%= render partial: "pages/dashboard/net_worth_chart", locals: {
-        balance_sheet: @balance_sheet,
-        period: @period,
-        current_user: @current_user
-      } %>
-    </section>
+    <%# Hero Banner %>
+    <div class="aurora-hero aurora-d1">
+      <div class="flex items-start justify-between relative z-10">
+        <div>
+          <p class="text-sm font-medium mb-1" style="color:var(--aurora-t1)">
+            <%= t(".greet") %><%= Current.user.first_name %>
+          </p>
+          <% series = @balance_sheet.net_worth_series(period: @period) %>
+          <div class="aurora-mono" style="font-size:clamp(28px,3vw,40px);font-weight:800;letter-spacing:-.05em;line-height:1;animation:aurora-count-in .5s cubic-bezier(.34,1.56,.64,1) .1s backwards">
+            <%= series.trend.current.format %>
+          </div>
+          <div class="flex items-center gap-2.5 mt-2.5 flex-wrap">
+            <% unless series.trend.nil? %>
+              <span class="aurora-delta <%= series.trend.direction == "up" ? "aurora-delta-up" : "aurora-delta-down" %>">
+                <% if series.trend.direction == "up" %>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>
+                <% else %>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+                <% end %>
+                <%= series.trend.percent_formatted %>
+              </span>
+              <span class="text-xs" style="color:var(--aurora-t1)"><%= @period.comparison_label %> <%= format_money(series.trend.value) %></span>
+            <% end %>
+            <span class="text-xs flex items-center gap-1" style="color:var(--aurora-t2)">
+              <span class="aurora-live-dot"></span>
+              <%= Date.today.strftime("%Y.%m.%d") %>
+            </span>
+          </div>
+        </div>
+
+        <%= form_with url: root_path, method: :get, data: { controller: "auto-submit-form" } do |form| %>
+          <%= form.select :period,
+                        Period.as_options,
+                        { selected: @period.key },
+                        data: { "auto-submit-form-target": "auto" },
+                        class: "text-xs font-bold rounded-lg px-3 py-1.5 cursor-pointer focus:outline-hidden focus:ring-0",
+                        style: "background:rgba(255,255,255,.03);border:1px solid var(--aurora-bd);color:var(--aurora-t1)" %>
+        <% end %>
+      </div>
+    </div>
+
+    <%# Bento Grid %>
+    <div class="aurora-bento">
+      <%# Net Worth Chart — 8 cols %>
+      <div class="aurora-card aurora-b-8 aurora-d2" style="padding:20px 22px">
+        <div class="aurora-eyebrow mb-3">
+          <span class="aurora-eyebrow-dot" style="background:var(--aurora-em);box-shadow:0 0 8px var(--aurora-em-glow)"></span>
+          净资产趋势
+        </div>
+        <% if series.any? %>
+          <div id="netWorthChart"
+               class="w-full min-h-40"
+               data-controller="time-series-chart"
+               data-time-series-chart-data-value="<%= series.to_json %>">
+          </div>
+        <% else %>
+          <div class="w-full h-40 flex items-center justify-center">
+            <p class="text-secondary text-sm">暂无数据</p>
+          </div>
+        <% end %>
+      </div>
+
+      <%# Spending Breakdown — 4 cols %>
+      <div class="aurora-card aurora-b-4 aurora-d3" style="padding:16px 18px">
+        <div class="aurora-eyebrow mb-3">
+          <span class="aurora-eyebrow-dot" style="background:var(--aurora-violet);box-shadow:0 0 6px rgba(167,139,250,.3)"></span>
+          支出分布
+        </div>
+        <% @balance_sheet.classification_groups.each do |cg| %>
+          <% cg.account_groups.first(5).each_with_index do |ag, i| %>
+            <div class="flex items-center gap-2 py-1.5" style="<%= i > 0 ? "border-top:1px solid var(--aurora-bd)" : "" %>">
+              <span class="text-xs font-medium flex-shrink-0" style="width:36px;color:var(--aurora-t1)"><%= ag.name.truncate(4) %></span>
+              <div class="aurora-progress-track flex-1">
+                <div class="aurora-progress-bar" style="width:<%= ag.weight %>%;background:<%= ag.color %>;animation-delay:<%= 200 + i * 60 %>ms"></div>
+              </div>
+              <span class="aurora-mono text-xs font-bold flex-shrink-0" style="width:28px;text-align:right;color:<%= ag.color %>"><%= number_to_percentage(ag.weight, precision: 0) %></span>
+            </div>
+          <% end %>
+          <% break %>
+        <% end %>
+      </div>
+
+      <%# Income — 4 cols %>
+      <div class="aurora-card aurora-card-lift aurora-b-4 aurora-d4" style="padding:16px 18px">
+        <div class="aurora-eyebrow mb-2">
+          <span class="aurora-eyebrow-dot" style="background:var(--aurora-em);box-shadow:0 0 6px var(--aurora-em-glow)"></span>
+          本月收入
+        </div>
+        <div class="aurora-stat-val" style="color:var(--aurora-em)">
+          <%= format_money(@balance_sheet.assets.total_money) %>
+        </div>
+        <p class="text-xs mt-1" style="color:var(--aurora-t1)">资产总额</p>
+      </div>
+
+      <%# Expense — 4 cols %>
+      <div class="aurora-card aurora-card-lift aurora-b-4 aurora-d5" style="padding:16px 18px">
+        <div class="aurora-eyebrow mb-2">
+          <span class="aurora-eyebrow-dot" style="background:var(--aurora-rose);box-shadow:0 0 6px var(--aurora-rose-glow)"></span>
+          本月支出
+        </div>
+        <div class="aurora-stat-val" style="color:var(--aurora-rose)">
+          <%= format_money(@balance_sheet.liabilities.total_money) %>
+        </div>
+        <p class="text-xs mt-1" style="color:var(--aurora-t1)">负债总额</p>
+      </div>
+
+      <%# Balance Sheet / Asset Groups — 4 cols %>
+      <div class="aurora-card aurora-card-lift aurora-b-4 aurora-d6" style="padding:16px 18px">
+        <div class="aurora-eyebrow mb-2">
+          <span class="aurora-eyebrow-dot" style="background:var(--aurora-amber);box-shadow:0 0 6px rgba(251,191,36,.3)"></span>
+          资产负债比
+        </div>
+        <% total_assets = @balance_sheet.assets.total.to_f.abs
+           total_liabilities = @balance_sheet.liabilities.total.to_f.abs
+           ratio = total_assets > 0 ? ((total_assets - total_liabilities) / total_assets * 100).round(1) : 0 %>
+        <div class="aurora-stat-val" style="color:var(--aurora-em)"><%= ratio %>%</div>
+        <p class="text-xs mt-1" style="color:var(--aurora-t1)">净资产率</p>
+        <div class="aurora-progress-track mt-3">
+          <div class="aurora-progress-bar" style="width:<%= [ratio.abs, 100].min %>%;background:linear-gradient(90deg,var(--aurora-em-dk),var(--aurora-em-lt));animation-delay:.6s"></div>
+        </div>
+      </div>
+    </div>
+
+    <%# Balance Sheet Section %>
     <section>
       <%= render "pages/dashboard/balance_sheet", balance_sheet: @balance_sheet %>
     </section>
 
+    <%# Cashflow Sankey %>
     <%= turbo_frame_tag "cashflow_sankey_section" do %>
-      <section class="bg-container py-4 rounded-xl shadow-border-xs">
+      <section class="aurora-card" style="padding:20px 22px">
         <%= render partial: "pages/dashboard/cashflow_sankey", locals: {
           sankey_data: @cashflow_sankey_data,
           period: @cashflow_period
@@ -60,6 +154,23 @@
       </section>
     <% end %>
   <% else %>
+    <%# Empty state %>
+    <div class="aurora-hero">
+      <div class="relative z-10">
+        <p class="text-sm font-medium mb-1" style="color:var(--aurora-t1)">
+          <%= t(".greet") %><%= Current.user.first_name %>
+        </p>
+        <p class="text-xl font-bold text-primary mb-2"><%= t(".desc") %></p>
+        <%= render DS::Link.new(
+          icon: "plus",
+          text: t(".new"),
+          href: new_account_path,
+          frame: :modal,
+          class: "aurora-btn-primary"
+        ) %>
+      </div>
+    </div>
+
     <section>
       <%= render "pages/dashboard/no_accounts_graph_placeholder" %>
     </section>

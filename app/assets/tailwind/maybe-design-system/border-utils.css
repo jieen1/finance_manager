@@ -1,78 +1,62 @@
-/* Custom shadow borders used for surfaces / containers  */
+/* Aurora shadow borders — layered shadows with inner glow, no visible borders */
 @utility shadow-border-xs {
-  box-shadow: var(--shadow-xs), 0px 0px 0px 1px var(--color-alpha-black-50);
-
-  @variant theme-dark {
-    box-shadow: var(--shadow-xs), 0px 0px 0px 1px var(--color-alpha-white-50);
-  }
+  box-shadow:
+    0 1px 2px rgba(0,0,0,.2),
+    0 4px 16px rgba(0,0,0,.12),
+    inset 0 1px 0 rgba(255,255,255,.04),
+    inset 0 0 0 1px rgba(255,255,255,.03);
 }
 
 @utility shadow-border-sm {
-  box-shadow: var(--shadow-sm), 0px 0px 0px 1px var(--color-alpha-black-50);
-
-  @variant theme-dark {
-    box-shadow: var(--shadow-sm), 0px 0px 0px 1px var(--color-alpha-white-50);
-  }
+  box-shadow:
+    0 1px 4px rgba(0,0,0,.18),
+    0 6px 20px rgba(0,0,0,.14),
+    inset 0 1px 0 rgba(255,255,255,.04),
+    inset 0 0 0 1px rgba(255,255,255,.03);
 }
 
 @utility shadow-border-md {
-  box-shadow: var(--shadow-md), 0px 0px 0px 1px var(--color-alpha-black-50);
-
-  @variant theme-dark {
-    box-shadow: var(--shadow-md), 0px 0px 0px 1px var(--color-alpha-white-50);
-  }
+  box-shadow:
+    0 2px 6px rgba(0,0,0,.2),
+    0 8px 24px rgba(0,0,0,.16),
+    inset 0 1px 0 rgba(255,255,255,.05),
+    inset 0 0 0 1px rgba(255,255,255,.04);
 }
 
 @utility shadow-border-lg {
-  box-shadow: var(--shadow-lg), 0px 0px 0px 1px var(--color-alpha-black-50);
-
-  @variant theme-dark {
-    box-shadow: var(--shadow-lg), 0px 0px 0px 1px var(--color-alpha-white-50);
-  }
+  box-shadow:
+    0 4px 8px rgba(0,0,0,.2),
+    0 16px 40px rgba(0,0,0,.2),
+    inset 0 1px 0 rgba(255,255,255,.06),
+    inset 0 0 0 1px rgba(255,255,255,.05);
 }
 
 @utility shadow-border-xl {
-  box-shadow: var(--shadow-xl), 0px 0px 0px 1px var(--color-alpha-black-50);
-
-  @variant theme-dark {
-    box-shadow: var(--shadow-xl), 0px 0px 0px 1px var(--color-alpha-white-50);
-  }
+  box-shadow:
+    0 8px 16px rgba(0,0,0,.2),
+    0 24px 48px rgba(0,0,0,.24),
+    inset 0 1px 0 rgba(255,255,255,.06),
+    inset 0 0 0 1px rgba(255,255,255,.05);
 }
 
 @utility border-primary {
-  @apply border-alpha-black-300;
-
-  @variant theme-dark {
-    @apply border-alpha-white-400;
-  }
+  border-color: var(--aurora-bd-h);
 }
 
 @utility border-secondary {
-  @apply border-alpha-black-200;
-
-  @variant theme-dark {
-    @apply border-alpha-white-300;
-  }
+  border-color: var(--aurora-bd);
 }
 
 @utility border-tertiary {
-  @apply border-alpha-black-100;
-
-  @variant theme-dark {
-    @apply border-alpha-white-200;
-  }
+  border-color: var(--aurora-bd);
 }
 
 @utility border-divider {
-  @apply border-tertiary;
+  border-color: var(--aurora-bd);
 }
 
 @utility border-subdued {
-  @apply border-alpha-black-50;
-
-  @variant theme-dark {
-    @apply border-alpha-white-100;
-  }
+  border-color: var(--aurora-bd);
 }
 
 @utility border-solid {
@@ -84,9 +68,5 @@
 }
 
 @utility border-destructive {
-  @apply border-red-500;
-
-  @variant theme-dark {
-    @apply border-red-400;
-  }
+  border-color: var(--aurora-rose);
 }

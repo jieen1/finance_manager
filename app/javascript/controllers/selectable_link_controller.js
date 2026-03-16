@@ -15,6 +15,12 @@ export default class extends Controller {
     const currentUrl = new URL(window.location.href);
     currentUrl.searchParams.set(paramName, event.target.value);
 
-    Turbo.visit(currentUrl.toString());
+    // Try to find the closest turbo-frame and navigate within it
+    const frame = this.element.closest("turbo-frame");
+    if (frame) {
+      frame.src = currentUrl.toString();
+    } else {
+      Turbo.visit(currentUrl.toString());
+    }
   }
 }

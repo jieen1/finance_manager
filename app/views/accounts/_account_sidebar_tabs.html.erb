@@ -2,24 +2,31 @@
 
 <div id="account-sidebar-tabs">
   <% if family.missing_data_provider? %>
-    <details class="group bg-yellow-tint-10 rounded-lg p-2 text-yellow-600 mb-3 text-xs">
+    <details class="group rounded-lg p-2 text-xs mb-3 mx-3" style="background:var(--aurora-amber-d);color:var(--aurora-amber)">
       <summary class="flex items-center justify-between gap-2">
         <div class="flex items-center gap-2">
           <%= icon "triangle-alert", size: "sm", color: "warning" %>
           <p class="font-medium">缺少历史数据</p>
         </div>
-
         <%= icon("chevron-down", color: "warning", class: "group-open:transform group-open:rotate-180") %>
       </summary>
       <div class="text-xs py-2 space-y-2">
-        <p>Maybe 使用 Synth API 获取历史汇率、证券价格等数据，这些数据用于准确计算账户历史余额。</p>
-
-        <p>
-          <%= link_to "在此添加您的 Synth API 密钥。", settings_hosting_path, class: "text-yellow-600 underline" %>
-        </p>
+        <p>Maybe 使用 Synth API 获取历史汇率、证券价格等数据。</p>
+        <p><%= link_to "在此添加您的 Synth API 密钥。", settings_hosting_path, class: "underline" %></p>
       </div>
     </details>
   <% end %>
+
+  <%# Net worth glow card %>
+  <div class="aurora-nw-glow mx-3 mt-3 mb-3 p-5">
+    <p class="aurora-eyebrow mb-2.5">
+      <span class="aurora-eyebrow-dot" style="background:var(--aurora-em);box-shadow:0 0 8px var(--aurora-em-glow)"></span>
+      净资产
+    </p>
+    <p class="aurora-mono text-primary" style="font-size:28px;font-weight:700;letter-spacing:-.05em;line-height:1;animation:aurora-count-in .5s cubic-bezier(.34,1.56,.64,1) .2s backwards">
+      <%= format_money(family.balance_sheet.net_worth) %>
+    </p>
+  </div>
 
   <%= render DS::Tabs.new(active_tab: active_tab, session_key: "account_sidebar_tab", testid: "account-sidebar-tabs") do |tabs| %>
     <% tabs.with_nav do |nav| %>

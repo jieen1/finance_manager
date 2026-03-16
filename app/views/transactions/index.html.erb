@@ -1,6 +1,6 @@
 <div class="space-y-4 pb-20 flex flex-col">
-  <header class="flex justify-between items-center text-primary font-medium">
-    <h1 class="text-xl"><%= t(".transactions") %></h1>
+  <header class="flex justify-between items-center text-primary font-medium" style="animation:aurora-fade-up .4s cubic-bezier(.165,.84,.44,1) backwards">
+    <h1 style="font-size:24px;font-weight:800;letter-spacing:-.03em"><%= t(".transactions") %></h1>
     <div class="flex items-center gap-5">
       <div class="flex items-center gap-2">
         <%= render DS::Menu.new do |menu| %>
@@ -43,54 +43,56 @@
     </div>
   </header>
 
-  <%= render "summary", totals: @search.totals %>
+  <%= turbo_frame_tag "transactions_list", data: { turbo_action: "advance" } do %>
+    <%= render "summary", totals: @search.totals %>
 
-  <div id="transactions"
-       data-controller="bulk-select"
-       data-bulk-select-singular-label-value="<%= t(".transaction") %>"
-       data-bulk-select-plural-label-value="<%= t(".transactions") %>"
-       class="flex flex-col bg-container rounded-xl shadow-border-xs p-4">
-    <%= render "transactions/searches/search" %>
+    <div id="transactions"
+         data-controller="bulk-select"
+         data-bulk-select-singular-label-value="<%= t(".transaction") %>"
+         data-bulk-select-plural-label-value="<%= t(".transactions") %>"
+         class="flex flex-col aurora-card" style="padding:6px 10px 10px">
+      <%= render "transactions/searches/search" %>
 
-    <div id="entry-selection-bar" data-bulk-select-target="selectionBar" class="flex justify-center hidden">
-      <%= render "transactions/selection_bar" %>
-    </div>
-
-    <% if @pagy.count > 0 %>
-      <div class="grow overflow-y-auto">
-        <div class="grid-cols-12 bg-container-inset rounded-xl px-5 py-3 text-xs uppercase font-medium text-secondary items-center mb-4 hidden md:grid">
-          <div class="pl-0.5 col-span-8 flex items-center gap-4">
-            <%= check_box_tag "selection_entry",
-                              class: "checkbox checkbox--light",
-                              data: { action: "bulk-select#togglePageSelection" } %>
-            <p>交易</p>
-          </div>
-
-          <p class="col-span-2">分类</p>
-          <p class="col-span-2 justify-self-end">金额</p>
-        </div>
-
-        <% if @transactions.any? %>
-          <div class="md:hidden text-xs uppercase font-medium text-secondary mb-2 px-2">
-            <%= check_box_tag "selection_entry",
-                              class: "checkbox checkbox--light mr-2 ml-1",
-                              data: { action: "bulk-select#togglePageSelection" } %>
-            <span>交易</span>
-          </div>
-        <% end %>
-
-        <div class="space-y-6">
-          <%= entries_by_date(@transactions.map(&:entry), totals: true) do |entries| %>
-            <%= render entries %>
-          <% end %>
-        </div>
+      <div id="entry-selection-bar" data-bulk-select-target="selectionBar" class="flex justify-center hidden">
+        <%= render "transactions/selection_bar" %>
       </div>
-    <% else %>
-      <%= render "entries/empty" %>
-    <% end %>
 
-    <div class="pt-4">
-      <%= render "shared/pagination", pagy: @pagy %>
+      <% if @pagy.count > 0 %>
+        <div class="grow overflow-y-auto">
+          <div class="grid-cols-12 rounded-xl px-5 py-3 text-xs uppercase font-medium text-secondary items-center mb-4 hidden md:grid" style="background:var(--aurora-bg-3)">
+            <div class="pl-0.5 col-span-8 flex items-center gap-4">
+              <%= check_box_tag "selection_entry",
+                                class: "checkbox checkbox--light",
+                                data: { action: "bulk-select#togglePageSelection" } %>
+              <p>交易</p>
+            </div>
+
+            <p class="col-span-2">分类</p>
+            <p class="col-span-2 justify-self-end">金额</p>
+          </div>
+
+          <% if @transactions.any? %>
+            <div class="md:hidden text-xs uppercase font-medium text-secondary mb-2 px-2">
+              <%= check_box_tag "selection_entry",
+                                class: "checkbox checkbox--light mr-2 ml-1",
+                                data: { action: "bulk-select#togglePageSelection" } %>
+              <span>交易</span>
+            </div>
+          <% end %>
+
+          <div class="space-y-6">
+            <%= entries_by_date(@transactions.map(&:entry), totals: true) do |entries| %>
+              <%= render entries %>
+            <% end %>
+          </div>
+        </div>
+      <% else %>
+        <%= render "entries/empty" %>
+      <% end %>
+
+      <div class="pt-4">
+        <%= render "shared/pagination", pagy: @pagy %>
+      </div>
     </div>
-  </div>
+  <% end %>
 </div>

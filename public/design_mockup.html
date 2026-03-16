@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="zh" id="root">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Finance Manager — Design v5 "Aurora"</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/*═══════════════════════════════════════════════════════
+  DESIGN v5 — "Aurora"
+
+  保留功能完整的4栏布局:
+  导航(可展开56/180px) | 账户侧栏(280px) | 主内容(flex) | AI(340px)
+
+  创新点:
+  1. 导航栏可展开/收起，展开后显示文字标签
+  2. 卡片无边框，用渐变+内发光+阴影层
+  3. 主内容区用 bento grid 不等分布局
+  4. hero区域用渐变横幅而非纯文字
+  5. 侧栏净资产区用渐变发光效果
+═══════════════════════════════════════════════════════*/
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+
+:root{
+  --bg-0:#050810;--bg-1:#0a0e1a;--bg-2:#0f1424;--bg-3:#141a30;--bg-4:#1a2140;
+  --surf:linear-gradient(145deg,rgba(20,26,48,.9),rgba(15,20,36,.95));
+  --glass:rgba(10,14,26,.75);--glass-b:rgba(255,255,255,.04);
+  --glow-1:rgba(16,185,129,.06);
+  --em:#10b981;--em-lt:#34d399;--em-dk:#059669;--em-glow:rgba(16,185,129,.25);--em-dim:rgba(16,185,129,.08);
+  --rose:#fb7185;--rose-d:rgba(251,113,133,.08);--rose-glow:rgba(251,113,133,.15);
+  --amber:#fbbf24;--amber-d:rgba(251,191,36,.08);
+  --blue:#60a5fa;--blue-d:rgba(96,165,250,.08);--blue-glow:rgba(96,165,250,.15);
+  --violet:#a78bfa;--violet-d:rgba(167,139,250,.08);
+  --t0:#f1f5f9;--t1:#94a3b8;--t2:#475569;--t3:#334155;
+  --bd:rgba(255,255,255,.04);--bd-h:rgba(255,255,255,.08);--foc:rgba(52,211,153,.35);
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --r:16px;--rs:12px;--rl:20px;--rxl:24px;--rp:999px;
+  --oq:cubic-bezier(.165,.84,.44,1);--oc:cubic-bezier(.215,.61,.355,1);
+  --ob:cubic-bezier(.34,1.56,.64,1);--io:cubic-bezier(.4,0,.2,1);
+  --nav-w:56px;
+}
+[data-theme=light]{
+  --bg-0:#f5f6f8;--bg-1:#fff;--bg-2:#fff;--bg-3:#f8f9fb;--bg-4:#f0f1f3;
+  --surf:linear-gradient(145deg,rgba(255,255,255,.95),rgba(248,249,251,.98));
+  --glass:rgba(255,255,255,.82);--glass-b:rgba(0,0,0,.04);
+  --glow-1:rgba(16,185,129,.05);
+  --t0:#0f172a;--t1:#64748b;--t2:#94a3b8;--t3:#cbd5e1;
+  --bd:rgba(0,0,0,.04);--bd-h:rgba(0,0,0,.08);
+}
+
+*{transition:background-color .35s var(--io),border-color .35s var(--io),
+  color .25s var(--io),box-shadow .35s var(--io)}
+
+/* KEYFRAMES */
+@keyframes fu{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fi{from{opacity:0}to{opacity:1}}
+@keyframes ci{from{opacity:0;transform:translateY(8px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes dl{from{stroke-dashoffset:900}to{stroke-dashoffset:0}}
+@keyframes gx{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.9)}}
+@keyframes rip{0%{transform:scale(1);opacity:.5}100%{transform:scale(2.5);opacity:0}}
+@keyframes glow{0%,100%{filter:drop-shadow(0 0 6px rgba(52,211,153,.4))}50%{filter:drop-shadow(0 0 14px rgba(52,211,153,.7))}}
+
+body{font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.5;
+  color:var(--t0);background:var(--bg-0);-webkit-font-smoothing:antialiased;overflow:hidden}
+a{text-decoration:none;color:inherit}button{font-family:inherit;cursor:pointer;border:none;outline:none}
+input{font-family:inherit;border:none;outline:none}
+
+.app{display:flex;height:100vh}
+
+/* ═══ NAV — Expandable ═══ */
+.nav{width:var(--nav-w);flex-shrink:0;display:flex;flex-direction:column;align-items:center;
+  padding:14px 0;background:var(--bg-1);position:relative;z-index:30;
+  transition:width .3s var(--oc)!important;overflow:hidden}
+.nav::after{content:'';position:absolute;right:0;top:8%;height:84%;width:1px;
+  background:linear-gradient(to bottom,transparent,var(--bd),transparent)}
+.nav.expanded{width:180px;align-items:flex-start;padding:14px 0}
+.logo{width:36px;height:36px;margin:0 auto 16px;cursor:pointer;flex-shrink:0;
+  transition:transform .3s var(--ob)!important}.logo:hover{transform:scale(1.1)}
+.nav.expanded .logo{margin:0 0 16px 14px}
+.nav-toggle{width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+  border-radius:var(--rs);color:var(--t2);cursor:pointer;margin:0 auto 10px;flex-shrink:0;
+  transition:background .12s,color .12s,transform .2s var(--ob)!important}
+.nav-toggle:hover{background:var(--bg-3);color:var(--t1)}
+.nav.expanded .nav-toggle{margin:0 0 10px 10px}
+.nav-g{display:flex;flex-direction:column;gap:2px;width:100%;padding:0 8px;flex:1}
+.ni{display:flex;align-items:center;gap:10px;height:40px;padding:0 10px;
+  border-radius:var(--rs);cursor:pointer;color:var(--t2);position:relative;white-space:nowrap;
+  transition:color .15s,background .15s,transform .2s var(--ob)!important}
+.ni svg{width:20px;height:20px;flex-shrink:0;transition:transform .2s var(--ob)!important}
+.ni:hover{color:var(--t1);background:var(--bg-3)}.ni:hover svg{transform:scale(1.08)}
+.ni.on{color:var(--em)}
+.ni.on::before{content:'';position:absolute;left:-8px;top:50%;transform:translateY(-50%);
+  width:3px;height:20px;background:var(--em);border-radius:0 3px 3px 0;
+  box-shadow:2px 0 12px var(--em-glow)}
+.ni-l{font-size:12px;font-weight:600;opacity:0;width:0;overflow:hidden;
+  transition:opacity .2s,width .3s var(--oc)!important}
+.nav.expanded .ni-l{opacity:1;width:auto}
+.nav.expanded .ni{justify-content:flex-start}
+.nav:not(.expanded) .ni{justify-content:center}
+.nav-f{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:auto;width:100%;padding:0 8px}
+.nav.expanded .nav-f{align-items:flex-start}
+.nav-av{width:32px;height:32px;border-radius:var(--rp);flex-shrink:0;
+  background:linear-gradient(135deg,var(--em),var(--violet));
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;color:#fff;cursor:pointer;
+  transition:transform .3s var(--ob),box-shadow .3s!important}
+.nav-av:hover{transform:scale(1.1);box-shadow:0 0 0 3px var(--em-glow)}
+.nav-av-wrap{display:flex;align-items:center;gap:10px;padding:0 10px}
+.nav-av-name{font-size:12px;font-weight:600;color:var(--t1);opacity:0;width:0;overflow:hidden;white-space:nowrap;
+  transition:opacity .2s,width .3s var(--oc)!important}
+.nav.expanded .nav-av-name{opacity:1;width:auto}
+
+/* ═══ SIDEBAR — Accounts ═══ */
+.sidebar{width:280px;flex-shrink:0;display:flex;flex-direction:column;
+  background:var(--glass);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);
+  border-right:1px solid var(--glass-b);overflow-y:auto;scrollbar-width:none}
+.sidebar::-webkit-scrollbar{display:none}
+
+.sb-nw{margin:14px 12px;padding:20px;position:relative;overflow:hidden;
+  background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(96,165,250,.04),rgba(167,139,250,.03));
+  border-radius:var(--rl);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05),inset 0 0 0 1px rgba(255,255,255,.04)}
+.sb-nw::before{content:'';position:absolute;top:-40%;right:-30%;width:70%;height:140%;
+  background:radial-gradient(ellipse,rgba(16,185,129,.08),transparent 70%);pointer-events:none}
+[data-theme=light] .sb-nw{background:linear-gradient(135deg,rgba(16,185,129,.06),rgba(96,165,250,.03));
+  box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.sb-ey{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--em);margin-bottom:10px;display:flex;align-items:center;gap:6px;position:relative;z-index:1}
+.sb-amt{font-family:var(--mono);font-size:28px;font-weight:700;letter-spacing:-.05em;line-height:1;
+  position:relative;z-index:1;animation:ci .5s var(--ob) .2s backwards}
+.sb-d{margin-top:10px;display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:var(--em);position:relative;z-index:1}
+
+.sb-lbl{padding:18px 14px 6px;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--t2)}
+.acg-h{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;
+  margin:1px 6px;border-radius:var(--rs);cursor:pointer;transition:background .12s!important}
+.acg-h:hover{background:rgba(255,255,255,.03)}
+[data-theme=light] .acg-h:hover{background:rgba(0,0,0,.02)}
+.acg-n{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--t1)}
+.acg-dot{width:8px;height:8px;border-radius:var(--rp)}
+.acg-t{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--t1)}
+.aci{display:flex;align-items:center;justify-content:space-between;
+  padding:7px 14px 7px 34px;margin:0 6px;border-radius:var(--rs);cursor:pointer;
+  transition:background .12s,transform .2s var(--oc)!important}
+.aci:hover{background:rgba(255,255,255,.03);transform:translateX(3px)}
+[data-theme=light] .aci:hover{background:rgba(0,0,0,.02)}
+.aci-n{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px}
+.aci-b{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--t1);flex-shrink:0}
+.aci-b.p{color:var(--em)}.aci-b.n{color:var(--rose)}
+.sb-div{height:1px;background:linear-gradient(90deg,transparent,var(--bd),transparent);margin:10px 14px}
+
+/* ═══ MAIN ═══ */
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{height:50px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;border-bottom:1px solid var(--bd)}
+.bc{font-size:13px;font-weight:500;color:var(--t1);display:flex;align-items:center;gap:6px}
+.bc b{color:var(--t0);font-weight:600}
+.tb-g{display:flex;align-items:center;gap:8px}
+.tb-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--rs);
+  font-size:12px;font-weight:600;transition:all .15s var(--oc)!important}
+.tb-btn:active{transform:scale(.96)!important}
+.tb-ghost{background:none;color:var(--t1)}.tb-ghost:hover{background:rgba(255,255,255,.04);color:var(--t0)}
+[data-theme=light] .tb-ghost:hover{background:rgba(0,0,0,.03)}
+.tb-prim{background:var(--em);color:#fff;box-shadow:0 4px 16px var(--em-glow)}
+.tb-prim:hover{background:var(--em-lt);box-shadow:0 6px 20px rgba(16,185,129,.35);transform:translateY(-1px)!important}
+
+.content{flex:1;overflow-y:auto;padding:20px 24px 80px;
+  scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.04) transparent}
+.content::-webkit-scrollbar{width:3px}
+.content::-webkit-scrollbar-thumb{background:rgba(255,255,255,.04);border-radius:2px}
+[data-theme=light] .content::-webkit-scrollbar-thumb{background:rgba(0,0,0,.06)}
+.page{display:none}.page.on{display:block;animation:fi .15s var(--oc)}
+
+/* ═══ CARD v5 — No border, layered shadows + inner glow ═══ */
+.card{
+  background:var(--surf);border:none;border-radius:var(--rxl);
+  position:relative;overflow:hidden;
+  box-shadow:0 1px 2px rgba(0,0,0,.2),0 4px 16px rgba(0,0,0,.12),
+    inset 0 1px 0 rgba(255,255,255,.04),inset 0 0 0 1px rgba(255,255,255,.03);
+  animation:fu .4s var(--oq) backwards;
+  transition:transform .3s var(--oc),box-shadow .3s var(--oc)!important;
+}
+.card:hover{transform:translateY(-3px);
+  box-shadow:0 4px 8px rgba(0,0,0,.2),0 16px 40px rgba(0,0,0,.2),
+    inset 0 1px 0 rgba(255,255,255,.06),inset 0 0 0 1px rgba(255,255,255,.05)}
+.card::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.07),transparent);pointer-events:none}
+.card::after{content:'';position:absolute;inset:0;border-radius:inherit;
+  background:radial-gradient(ellipse at 30% 0%,rgba(255,255,255,.03),transparent 60%);
+  pointer-events:none;opacity:0;transition:opacity .3s!important}
+.card:hover::after{opacity:1}
+[data-theme=light] .card{box-shadow:0 1px 3px rgba(0,0,0,.04),0 4px 20px rgba(0,0,0,.05)}
+[data-theme=light] .card:hover{box-shadow:0 4px 8px rgba(0,0,0,.06),0 12px 32px rgba(0,0,0,.08)}
+[data-theme=light] .card::before,[data-theme=light] .card::after{display:none}
+.cp{padding:20px 22px}.cps{padding:16px 18px}
+
+/* ═══ BENTO GRID ═══ */
+.bento{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+.b-c12{grid-column:span 12}.b-c8{grid-column:span 8}.b-c7{grid-column:span 7}
+.b-c6{grid-column:span 6}.b-c5{grid-column:span 5}.b-c4{grid-column:span 4}
+.b-c3{grid-column:span 3}
+
+/* ═══ PAGE HEADER ═══ */
+.ph{margin-bottom:18px;animation:fu .4s var(--oq) backwards}
+.ph-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:500;
+  color:var(--t2);padding:0 0 8px}
+.live{width:6px;height:6px;background:var(--em);border-radius:var(--rp);
+  box-shadow:0 0 8px var(--em-glow);animation:pulse 2.5s ease infinite}
+.ph-h{font-size:24px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
+.ph-s{margin-top:6px;font-size:13px;color:var(--t1)}
+
+/* Hero banner */
+.hero-banner{
+  padding:24px 28px;margin-bottom:14px;position:relative;overflow:hidden;
+  background:linear-gradient(135deg,rgba(16,185,129,.06),rgba(96,165,250,.03),rgba(167,139,250,.03));
+  border-radius:var(--rxl);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04),inset 0 0 0 1px rgba(255,255,255,.03);
+  animation:fu .4s var(--oq) backwards;
+}
+.hero-banner::before{content:'';position:absolute;top:-50%;right:-15%;width:50%;height:200%;
+  background:radial-gradient(ellipse,rgba(16,185,129,.06),transparent 70%);pointer-events:none}
+[data-theme=light] .hero-banner{background:linear-gradient(135deg,rgba(16,185,129,.04),rgba(96,165,250,.02));
+  box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.hero-top{display:flex;align-items:flex-start;justify-content:space-between;position:relative;z-index:1}
+.hero-greeting{font-size:13px;font-weight:500;color:var(--t1);margin-bottom:2px}
+.hero-amount{font-family:var(--mono);font-size:clamp(28px,3vw,40px);font-weight:800;
+  letter-spacing:-.05em;line-height:1;animation:ci .5s var(--ob) .1s backwards}
+.hero-meta{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+.delta{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:var(--rp);
+  font-family:var(--mono);font-size:11px;font-weight:700}
+.d-up{background:rgba(16,185,129,.1);color:var(--em)}
+.d-dn{background:rgba(251,113,133,.1);color:var(--rose)}
+.ptabs{display:flex;gap:2px;background:rgba(255,255,255,.03);border-radius:var(--rs);padding:3px}
+[data-theme=light] .ptabs{background:rgba(0,0,0,.04)}
+.pt{padding:5px 12px;border-radius:calc(var(--rs) - 2px);font-size:11px;font-weight:700;
+  color:var(--t2);cursor:pointer;transition:color .12s,background .2s,box-shadow .2s!important}
+.pt:hover{color:var(--t1)}
+.pt.on{color:var(--t0);background:rgba(255,255,255,.06);box-shadow:0 2px 8px rgba(0,0,0,.25)}
+[data-theme=light] .pt.on{background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+
+/* Chart */
+.c-line{stroke:url(#lg);stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:900;animation:dl 1.6s var(--oq) .3s backwards}
+.c-fill{fill:url(#ag);animation:fi 1s ease .6s backwards}
+.c-grid{stroke:var(--bd);stroke-dasharray:4 6}
+.c-lbl{font-family:var(--mono);font-size:9px;font-weight:600;fill:var(--t2)}
+.c-dot{fill:var(--em);animation:glow 2.5s ease infinite}
+.c-ring{fill:none;stroke:var(--em);stroke-width:1.5;opacity:.3;animation:rip 2s ease-out infinite}
+
+/* Stats */
+.ey{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--t2);margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.ey-dot{width:7px;height:7px;border-radius:var(--rp);flex-shrink:0}
+.stat-val{font-family:var(--mono);font-size:22px;font-weight:700;letter-spacing:-.04em;line-height:1;margin:6px 0 3px}
+.stat-lbl{font-size:12px;font-weight:500;color:var(--t1)}
+.stat-sub{display:flex;align-items:center;gap:3px;font-size:11px;font-weight:700;margin-top:8px}
+
+/* Mini bar */
+.mbar{height:4px;background:rgba(255,255,255,.04);border-radius:var(--rp);margin-top:12px;overflow:hidden}
+[data-theme=light] .mbar{background:rgba(0,0,0,.04)}
+.mfill{height:100%;border-radius:var(--rp);transform-origin:left;animation:gx 1s var(--oq) backwards}
+.mfoot{display:flex;justify-content:space-between;margin-top:4px;font-size:10px;font-weight:500;color:var(--t2)}
+
+/* Allocation */
+.arow{display:flex;align-items:center;gap:8px;padding:7px 0}
+.arow+.arow{border-top:1px solid rgba(255,255,255,.03)}
+[data-theme=light] .arow+.arow{border-top:1px solid rgba(0,0,0,.04)}
+.anm{font-size:11px;font-weight:500;color:var(--t1);width:36px;flex-shrink:0}
+.atr{flex:1;height:4px;background:rgba(255,255,255,.04);border-radius:var(--rp);overflow:hidden}
+[data-theme=light] .atr{background:rgba(0,0,0,.04)}
+.afl{height:100%;border-radius:var(--rp);transform-origin:left;animation:gx .9s var(--oq) backwards}
+.apc{font-family:var(--mono);font-size:10px;font-weight:700;width:28px;text-align:right;flex-shrink:0}
+.aam{font-family:var(--mono);font-size:11px;font-weight:600;width:55px;text-align:right;flex-shrink:0}
+
+/* Transactions */
+.sec-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.sec-t{font-size:14px;font-weight:700}
+.sec-lk{font-size:12px;font-weight:600;color:var(--em);cursor:pointer;transition:color .12s!important}
+.sec-lk:hover{color:var(--em-lt)}
+.txn-dl{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t2);padding:10px 0 4px}
+.txn-dl:first-child{padding-top:0}
+.txn{display:flex;align-items:center;gap:10px;padding:8px 6px;margin:0 -6px;
+  border-radius:var(--rs);cursor:pointer;transition:background .12s,transform .2s var(--oc)!important}
+.txn:hover{background:rgba(255,255,255,.03);transform:translateX(3px)}
+[data-theme=light] .txn:hover{background:rgba(0,0,0,.02)}
+.txn-i{width:36px;height:36px;flex-shrink:0;border-radius:var(--rs);
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+  transition:transform .3s var(--ob)!important}
+.txn:hover .txn-i{transform:scale(1.1)}
+.txn-b{flex:1;min-width:0}
+.txn-nm{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.txn-cat{font-size:11px;font-weight:500;color:var(--t2);margin-top:1px}
+.txn-r{text-align:right;flex-shrink:0}
+.txn-am{font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:-.02em}
+.txn-dt{font-size:10px;font-weight:500;color:var(--t2);margin-top:1px}
+.am-p{color:var(--em)}.am-n{color:var(--t0)}
+
+/* Filter */
+.fbar{display:flex;align-items:center;gap:8px;margin-bottom:16px;animation:fu .4s var(--oq) .05s backwards}
+.srch{flex:1;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.03);
+  border:1px solid var(--bd);border-radius:var(--r);padding:0 12px;height:38px;
+  transition:border-color .2s,box-shadow .3s!important}
+[data-theme=light] .srch{background:rgba(0,0,0,.02)}
+.srch:focus-within{border-color:var(--foc);box-shadow:0 0 0 3px rgba(52,211,153,.06)}
+.srch input{flex:1;background:none;font-size:13px;color:var(--t0)}.srch input::placeholder{color:var(--t2)}
+.fil-btn{height:38px;padding:0 14px;border:1px solid var(--bd);border-radius:var(--r);
+  background:rgba(255,255,255,.03);font-size:12px;font-weight:600;color:var(--t1);
+  display:flex;align-items:center;gap:5px;
+  transition:all .12s!important}
+.fil-btn:hover{background:var(--bg-3);color:var(--t0);border-color:var(--bd-h)}
+.fil-btn.on{background:var(--em-dim);color:var(--em);border-color:rgba(52,211,153,.15)}
+
+/* Budget */
+.bud{display:flex;flex-direction:column;gap:6px;padding:12px 14px;
+  background:rgba(255,255,255,.02);border-radius:var(--rs);cursor:pointer;
+  transition:background .12s,transform .2s var(--oc)!important}
+[data-theme=light] .bud{background:rgba(0,0,0,.015)}
+.bud:hover{background:rgba(255,255,255,.04);transform:translateX(3px)}
+[data-theme=light] .bud:hover{background:rgba(0,0,0,.03)}
+.bud-h{display:flex;align-items:center;justify-content:space-between}
+.bud-t{height:4px;background:rgba(255,255,255,.04);border-radius:var(--rp);overflow:hidden}
+[data-theme=light] .bud-t{background:rgba(0,0,0,.04)}
+.bud-f{height:100%;border-radius:var(--rp);transform-origin:left;animation:gx .9s var(--oq) backwards}
+.bud-ft{display:flex;justify-content:space-between;font-size:11px;font-weight:500}
+
+/* ═══ AI PANEL ═══ */
+.ai{width:340px;flex-shrink:0;display:flex;flex-direction:column;
+  background:var(--glass);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);
+  border-left:1px solid var(--glass-b)}
+.ai-hd{padding:14px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.ai-pw{position:relative;width:10px;height:10px;flex-shrink:0}
+.ai-dot{width:10px;height:10px;background:var(--em);border-radius:var(--rp);
+  position:relative;z-index:1;box-shadow:0 0 10px var(--em-glow);animation:pulse 2.5s ease infinite}
+.ai-rng{position:absolute;inset:-3px;border:2px solid var(--em);border-radius:var(--rp);animation:rip 2s ease-out infinite}
+.ai-tit{font-size:14px;font-weight:700}.ai-sub{font-size:10px;color:var(--t2);margin-top:1px}
+.ai-x{margin-left:auto;color:var(--t2);cursor:pointer;
+  transition:color .12s,transform .3s var(--ob)!important}
+.ai-x:hover{color:var(--t0);transform:scale(1.2) rotate(90deg)}
+.ai-msgs{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:12px;scrollbar-width:none}
+.ai-msgs::-webkit-scrollbar{display:none}
+.ai-msg{animation:fu .3s var(--oq) backwards}
+.ai-bbl{padding:11px 13px;border-radius:var(--r);font-size:13px;line-height:1.65}
+.bot .ai-bbl{background:rgba(255,255,255,.04);border-bottom-left-radius:4px}
+[data-theme=light] .bot .ai-bbl{background:rgba(0,0,0,.03)}
+.usr .ai-bbl{background:var(--em-dim);margin-left:20px;border-bottom-right-radius:4px}
+.ai-time{font-size:10px;color:var(--t2);margin-top:3px;padding:0 2px}.usr .ai-time{text-align:right}
+.ai-chips{padding:0 16px 8px;display:flex;flex-wrap:wrap;gap:5px;flex-shrink:0}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:5px 11px;
+  background:rgba(255,255,255,.04);border-radius:var(--rp);
+  font-size:11px;font-weight:600;color:var(--t1);cursor:pointer;
+  transition:background .12s,color .12s,transform .2s var(--ob)!important}
+[data-theme=light] .chip{background:rgba(0,0,0,.03)}
+.chip:hover{background:var(--em-dim);color:var(--em);transform:translateY(-2px)}
+.ai-ia{padding:8px 16px 16px;flex-shrink:0}
+.ai-iw{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);
+  border:1px solid var(--bd);border-radius:var(--rl);padding:6px 6px 6px 14px;
+  transition:border-color .2s,box-shadow .3s!important}
+[data-theme=light] .ai-iw{background:rgba(0,0,0,.02)}
+.ai-iw:focus-within{border-color:var(--foc);box-shadow:0 0 0 3px rgba(52,211,153,.06)}
+.ai-inp{flex:1;background:none;font-size:13px;color:var(--t0)}.ai-inp::placeholder{color:var(--t2)}
+.ai-sd{width:34px;height:34px;border-radius:var(--rs);background:var(--em);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  transition:background .12s,transform .2s var(--ob),box-shadow .2s!important}
+.ai-sd:hover{background:var(--em-lt);transform:scale(1.1);box-shadow:0 4px 18px var(--em-glow)}
+.ai-sd:active{transform:scale(.92)}
+
+/* DEMO BAR */
+.dbar{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);display:flex;align-items:center;
+  gap:8px;background:var(--glass);backdrop-filter:blur(16px);border:1px solid var(--glass-b);
+  border-radius:var(--rp);padding:6px 14px;box-shadow:0 8px 32px rgba(0,0,0,.3);z-index:9999;
+  animation:fu .5s var(--oq) 1s backwards}
+.dlbl{font-size:10px;font-weight:600;color:var(--t2)}.dsep{width:1px;height:14px;background:var(--bd)}
+.dp{height:26px;padding:0 10px;border-radius:var(--rp);font-size:11px;font-weight:700;
+  background:none;color:var(--t2);transition:background .12s,color .12s!important}
+.dp.on{background:var(--em-dim);color:var(--em)}.dp:hover:not(.on){color:var(--t0)}
+.dt{height:26px;padding:0 10px;border-radius:var(--rp);font-size:11px;font-weight:700;
+  border:1px solid var(--bd);background:rgba(255,255,255,.03);color:var(--t1);
+  display:flex;align-items:center;gap:4px;transition:all .12s!important}
+.dt:hover{color:var(--t0);background:rgba(255,255,255,.05)}
+
+/* ═══ SIDEBAR TABS ═══ */
+.sb-tabs{display:flex;margin:0 12px 8px;background:rgba(255,255,255,.03);border-radius:var(--rs);padding:3px}
+[data-theme=light] .sb-tabs{background:rgba(0,0,0,.04)}
+.sb-tab{flex:1;padding:6px 0;text-align:center;font-size:11px;font-weight:700;color:var(--t2);
+  border-radius:calc(var(--rs) - 2px);cursor:pointer;transition:all .15s var(--oc)!important}
+.sb-tab:hover{color:var(--t1)}
+.sb-tab.on{color:var(--t0);background:rgba(255,255,255,.06);box-shadow:0 1px 4px rgba(0,0,0,.2)}
+[data-theme=light] .sb-tab.on{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.sb-content{display:none}.sb-content.on{display:block}
+
+/* Account sparkline + % */
+.aci-spark{width:32px;height:16px;flex-shrink:0;margin:0 4px}
+.aci-pct{font-family:var(--mono);font-size:9px;font-weight:700;flex-shrink:0}
+.aci-pct.up{color:var(--em)}.aci-pct.dn{color:var(--rose)}
+
+/* ═══ ACCOUNT DETAIL VIEW ═══ */
+.acct-hd{display:flex;align-items:center;gap:14px;margin-bottom:20px;animation:fu .4s var(--oq) backwards}
+.acct-av{width:44px;height:44px;border-radius:var(--rs);display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:700;background:linear-gradient(135deg,var(--em-dim),rgba(96,165,250,.08));color:var(--em)}
+.acct-info{flex:1}
+.acct-name{font-size:20px;font-weight:800;letter-spacing:-.02em}
+.acct-type{font-size:12px;color:var(--t2);font-weight:500}
+.acct-actions{display:flex;gap:6px}
+.acct-btn{width:34px;height:34px;border-radius:var(--rs);display:flex;align-items:center;justify-content:center;
+  color:var(--t2);background:rgba(255,255,255,.03);transition:all .15s!important}
+.acct-btn:hover{color:var(--t0);background:rgba(255,255,255,.06)}
+
+/* Activity list */
+.act-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.act-search{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.03);
+  border:1px solid var(--bd);border-radius:var(--r);padding:0 12px;height:36px;margin-bottom:12px}
+[data-theme=light] .act-search{background:rgba(0,0,0,.02)}
+.act-search input{flex:1;background:none;font-size:12px;color:var(--t0)}
+.act-search input::placeholder{color:var(--t2)}
+.act-row-hd{display:flex;align-items:center;justify-content:space-between;padding:6px 0;
+  font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t2)}
+.act-group{padding:8px 0 4px;font-size:10px;font-weight:700;color:var(--t2);letter-spacing:.06em;
+  display:flex;align-items:center;justify-content:space-between}
+.act-group-bal{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--t1)}
+.act-item{display:flex;align-items:center;gap:10px;padding:8px 4px;margin:0 -4px;border-radius:var(--rs);
+  cursor:pointer;transition:background .12s!important}
+.act-item:hover{background:rgba(255,255,255,.03)}
+[data-theme=light] .act-item:hover{background:rgba(0,0,0,.02)}
+.act-icon{width:32px;height:32px;border-radius:var(--rs);display:flex;align-items:center;
+  justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.act-mid{flex:1;min-width:0}
+.act-nm{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.act-sub{font-size:11px;color:var(--t2)}
+.act-cat{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:var(--rp);
+  font-size:10px;font-weight:600;background:rgba(255,255,255,.04);color:var(--t1)}
+[data-theme=light] .act-cat{background:rgba(0,0,0,.03)}
+.act-amt{font-family:var(--mono);font-size:13px;font-weight:700;flex-shrink:0}
+
+/* ═══ AI ANALYSIS PANEL ═══ */
+.ai-section{padding:0 16px 14px}
+.ai-sec-title{font-size:13px;font-weight:700;margin-bottom:8px}
+.ai-list{list-style:none;padding:0}
+.ai-list li{font-size:12px;line-height:1.6;color:var(--t1);padding-left:12px;position:relative}
+.ai-list li::before{content:'•';position:absolute;left:0;color:var(--t2)}
+
+/* HELPERS */
+.flex{display:flex}.ic{align-items:center}.jb{justify-content:space-between}
+.g2{gap:8px}.g3{gap:12px}.mt2{margin-top:8px}.mt3{margin-top:12px}.mb3{margin-bottom:12px}
+.fw6{font-weight:600}.fw7{font-weight:700}
+.fs10{font-size:10px}.fs11{font-size:11px}.fs12{font-size:12px}.fs13{font-size:13px}
+.tx1{color:var(--t1)}.tx2{color:var(--t2)}.c-up{color:var(--em)}.c-dn{color:var(--rose)}.c-am{color:var(--amber)}
+.d1{animation-delay:60ms}.d2{animation-delay:120ms}.d3{animation-delay:180ms}
+.d4{animation-delay:240ms}.d5{animation-delay:300ms}.d6{animation-delay:360ms}
+</style>
+</head>
+<body>
+
+<svg style="width:0;height:0;position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#34d399" stop-opacity=".18"/><stop offset="100%" stop-color="#34d399" stop-opacity="0"/></linearGradient>
+  <linearGradient id="lg" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#059669"/><stop offset="50%" stop-color="#10b981"/><stop offset="100%" stop-color="#34d399"/></linearGradient>
+  <linearGradient id="logoG" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="#059669"/><stop offset="100%" stop-color="#6ee7b7"/></linearGradient>
+</defs></svg>
+
+<div class="app">
+<!-- NAV (expandable) -->
+<nav class="nav" id="mainNav">
+  <div class="logo"><svg viewBox="0 0 36 36" fill="none"><rect x="2" y="2" width="32" height="32" rx="10" fill="var(--bg-3)"/><path d="M9 24 C12 22 15 14 18 12 C21 10 24 18 27 10" stroke="url(#logoG)" stroke-width="2.5" stroke-linecap="round" fill="none"/><circle cx="27" cy="10" r="2.5" fill="#10b981" filter="drop-shadow(0 0 4px rgba(16,185,129,.6))"/></svg></div>
+  <button class="nav-toggle" id="navToggle" title="展开/收起"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+  <div class="nav-g">
+    <a class="ni on" id="nv-d" href="#" onclick="return false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/></svg><span class="ni-l">仪表盘</span></a>
+    <a class="ni" id="nv-t" href="#" onclick="return false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17V4m0 0L3 8m4-4 4 4"/><path d="M17 7v13m0 0 4-4m-4 4-4-4"/></svg><span class="ni-l">交易</span></a>
+    <a class="ni" id="nv-b" href="#" onclick="return false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6 3"/></svg><span class="ni-l">预算</span></a>
+    <a class="ni" href="#" onclick="return false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 4-8"/></svg><span class="ni-l">报表</span></a>
+    <a class="ni" href="#" onclick="return false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg><span class="ni-l">设置</span></a>
+  </div>
+  <div class="nav-f">
+    <div class="nav-av-wrap"><div class="nav-av">TU</div><span class="nav-av-name">Test User</span></div>
+  </div>
+</nav>
+
+<!-- SIDEBAR — Accounts with tabs -->
+<aside class="sidebar">
+  <!-- Tabs: 资产/负债/所有 -->
+  <div class="sb-tabs">
+    <div class="sb-tab on" data-tab="asset">资产</div>
+    <div class="sb-tab" data-tab="liability">负债</div>
+    <div class="sb-tab" data-tab="all">所有</div>
+  </div>
+  <!-- Net worth -->
+  <div class="sb-nw"><p class="sb-ey"><span class="ey-dot" style="background:var(--em);box-shadow:0 0 8px var(--em-glow)"></span>净资产</p><p class="sb-amt">&#165;1,284,560</p><div class="sb-d"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>+&#165;23,480<span style="opacity:.6;font-size:10px;margin-left:4px">+1.86%</span></div></div>
+  <!-- Assets tab -->
+  <div class="sb-content on" id="sb-asset">
+    <a class="aci" href="#" style="padding:6px 14px;margin:4px 6px;font-size:12px;font-weight:600;color:var(--em)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="margin-right:4px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新建资产</a>
+    <div class="acg-h" onclick="toggleGroup(this)"><span class="acg-n"><span class="acg-dot" style="background:var(--em)"></span>现金</span><span class="acg-t">&#165;348,200</span></div>
+    <div class="acg-items">
+      <a class="aci d1" href="#" onclick="showAcctDetail(event,'招商银行活期')"><span class="aci-n">招商银行活期</span><svg class="aci-spark" viewBox="0 0 32 16"><polyline points="0,12 8,10 16,8 24,6 32,4" fill="none" stroke="var(--em)" stroke-width="1.5"/></svg><span class="aci-pct up">+2.1%</span><span class="aci-b p">&#165;128,430</span></a>
+      <a class="aci d2" href="#" onclick="showAcctDetail(event,'工商银行定期')"><span class="aci-n">工商银行定期</span><svg class="aci-spark" viewBox="0 0 32 16"><polyline points="0,8 8,8 16,8 24,8 32,8" fill="none" stroke="var(--t2)" stroke-width="1.5"/></svg><span class="aci-pct up">+0.3%</span><span class="aci-b p">&#165;219,770</span></a>
+    </div>
+    <div class="acg-h" onclick="toggleGroup(this)"><span class="acg-n"><span class="acg-dot" style="background:var(--blue)"></span>投资</span><span class="acg-t">&#165;986,340</span></div>
+    <div class="acg-items" style="display:none">
+      <a class="aci d3" href="#" onclick="showAcctDetail(event,'A股账户')"><span class="aci-n">A 股账户</span><svg class="aci-spark" viewBox="0 0 32 16"><polyline points="0,14 8,10 16,12 24,6 32,3" fill="none" stroke="var(--em)" stroke-width="1.5"/></svg><span class="aci-pct up">+5.8%</span><span class="aci-b p">&#165;456,780</span></a>
+      <a class="aci d4" href="#" onclick="showAcctDetail(event,'基金组合')"><span class="aci-n">基金组合</span><svg class="aci-spark" viewBox="0 0 32 16"><polyline points="0,10 8,8 16,6 24,8 32,5" fill="none" stroke="var(--em)" stroke-width="1.5"/></svg><span class="aci-pct up">+3.2%</span><span class="aci-b p">&#165;329,560</span></a>
+      <a class="aci d5" href="#" onclick="showAcctDetail(event,'加密货币')"><span class="aci-n">加密货币</span><svg class="aci-spark" viewBox="0 0 32 16"><polyline points="0,4 8,8 16,6 24,12 32,10" fill="none" stroke="var(--rose)" stroke-width="1.5"/></svg><span class="aci-pct dn">-4.2%</span><span class="aci-b p">&#165;200,000</span></a>
+    </div>
+    <div class="acg-h" onclick="toggleGroup(this)"><span class="acg-n"><span class="acg-dot" style="background:var(--amber)"></span>房产</span><span class="acg-t">&#165;2,800,000</span></div>
+    <div class="acg-items" style="display:none">
+      <a class="aci d6" href="#" onclick="showAcctDetail(event,'上海住宅')"><span class="aci-n">上海住宅</span><svg class="aci-spark" viewBox="0 0 32 16"><polyline points="0,8 8,8 16,7 24,7 32,7" fill="none" stroke="var(--t2)" stroke-width="1.5"/></svg><span class="aci-pct up">+0.1%</span><span class="aci-b p">&#165;2,800,000</span></a>
+    </div>
+  </div>
+  <!-- Liabilities tab -->
+  <div class="sb-content" id="sb-liability">
+    <a class="aci" href="#" style="padding:6px 14px;margin:4px 6px;font-size:12px;font-weight:600;color:var(--em)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="margin-right:4px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新建负债</a>
+    <div class="acg-h" onclick="toggleGroup(this)"><span class="acg-n"><span class="acg-dot" style="background:var(--rose)"></span>贷款</span><span class="acg-t" style="color:var(--rose)">-&#165;2,849,980</span></div>
+    <div class="acg-items">
+      <a class="aci" href="#" onclick="showAcctDetail(event,'房屋贷款')"><span class="aci-n">房屋贷款</span><svg class="aci-spark" viewBox="0 0 32 16"><polyline points="0,6 8,6 16,7 24,7 32,8" fill="none" stroke="var(--rose)" stroke-width="1.5"/></svg><span class="aci-pct dn">+0.2%</span><span class="aci-b n">-&#165;2,200,000</span></a>
+      <a class="aci" href="#" onclick="showAcctDetail(event,'信用卡')"><span class="aci-n">信用卡</span><svg class="aci-spark" viewBox="0 0 32 16"><polyline points="0,4 8,8 16,6 24,10 32,12" fill="none" stroke="var(--rose)" stroke-width="1.5"/></svg><span class="aci-pct dn">+8.5%</span><span class="aci-b n">-&#165;49,980</span></a>
+    </div>
+  </div>
+  <!-- All tab -->
+  <div class="sb-content" id="sb-all">
+    <a class="aci" href="#" style="padding:6px 14px;margin:4px 6px;font-size:12px;font-weight:600;color:var(--em)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="margin-right:4px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新建账户</a>
+    <div class="acg-h" onclick="toggleGroup(this)"><span class="acg-n"><span class="acg-dot" style="background:var(--em)"></span>现金</span><span class="acg-t">&#165;348,200</span></div>
+    <div class="acg-items">
+      <a class="aci" href="#" onclick="showAcctDetail(event,'招商银行活期')"><span class="aci-n">招商银行活期</span><span class="aci-b p">&#165;128,430</span></a>
+      <a class="aci" href="#" onclick="showAcctDetail(event,'工商银行定期')"><span class="aci-n">工商银行定期</span><span class="aci-b p">&#165;219,770</span></a>
+    </div>
+    <div class="acg-h" onclick="toggleGroup(this)"><span class="acg-n"><span class="acg-dot" style="background:var(--blue)"></span>投资</span><span class="acg-t">&#165;986,340</span></div>
+    <div class="acg-items" style="display:none">
+      <a class="aci" href="#" onclick="showAcctDetail(event,'A股账户')"><span class="aci-n">A 股账户</span><span class="aci-b p">&#165;456,780</span></a>
+      <a class="aci" href="#" onclick="showAcctDetail(event,'基金组合')"><span class="aci-n">基金组合</span><span class="aci-b p">&#165;329,560</span></a>
+      <a class="aci" href="#" onclick="showAcctDetail(event,'加密货币')"><span class="aci-n">加密货币</span><span class="aci-b p">&#165;200,000</span></a>
+    </div>
+    <div class="sb-div"></div>
+    <div class="acg-h" onclick="toggleGroup(this)"><span class="acg-n"><span class="acg-dot" style="background:var(--rose)"></span>贷款</span><span class="acg-t" style="color:var(--rose)">-&#165;2,849,980</span></div>
+    <div class="acg-items" style="display:none">
+      <a class="aci" href="#" onclick="showAcctDetail(event,'房屋贷款')"><span class="aci-n">房屋贷款</span><span class="aci-b n">-&#165;2,200,000</span></a>
+      <a class="aci" href="#" onclick="showAcctDetail(event,'信用卡')"><span class="aci-n">信用卡</span><span class="aci-b n">-&#165;49,980</span></a>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="bc"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/></svg><b id="bc-t">仪表盘</b></div>
+    <div class="tb-g">
+      <button class="tb-btn tb-ghost"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>搜索</button>
+      <button class="tb-btn tb-prim"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>添加</button>
+    </div>
+  </div>
+  <div class="content">
+
+    <!-- ═══ DASHBOARD ═══ -->
+    <div class="page on" id="pg-d">
+      <!-- Hero -->
+      <div class="hero-banner d1">
+        <div class="hero-top">
+          <div>
+            <p class="hero-greeting">早上好，Test</p>
+            <div class="hero-amount">&#165;1,284,560</div>
+            <div class="hero-meta">
+              <span class="delta d-up"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>+1.86%</span>
+              <span class="fs12 tx1">较上月 +&#165;23,480</span>
+              <span class="fs11 tx2" style="display:flex;align-items:center;gap:4px"><span class="live"></span>2026.03.15</span>
+            </div>
+          </div>
+          <div class="ptabs"><div class="pt">1W</div><div class="pt">1M</div><div class="pt on">3M</div><div class="pt">1Y</div><div class="pt">ALL</div></div>
+        </div>
+      </div>
+
+      <!-- Bento grid -->
+      <div class="bento">
+        <!-- Chart — 8 cols -->
+        <div class="card cp b-c8 d2">
+          <div class="ey"><span class="ey-dot" style="background:var(--em);box-shadow:0 0 8px var(--em-glow)"></span>净资产趋势</div>
+          <svg style="width:100%;height:150px" viewBox="0 0 500 150" preserveAspectRatio="none">
+            <line class="c-grid" x1="36" y1="25" x2="480" y2="25"/>
+            <line class="c-grid" x1="36" y1="65" x2="480" y2="65"/>
+            <line class="c-grid" x1="36" y1="105" x2="480" y2="105"/>
+            <text class="c-lbl" x="4" y="28">130万</text>
+            <text class="c-lbl" x="4" y="68">120万</text>
+            <text class="c-lbl" x="4" y="108">110万</text>
+            <path class="c-fill" d="M42,108 C90,100 120,98 165,90 C205,83 235,96 290,84 C335,73 365,66 405,58 C445,48 465,52 478,35 L478,140 L42,140Z"/>
+            <path class="c-line" d="M42,108 C90,100 120,98 165,90 C205,83 235,96 290,84 C335,73 365,66 405,58 C445,48 465,52 478,35"/>
+            <circle class="c-ring" cx="478" cy="35" r="8"/>
+            <circle class="c-dot" cx="478" cy="35" r="4"/>
+            <text class="c-lbl" x="42" y="140" text-anchor="middle">12月</text>
+            <text class="c-lbl" x="165" y="140" text-anchor="middle">1月</text>
+            <text class="c-lbl" x="290" y="140" text-anchor="middle">2月</text>
+            <text class="c-lbl" x="405" y="140" text-anchor="middle">3月</text>
+            <text class="c-lbl" x="478" y="140" text-anchor="middle">今天</text>
+          </svg>
+        </div>
+
+        <!-- Spending breakdown — 4 cols -->
+        <div class="card cps b-c4 d3">
+          <div class="ey"><span class="ey-dot" style="background:var(--violet);box-shadow:0 0 6px rgba(167,139,250,.3)"></span>支出分布</div>
+          <div class="arow"><span class="anm">住房</span><div class="atr"><div class="afl" style="width:45%;background:var(--blue);animation-delay:.2s"></div></div><span class="apc" style="color:var(--blue)">45%</span><span class="aam">&#165;8,200</span></div>
+          <div class="arow"><span class="anm">餐饮</span><div class="atr"><div class="afl" style="width:22%;background:var(--amber);animation-delay:.26s"></div></div><span class="apc c-am">22%</span><span class="aam">&#165;4,010</span></div>
+          <div class="arow"><span class="anm">交通</span><div class="atr"><div class="afl" style="width:12%;background:var(--em);animation-delay:.32s"></div></div><span class="apc c-up">12%</span><span class="aam">&#165;2,190</span></div>
+          <div class="arow"><span class="anm">娱乐</span><div class="atr"><div class="afl" style="width:8%;background:var(--rose);animation-delay:.38s"></div></div><span class="apc c-dn">8%</span><span class="aam">&#165;1,460</span></div>
+          <div class="arow"><span class="anm">其他</span><div class="atr"><div class="afl" style="width:13%;background:var(--violet);animation-delay:.44s"></div></div><span class="apc" style="color:var(--violet)">13%</span><span class="aam">&#165;2,370</span></div>
+        </div>
+
+        <!-- Income — 4 cols -->
+        <div class="card cps b-c4 d4">
+          <div class="ey"><span class="ey-dot" style="background:var(--em);box-shadow:0 0 6px var(--em-glow)"></span>本月收入</div>
+          <div class="stat-val">&#165;32,500</div>
+          <div class="stat-lbl">来自 3 个来源</div>
+          <div class="stat-sub c-up"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>+&#165;2,500</div>
+          <div class="mbar"><div class="mfill" style="width:72%;background:linear-gradient(90deg,var(--em-dk),var(--em-lt));animation-delay:.4s"></div></div>
+          <div class="mfoot"><span>&#165;0</span><span>目标 &#165;45,000</span></div>
+        </div>
+
+        <!-- Expense — 4 cols -->
+        <div class="card cps b-c4 d5">
+          <div class="ey"><span class="ey-dot" style="background:var(--rose);box-shadow:0 0 6px var(--rose-glow)"></span>本月支出</div>
+          <div class="stat-val">&#165;18,230</div>
+          <div class="stat-lbl">共 47 笔交易</div>
+          <div class="stat-sub c-dn"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>+&#165;1,340</div>
+          <div class="mbar"><div class="mfill" style="width:91%;background:linear-gradient(90deg,#9f1239,var(--rose));animation-delay:.5s"></div></div>
+          <div class="mfoot"><span>&#165;0</span><span style="color:var(--amber)">&#9888; &#165;20,000</span></div>
+        </div>
+
+        <!-- Savings rate — 4 cols -->
+        <div class="card cps b-c4 d6">
+          <div class="ey"><span class="ey-dot" style="background:var(--amber);box-shadow:0 0 6px rgba(251,191,36,.3)"></span>储蓄率</div>
+          <div class="stat-val c-up">43.9%</div>
+          <div class="stat-lbl">净收入比</div>
+          <div class="stat-sub" style="color:var(--amber)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>+5.2%</div>
+          <div class="mbar"><div class="mfill" style="width:44%;background:linear-gradient(90deg,#b45309,var(--amber));animation-delay:.6s"></div></div>
+          <div class="mfoot"><span>0%</span><span>理想 50%</span></div>
+        </div>
+
+        <!-- Transactions — 7 cols -->
+        <div class="card cp b-c7 d5" style="animation-delay:320ms">
+          <div class="sec-h"><span class="sec-t">近期交易</span><a class="sec-lk" href="#">查看全部 &#8594;</a></div>
+          <p class="txn-dl">今天</p>
+          <a class="txn" href="#"><div class="txn-i" style="background:var(--em-dim)">&#128722;</div><div class="txn-b"><p class="txn-nm">盒马鲜生</p><p class="txn-cat">餐饮</p></div><div class="txn-r"><p class="txn-am am-n">-&#165;238</p><p class="txn-dt">10:34</p></div></a>
+          <a class="txn" href="#"><div class="txn-i" style="background:var(--violet-d)">&#9749;</div><div class="txn-b"><p class="txn-nm">星巴克</p><p class="txn-cat">咖啡</p></div><div class="txn-r"><p class="txn-am am-n">-&#165;42</p><p class="txn-dt">09:12</p></div></a>
+          <p class="txn-dl">昨天</p>
+          <a class="txn" href="#"><div class="txn-i" style="background:var(--em-dim)">&#128188;</div><div class="txn-b"><p class="txn-nm">工资入账</p><p class="txn-cat">收入</p></div><div class="txn-r"><p class="txn-am am-p">+&#165;25,000</p><p class="txn-dt">09:00</p></div></a>
+          <a class="txn" href="#"><div class="txn-i" style="background:var(--amber-d)">&#127968;</div><div class="txn-b"><p class="txn-nm">房贷月供</p><p class="txn-cat">住房</p></div><div class="txn-r"><p class="txn-am am-n">-&#165;8,200</p><p class="txn-dt">08:00</p></div></a>
+        </div>
+
+        <!-- Budget quick — 5 cols -->
+        <div class="card cp b-c5 d6" style="animation-delay:360ms">
+          <div class="sec-h"><span class="sec-t">预算概览</span><a class="sec-lk" href="#">管理 &#8594;</a></div>
+          <div class="flex ic jb mb3"><span class="fs12 fw7">总进度</span><span class="fs11 tx1" style="font-family:var(--mono)">&#165;18,230 / &#165;20,000</span></div>
+          <div style="height:5px;background:rgba(255,255,255,.04);border-radius:99px;overflow:hidden;margin-bottom:10px"><div style="height:100%;width:91%;background:linear-gradient(90deg,var(--em-dk),var(--em),var(--amber));border-radius:99px;transform-origin:left;animation:gx 1s var(--oq) .3s backwards"></div></div>
+          <div style="display:flex;flex-direction:column;gap:5px">
+            <div class="bud"><div class="bud-h"><div class="flex ic g2"><span style="font-size:15px">&#127968;</span><span class="fw6 fs12">住房</span></div><span class="delta d-up fs10">按预算</span></div><div class="bud-t"><div class="bud-f" style="width:100%;background:var(--blue);animation-delay:.2s"></div></div><div class="bud-ft tx1"><span>&#165;8,200</span><span class="tx2">/ &#165;8,200</span></div></div>
+            <div class="bud"><div class="bud-h"><div class="flex ic g2"><span style="font-size:15px">&#127836;</span><span class="fw6 fs12">餐饮</span></div><span class="delta d-dn fs10">超支</span></div><div class="bud-t"><div class="bud-f" style="width:100%;background:var(--rose);animation-delay:.26s"></div></div><div class="bud-ft"><span style="color:var(--rose)">&#165;4,010</span><span class="tx2">/ &#165;4,000</span></div></div>
+            <div class="bud"><div class="bud-h"><div class="flex ic g2"><span style="font-size:15px">&#128663;</span><span class="fw6 fs12">交通</span></div><span class="delta d-up fs10">&#165;810</span></div><div class="bud-t"><div class="bud-f" style="width:73%;background:var(--em);animation-delay:.32s"></div></div><div class="bud-ft tx1"><span>&#165;2,190</span><span class="tx2">/ &#165;3,000</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TRANSACTIONS ═══ -->
+    <div class="page" id="pg-t">
+      <div class="ph"><h1 class="ph-h">交易记录</h1><p class="ph-s">共 47 笔 &#183; 支出 <strong class="c-dn">-&#165;18,230</strong> &#183; 收入 <strong class="c-up">+&#165;26,240</strong></p></div>
+      <div class="fbar"><div class="srch"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input placeholder="搜索交易..."></div><button class="fil-btn on">所有账户</button><button class="fil-btn">本月</button><button class="fil-btn">筛选</button></div>
+      <div class="bento" style="margin-bottom:14px">
+        <div class="card cps b-c4 d1"><div class="ey"><span class="ey-dot" style="background:var(--rose);box-shadow:0 0 6px var(--rose-glow)"></span>支出</div><div class="stat-val c-dn">-&#165;18,230</div><div class="stat-lbl">47 笔</div></div>
+        <div class="card cps b-c4 d2"><div class="ey"><span class="ey-dot" style="background:var(--em);box-shadow:0 0 6px var(--em-glow)"></span>收入</div><div class="stat-val c-up">+&#165;26,240</div><div class="stat-lbl">8 笔</div></div>
+        <div class="card cps b-c4 d3"><div class="ey"><span class="ey-dot" style="background:var(--blue);box-shadow:0 0 6px var(--blue-glow)"></span>净额</div><div class="stat-val c-up">+&#165;8,010</div><div class="stat-lbl">本月盈余</div></div>
+      </div>
+      <div class="card d4" style="padding:6px 10px 10px"><div style="padding:6px 8px 0">
+        <p class="txn-dl">今天</p>
+        <a class="txn" href="#"><div class="txn-i" style="background:var(--em-dim)">&#128722;</div><div class="txn-b"><p class="txn-nm">盒马鲜生</p><p class="txn-cat">餐饮</p></div><div class="txn-r"><p class="txn-am am-n">-&#165;238</p><p class="txn-dt">10:34</p></div></a>
+        <a class="txn" href="#"><div class="txn-i" style="background:var(--violet-d)">&#9749;</div><div class="txn-b"><p class="txn-nm">星巴克</p><p class="txn-cat">咖啡</p></div><div class="txn-r"><p class="txn-am am-n">-&#165;42</p><p class="txn-dt">09:12</p></div></a>
+        <p class="txn-dl">昨天</p>
+        <a class="txn" href="#"><div class="txn-i" style="background:var(--em-dim)">&#128188;</div><div class="txn-b"><p class="txn-nm">工资入账</p><p class="txn-cat">收入</p></div><div class="txn-r"><p class="txn-am am-p">+&#165;25,000</p><p class="txn-dt">09:00</p></div></a>
+        <a class="txn" href="#"><div class="txn-i" style="background:var(--amber-d)">&#127968;</div><div class="txn-b"><p class="txn-nm">房贷月供</p><p class="txn-cat">住房</p></div><div class="txn-r"><p class="txn-am am-n">-&#165;8,200</p><p class="txn-dt">08:00</p></div></a>
+        <p class="txn-dl">3月12日</p>
+        <a class="txn" href="#"><div class="txn-i" style="background:rgba(168,85,247,.08)">&#128663;</div><div class="txn-b"><p class="txn-nm">加油站</p><p class="txn-cat">交通</p></div><div class="txn-r"><p class="txn-am am-n">-&#165;380</p><p class="txn-dt">18:22</p></div></a>
+        <a class="txn" href="#"><div class="txn-i" style="background:var(--em-dim)">&#128200;</div><div class="txn-b"><p class="txn-nm">基金分红</p><p class="txn-cat">投资</p></div><div class="txn-r"><p class="txn-am am-p">+&#165;1,240</p><p class="txn-dt">09:30</p></div></a>
+        <a class="txn" href="#"><div class="txn-i" style="background:var(--rose-d)">&#128717;</div><div class="txn-b"><p class="txn-nm">京东购物</p><p class="txn-cat">购物</p></div><div class="txn-r"><p class="txn-am am-n">-&#165;1,299</p><p class="txn-dt">14:08</p></div></a>
+      </div></div>
+    </div>
+
+    <!-- ═══ BUDGETS ═══ -->
+    <div class="page" id="pg-b">
+      <div class="ph"><h1 class="ph-h">预算管理</h1><p class="ph-s">已用 <strong>&#165;18,230</strong> / 预算 <strong>&#165;20,000</strong> &#183; 剩余 <strong class="c-up">&#165;1,770</strong></p></div>
+      <div class="bento" style="margin-bottom:14px">
+        <div class="card cps b-c4 d1"><div class="ey"><span class="ey-dot" style="background:var(--em);box-shadow:0 0 6px var(--em-glow)"></span>月度预算</div><div class="stat-val">&#165;20,000</div><div class="stat-lbl">6 个分类</div></div>
+        <div class="card cps b-c4 d2"><div class="ey"><span class="ey-dot" style="background:var(--amber);box-shadow:0 0 6px rgba(251,191,36,.3)"></span>已使用</div><div class="stat-val">&#165;18,230</div><div class="stat-lbl" style="color:var(--amber)">91.2% &#9888;</div></div>
+        <div class="card cps b-c4 d3"><div class="ey"><span class="ey-dot" style="background:var(--em);box-shadow:0 0 6px var(--em-glow)"></span>储蓄</div><div class="stat-val c-up">+&#165;8,010</div><div class="stat-lbl">本月净流入</div></div>
+      </div>
+      <div class="card cp d4" style="margin-bottom:14px">
+        <div class="flex ic jb mb3"><span class="fw7 fs13">月度总进度</span><span class="fs12 tx1" style="font-family:var(--mono)">&#165;18,230 / &#165;20,000</span></div>
+        <div style="height:7px;background:rgba(255,255,255,.04);border-radius:99px;overflow:hidden"><div style="height:100%;width:91%;background:linear-gradient(90deg,var(--em-dk),var(--em),var(--amber));border-radius:99px;transform-origin:left;animation:gx 1s var(--oq) .2s backwards"></div></div>
+        <div class="flex jb mt2 fs10 fw6 tx2"><span>0</span><span style="color:var(--amber)">剩余 16 天仅 &#165;1,770</span><span>&#165;20,000</span></div>
+      </div>
+      <div class="card cp d5">
+        <div class="sec-h" style="margin-bottom:14px"><span class="sec-t">分类预算</span><a class="sec-lk" href="#">新建 +</a></div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <div class="bud"><div class="bud-h"><div class="flex ic g2"><span style="font-size:16px">&#127968;</span><span class="fw7 fs13">住房</span></div><span class="delta d-up fs11">按预算</span></div><div class="bud-t"><div class="bud-f" style="width:100%;background:var(--blue);animation-delay:.2s"></div></div><div class="bud-ft tx1"><span>&#165;8,200</span><span class="tx2">/ &#165;8,200</span></div></div>
+          <div class="bud"><div class="bud-h"><div class="flex ic g2"><span style="font-size:16px">&#127836;</span><span class="fw7 fs13">餐饮</span></div><span class="delta d-dn fs11">超支</span></div><div class="bud-t"><div class="bud-f" style="width:100%;background:var(--rose);animation-delay:.26s"></div></div><div class="bud-ft"><span style="color:var(--rose)">&#165;4,010</span><span class="tx2">/ &#165;4,000</span></div></div>
+          <div class="bud"><div class="bud-h"><div class="flex ic g2"><span style="font-size:16px">&#128663;</span><span class="fw7 fs13">交通</span></div><span class="delta d-up fs11">剩余 &#165;810</span></div><div class="bud-t"><div class="bud-f" style="width:73%;background:var(--em);animation-delay:.32s"></div></div><div class="bud-ft tx1"><span>&#165;2,190</span><span class="tx2">/ &#165;3,000</span></div></div>
+          <div class="bud"><div class="bud-h"><div class="flex ic g2"><span style="font-size:16px">&#127918;</span><span class="fw7 fs13">娱乐</span></div><span class="delta d-up fs11">剩余 &#165;540</span></div><div class="bud-t"><div class="bud-f" style="width:73%;background:var(--amber);animation-delay:.38s"></div></div><div class="bud-ft tx1"><span>&#165;1,460</span><span class="tx2">/ &#165;2,000</span></div></div>
+          <div class="bud"><div class="bud-h"><div class="flex ic g2"><span style="font-size:16px">&#127973;</span><span class="fw7 fs13">医疗</span></div><span class="delta d-up fs11">剩余 &#165;1,500</span></div><div class="bud-t"><div class="bud-f" style="width:25%;background:var(--violet);animation-delay:.44s"></div></div><div class="bud-ft tx1"><span>&#165;500</span><span class="tx2">/ &#165;2,000</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ ACCOUNT DETAIL ═══ -->
+    <div class="page" id="pg-acct">
+      <div class="acct-hd">
+        <div class="acct-av">招</div>
+        <div class="acct-info"><div class="acct-name" id="acct-title">招商银行活期</div><div class="acct-type">经常账户</div></div>
+        <div class="acct-actions">
+          <button class="acct-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
+          <button class="acct-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button>
+        </div>
+      </div>
+      <!-- Balance card -->
+      <div class="card cp d1" style="margin-bottom:16px">
+        <div class="flex ic jb mb3">
+          <div><div class="ey"><span class="ey-dot" style="background:var(--em);box-shadow:0 0 6px var(--em-glow)"></span>余额</div><div class="stat-val">&#165;128,430</div></div>
+          <select style="background:rgba(255,255,255,.04);color:var(--t1);border:1px solid var(--bd);border-radius:var(--rs);padding:4px 8px;font-size:11px;font-weight:600;font-family:inherit">
+            <option>过去一个月</option><option>过去一季度</option><option>今年</option><option>过去一年</option>
+          </select>
+        </div>
+        <div class="flex ic g2 mb3"><span class="delta d-up"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>+2.1%</span><span class="fs11 tx1">vs. 最近一个月</span></div>
+        <svg style="width:100%;height:120px" viewBox="0 0 500 120" preserveAspectRatio="none">
+          <line class="c-grid" x1="0" y1="30" x2="500" y2="30"/><line class="c-grid" x1="0" y1="60" x2="500" y2="60"/><line class="c-grid" x1="0" y1="90" x2="500" y2="90"/>
+          <path class="c-fill" d="M0,80 C60,78 120,75 180,72 C240,68 300,65 360,55 C420,48 460,42 500,38 L500,115 L0,115Z"/>
+          <path class="c-line" d="M0,80 C60,78 120,75 180,72 C240,68 300,65 360,55 C420,48 460,42 500,38"/>
+          <circle class="c-dot" cx="500" cy="38" r="4"/><circle class="c-ring" cx="500" cy="38" r="8"/>
+          <text class="c-lbl" x="0" y="115">2月15日</text><text class="c-lbl" x="500" y="115" text-anchor="end">3月15日</text>
+        </svg>
+      </div>
+      <!-- Activity -->
+      <div class="card cp d2">
+        <div class="act-hd"><span class="sec-t">活动记录</span><button class="tb-btn tb-prim" style="font-size:11px;padding:5px 12px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新建</button></div>
+        <div class="act-search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input placeholder="通过名称搜索"></div>
+        <div class="act-row-hd"><span>日期</span><span>金额</span></div>
+        <div class="act-group"><span>2026年03月15日 &#183; 3</span><span class="act-group-bal">&#165;128,430</span></div>
+        <div class="act-item"><div class="act-icon" style="background:var(--em-dim);color:var(--em)">&#128722;</div><div class="act-mid"><div class="act-nm">盒马鲜生</div><div class="act-sub">测试账户</div></div><span class="act-cat">&#127836; 餐饮</span><span class="act-amt am-n">-&#165;238</span></div>
+        <div class="act-item"><div class="act-icon" style="background:var(--violet-d);color:var(--violet)">&#9749;</div><div class="act-mid"><div class="act-nm">星巴克</div><div class="act-sub">测试账户</div></div><span class="act-cat">&#9749; 咖啡</span><span class="act-amt am-n">-&#165;42</span></div>
+        <div class="act-item"><div class="act-icon" style="background:var(--em-dim);color:var(--em)">&#128188;</div><div class="act-mid"><div class="act-nm">工资入账</div><div class="act-sub">测试账户</div></div><span class="act-cat">&#128176; 收入</span><span class="act-amt am-p">+&#165;25,000</span></div>
+        <div class="act-group"><span>2026年03月14日 &#183; 2</span><span class="act-group-bal">&#165;103,710</span></div>
+        <div class="act-item"><div class="act-icon" style="background:var(--amber-d);color:var(--amber)">&#127968;</div><div class="act-mid"><div class="act-nm">房贷月供</div><div class="act-sub">测试账户</div></div><span class="act-cat">&#127968; 住房</span><span class="act-amt am-n">-&#165;8,200</span></div>
+        <div class="act-item"><div class="act-icon" style="background:rgba(168,85,247,.08);color:var(--violet)">&#128663;</div><div class="act-mid"><div class="act-nm">加油站</div><div class="act-sub">测试账户</div></div><span class="act-cat">&#128663; 交通</span><span class="act-amt am-n">-&#165;380</span></div>
+        <!-- Pagination -->
+        <div class="flex ic jb mt3" style="padding-top:10px;border-top:1px solid var(--bd)"><div class="flex ic g2"><span class="fs11 tx2">&#8592;</span><span class="fs11 fw7" style="padding:2px 8px;background:var(--em-dim);color:var(--em);border-radius:6px">1</span><span class="fs11 tx2">&#8594;</span></div><select style="background:rgba(255,255,255,.04);color:var(--t1);border:1px solid var(--bd);border-radius:6px;padding:2px 6px;font-size:11px;font-family:inherit"><option>10</option><option>20</option><option>50</option></select></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- AI PANEL — 投资组合评估 -->
+<aside class="ai">
+  <div class="ai-hd"><div class="ai-pw"><div class="ai-rng"></div><div class="ai-dot"></div></div><div><p class="ai-tit">投资组合评估</p><p class="ai-sub">AI 分析</p></div><div class="ai-x"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div></div>
+  <div class="ai-msgs" style="gap:0">
+    <div class="ai-section"><div class="ai-sec-title">当前净资产</div><ul class="ai-list"><li>&#165;1,284,560</li></ul></div>
+    <div class="ai-section"><div class="ai-sec-title">净资产变化（2024-03 至 2026-03）</div><ul class="ai-list"><li>净资产在过去两年内稳步增长，年化 +8.2%</li><li>最近一个月增长 <strong style="color:var(--em)">+&#165;23,480</strong>（+1.86%）</li></ul></div>
+    <div class="ai-section"><div class="ai-sec-title">资产构成</div><ul class="ai-list"><li>当前资产总额: &#165;4,134,540</li><li>现金占比 8.4%，投资占比 23.9%，房产占比 67.7%</li><li>投资组合最近一个月略有增长</li></ul></div>
+    <div class="ai-section"><div class="ai-sec-title">负债情况</div><ul class="ai-list"><li>当前负债总额: &#165;2,849,980</li><li>房贷占负债 77.2%，信用卡 1.8%</li></ul></div>
+    <div class="ai-section"><div class="ai-sec-title">债务资产比率</div><ul class="ai-list"><li>68.9% — 主要由房贷构成</li></ul></div>
+    <div class="ai-section"><div class="ai-sec-title">建议</div><ul class="ai-list"><li>资产结构以房产为主，建议适当增加流动性资产</li><li>考虑增加投资以提高资产增值速度</li><li>信用卡余额较高，建议优先偿还高息债务</li></ul></div>
+  </div>
+  <div class="ai-ia"><div class="ai-iw"><input class="ai-inp" placeholder="随便问点什么..."><button class="ai-sd"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div></div>
+</aside>
+</div>
+
+<!-- DEMO BAR -->
+<div class="dbar"><span class="dlbl">页面</span><div class="dsep"></div><button class="dp on" data-p="d">仪表盘</button><button class="dp" data-p="t">交易</button><button class="dp" data-p="b">预算</button><button class="dp" data-p="acct">账户详情</button><div class="dsep"></div><button class="dt" id="thm"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>亮色</button><div class="dsep"></div><span class="dlbl" style="font-family:var(--mono);opacity:.4">v5</span></div>
+
+<script>
+// Page switching
+const pm={d:'首页 › 仪表盘',t:'首页 › 交易',b:'首页 › 预算',acct:'首页 › 账户'},nm={d:'nv-d',t:'nv-t',b:'nv-b'};
+document.querySelectorAll('.dp').forEach(b=>{b.addEventListener('click',()=>{const p=b.dataset.p;document.querySelectorAll('.page').forEach(e=>e.classList.remove('on'));document.getElementById('pg-'+p)?.classList.add('on');document.getElementById('bc-t').innerHTML=pm[p]||p;document.querySelectorAll('.dp').forEach(x=>x.classList.remove('on'));b.classList.add('on');if(nm[p]){document.querySelectorAll('.ni').forEach(x=>x.classList.remove('on'));document.getElementById(nm[p])?.classList.add('on')}document.querySelector('.content').scrollTop=0})});
+document.querySelectorAll('.ni').forEach(n=>{n.addEventListener('click',e=>{e.preventDefault();document.querySelectorAll('.ni').forEach(x=>x.classList.remove('on'));n.classList.add('on')})});
+document.querySelectorAll('.ptabs').forEach(w=>{w.querySelectorAll('.pt').forEach(t=>{t.addEventListener('click',()=>{w.querySelectorAll('.pt').forEach(x=>x.classList.remove('on'));t.classList.add('on')})})});
+
+// Nav toggle
+document.getElementById('navToggle').addEventListener('click',()=>{document.getElementById('mainNav').classList.toggle('expanded')});
+
+// Theme toggle
+let dk=true;document.getElementById('thm').addEventListener('click',function(){dk=!dk;const r=document.getElementById('root');if(dk){r.removeAttribute('data-theme');this.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>亮色'}else{r.setAttribute('data-theme','light');this.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>暗色'}});
+
+// Sidebar tabs
+document.querySelectorAll('.sb-tab').forEach(t=>{t.addEventListener('click',()=>{document.querySelectorAll('.sb-tab').forEach(x=>x.classList.remove('on'));t.classList.add('on');document.querySelectorAll('.sb-content').forEach(c=>c.classList.remove('on'));document.getElementById('sb-'+t.dataset.tab)?.classList.add('on')})});
+
+// Account group toggle
+function toggleGroup(el){const items=el.nextElementSibling;if(items&&items.classList.contains('acg-items')){items.style.display=items.style.display==='none'?'block':'none'}}
+
+// Account detail view
+function showAcctDetail(e,name){e.preventDefault();const av=document.querySelector('.acct-av');const title=document.getElementById('acct-title');av.textContent=name.charAt(0);title.textContent=name;document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));document.getElementById('pg-acct').classList.add('on');document.getElementById('bc-t').innerHTML='首页 › '+name;document.querySelectorAll('.dp').forEach(x=>x.classList.remove('on'));document.querySelector('[data-p="acct"]').classList.add('on');document.querySelector('.content').scrollTop=0}
+</script>
+</body>
+</html>

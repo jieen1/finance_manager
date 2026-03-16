@@ -1,11 +1,11 @@
 <%= turbo_frame_tag dom_id(account, "entries") do %>
-  <div class="bg-container p-5 shadow-border-xs rounded-xl">
+  <div class="aurora-card" style="padding:20px 22px">
     <div class="flex items-center justify-between mb-4" data-testid="activity-menu">
       <%= tag.h2 t(".activity"), class: "font-medium text-lg" %>
 
       <% if account.manual? %>
         <%= render DS::Menu.new(variant: "button") do |menu| %>
-          <% menu.with_button(text: t(".new"), variant: "secondary", icon: "plus") %>
+          <% menu.with_button(text: t(".new"), variant: "primary", icon: "plus") %>
 
           <% menu.with_item(
               variant: "link",
@@ -31,10 +31,10 @@
               id: "entries-search",
               scope: :q,
               method: :get,
-              data: { controller: "auto-submit-form" } do |form| %>
+              data: { controller: "auto-submit-form", turbo_frame: dom_id(account, "entries") } do |form| %>
         <div class="flex gap-2 mb-4">
           <div class="grow">
-            <div class="flex items-center px-3 py-2 gap-2 border border-secondary rounded-lg focus-within:ring-gray-100 focus-within:border-gray-900">
+            <div class="aurora-search">
               <%= helpers.icon("search") %>
 
               <%= hidden_field_tag :account_id, account.id %>
@@ -63,7 +63,7 @@
           <%= render "entries/selection_bar" %>
         </div>
 
-        <div class="grid bg-container-inset rounded-xl grid-cols-12 items-center uppercase text-xs font-medium text-secondary px-5 py-3 mb-4">
+        <div class="grid rounded-xl grid-cols-12 items-center uppercase text-xs font-medium px-5 py-3 mb-4" style="background:var(--aurora-bg-3);color:var(--aurora-t2);letter-spacing:.06em">
           <div class="pl-0.5 col-span-8 flex items-center gap-4">
             <%= check_box_tag "selection_entry",
                               class: "checkbox checkbox--light",
@@ -84,7 +84,7 @@
             <% end %>
           </div>
 
-          <div class="p-4 bg-container rounded-bl-lg rounded-br-lg">
+          <div class="pt-4 mt-4" style="border-top:1px solid var(--aurora-bd)">
             <%= render "shared/pagination", pagy: pagy %>
           </div>
         </div>

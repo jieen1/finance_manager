@@ -1,20 +1,18 @@
 <%= turbo_frame_tag dom_id(@account, "holdings") do %>
-  <div class="bg-container space-y-4 p-5 rounded-xl shadow-border-xs">
+  <div class="aurora-card space-y-4" style="padding:20px 22px">
     <div class="flex items-center justify-between">
       <%= tag.h2 t(".holdings"), class: "font-medium text-lg" %>
       <%= link_to new_trade_path(account_id: @account.id),
                   id: dom_id(@account, "new_trade"),
                   data: { turbo_frame: :modal },
-                  class: "flex gap-1 font-medium items-center bg-gray-50 text-primary p-2 rounded-lg" do %>
-        <span class="text-primary">
-          <%= icon("plus", color: "current") %>
-        </span>
+                  class: "aurora-btn-primary" do %>
+        <%= icon("plus", color: "white") %>
         <%= tag.span t(".new_holding"), class: "text-sm" %>
       <% end %>
     </div>
 
-    <div class="bg-container-inset rounded-xl p-1">
-      <div class="grid grid-cols-12 items-center uppercase text-xs font-medium text-secondary px-4 py-2">
+    <div class="rounded-xl p-1" style="background:var(--aurora-bg-3)">
+      <div class="grid grid-cols-12 items-center uppercase text-xs font-medium px-4 py-2" style="color:var(--aurora-t2);letter-spacing:.06em">
         <%= tag.p t(".name"), class: "col-span-2" %>
         <%= tag.p t(".weight"), class: "col-span-2 justify-self-end" %>
         <%= tag.p t(".average_cost"), class: "col-span-2 justify-self-end" %>
@@ -23,7 +21,7 @@
         <%= tag.p t(".return"), class: "col-span-2 justify-self-end" %>
       </div>
 
-      <div class="bg-container rounded-lg shadow-border-xs">
+      <div class="rounded-lg" style="background:var(--aurora-bg-2)">
         <%= render "holdings/cash", account: @account %>
         <%= render "shared/ruler" %>
 

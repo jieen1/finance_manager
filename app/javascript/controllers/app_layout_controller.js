@@ -1,13 +1,10 @@
 import { Controller } from "@hotwired/stimulus";
 
-// Connects to data-controller="dialog"
 export default class extends Controller {
-  static targets = ["leftSidebar", "rightSidebar", "mobileSidebar"];
+  static targets = ["leftSidebar", "rightSidebar", "mobileSidebar", "nav"];
   static classes = [
     "expandedSidebar",
     "collapsedSidebar",
-    "expandedTransition",
-    "collapsedTransition",
   ];
 
   openMobileSidebar() {
@@ -16,6 +13,12 @@ export default class extends Controller {
 
   closeMobileSidebar() {
     this.mobileSidebarTarget.classList.add("hidden");
+  }
+
+  toggleNav() {
+    if (this.hasNavTarget) {
+      this.navTarget.classList.toggle("expanded");
+    }
   }
 
   toggleLeftSidebar() {

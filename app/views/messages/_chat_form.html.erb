@@ -4,28 +4,27 @@
   <% model = chat && chat.persisted? ? [chat, Message.new] : Chat.new %>
 
   <%= form_with model: model,
-                class: "flex lg:flex-col gap-2 bg-container px-2 py-1.5 rounded-full lg:rounded-lg shadow-border-xs",
+                class: "aurora-chat-input",
                 data: { chat_target: "form" } do |f| %>
 
-    <%# In the future, this will be a dropdown with different AI models %>
     <%= f.hidden_field :ai_model, value: "MiniMax-Text-01" %>
 
     <%= f.text_area :content, placeholder: "随便问点什么...", value: message_hint,
-                  class: "w-full border-0 focus:ring-0 text-sm resize-none px-1 bg-transparent",
+                  class: "w-full border-0 focus:ring-0 text-sm resize-none bg-transparent text-primary placeholder:text-subdued px-1",
                   data: { chat_target: "input", action: "input->chat#autoResize keydown->chat#handleInputKeyDown" },
                   rows: 1 %>
 
-    <div class="flex items-center justify-between gap-1">
+    <div class="flex items-center justify-between gap-1 mt-1">
       <div class="items-center gap-1 hidden lg:flex">
-        <%# These are disabled for now, but in the future, will all open specific menus with their own context and search %>
-        <% ["plus", "command", "at-sign", "mouse-pointer-click"].each do |icon| %>
-          <%= icon(icon, as_button: true, disabled: true, class: "cursor-not-allowed", title: "Coming soon") %>
+        <% ["plus", "command", "at-sign", "mouse-pointer-click"].each do |ic| %>
+          <%= icon(ic, as_button: true, disabled: true, class: "cursor-not-allowed opacity-30", title: "即将推出") %>
         <% end %>
       </div>
 
-      <%= icon("arrow-up", as_button: true, type: "submit") %>
+      <button type="submit" class="aurora-chat-send">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
     </div>
   <% end %>
 
-  <p class="text-xs text-secondary">AI 回复仅供参考，不构成财务建议。</p>
 </div>

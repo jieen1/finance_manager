@@ -1,14 +1,16 @@
 <%# locals: (account:, title:, subtitle: nil) %>
 
-<header class="space-y-4">
+<header class="space-y-4" style="animation:aurora-fade-up .4s cubic-bezier(.165,.84,.44,1) backwards">
   <div class="flex items-center gap-4">
     <div class="flex items-center gap-3 overflow-hidden">
-      <%= render "accounts/logo", account: account %>
+      <div class="flex items-center justify-center" style="width:44px;height:44px;border-radius:var(--aurora-rs);font-size:18px;font-weight:700;background:linear-gradient(135deg,var(--aurora-em-dim),var(--aurora-blue-d));color:var(--aurora-em)">
+        <%= account.name.first %>
+      </div>
 
       <div class="flex items-center gap-2">
         <div class="truncate">
           <div class="flex items-center gap-3">
-            <h2 class="font-medium text-xl truncate <%= "animate-pulse" if account.syncing? %>"><%= title %></h2>
+            <h2 class="truncate <%= "animate-pulse" if account.syncing? %>" style="font-size:20px;font-weight:800;letter-spacing:-.02em"><%= title %></h2>
             <% if account.draft? %>
               <%= render DS::Link.new(
                   text: "完成设置",

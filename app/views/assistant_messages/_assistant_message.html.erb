@@ -4,7 +4,7 @@
   <% if assistant_message.reasoning? %>
     <details class="group mb-1">
       <summary class="flex items-center gap-2">
-        <p class="text-secondary text-sm">Assistant reasoning</p>
+        <p class="text-secondary text-sm">AI 推理过程</p>
         <%= icon("chevron-down", class: "group-open:transform group-open:rotate-180") %>
       </summary>
 
@@ -15,10 +15,12 @@
       <%= render "assistant_messages/tool_calls", message: assistant_message %>
     <% end %>
 
-    <div class="flex items-start gap-3 mb-6">
+    <div class="flex items-start gap-3 mb-4">
       <%= render "chats/ai_avatar" %>
 
-      <div class="prose prose--ai-chat"><%= markdown(assistant_message.content) %></div>
+      <div class="prose prose--ai-chat px-3.5 py-2.5 rounded-2xl" style="background:var(--aurora-bg-3);border-bottom-left-radius:4px;max-width:90%">
+        <%= markdown(assistant_message.content) %>
+      </div>
     </div>
   <% end %>
 </div>
