@@ -59,7 +59,7 @@ module ThsSync
       trade_type = OP_TO_TYPE[op]
       return nil unless trade_type
 
-      market = (record["market"] || record["market_code"]).to_s
+      market = (record["market_code"].presence || record["market"].presence).to_s
       exchange = MARKET_TO_EXCHANGE[market] || "XSHG"
       currency = MARKET_TO_CURRENCY[market] || "CNY"
       code = record["code"].to_s.strip
