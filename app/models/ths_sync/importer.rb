@@ -29,6 +29,7 @@ module ThsSync
         sync_positions(client, fund_key: "84360053")
       end
 
+      sync_hk_rate(client)
       ths_session.record_sync!
       results
     rescue ThsClient::AuthError => e
@@ -202,6 +203,39 @@ module ThsSync
     rescue => e
       results[:errors] << "update #{ext_record.external_id}: #{e.message}"
       results[:skipped] += 1
+    end
+
+    # Sync HKD→CNY rate from THS to keep consistent with THS calculations
+    def sync_hk_rate(client)
+      data = client.hk_rate
+      ex = data["ex_data"]
+      return unless ex
+
+      rate = ex["rate"].to_f
+      date_str = ex["date"].to_s
+      return if rate.zero? || date_str.blank?
+
+      date = Date.parse("#{date_str[0..3]}-#{date_str[4..5]}-#{date_str[6..7]}")
+
+      ExchangeRate.find_or_initialize_by(
+        from_currency: "HKD",
+        to_currency: "CNY",
+        date: date
+      ).update!(rate: rate)
+
+      # Also store previous day rate if available
+      if ex["before_rate"].present? && ex["before_date"].present?
+        before_rate = ex["before_rate"].to_f
+        bd = ex["before_date"].to_s
+        before_date = Date.parse("#{bd[0..3]}-#{bd[4..5]}-#{bd[6..7]}")
+        ExchangeRate.find_or_initialize_by(
+          from_currency: "HKD",
+          to_currency: "CNY",
+          date: before_date
+        ).update!(rate: before_rate)
+      end
+    rescue => e
+      Rails.logger.warn("[ThsSync] hk_rate sync failed: #{e.message}")
     end
 
     def find_investment_account

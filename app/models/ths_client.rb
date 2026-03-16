@@ -41,6 +41,11 @@ class ThsClient
     })
   end
 
+  # Get HKD→CNY exchange rate
+  def hk_rate
+    post("/caishen_fund/stock_common/v1/hk_rate")
+  end
+
   def alive?
     result = account_list
     result && result["error_code"] == "0"
