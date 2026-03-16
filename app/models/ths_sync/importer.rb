@@ -120,7 +120,9 @@ module ThsSync
         return
       end
 
-      form = Trade::CreateForm.new(**params.merge(account: account))
+      # Trade::CreateForm takes `account` object, not `account_id`
+      form_params = params.except(:account_id)
+      form = Trade::CreateForm.new(**form_params.merge(account: account))
       entry = form.create
 
       if entry.persisted?
