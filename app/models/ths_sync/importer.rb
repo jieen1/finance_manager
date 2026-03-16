@@ -5,13 +5,12 @@ module ThsSync
     def initialize(ths_session)
       @ths_session = ths_session
       @family = ths_session.family
-      @results = { created: 0, skipped: 0, errors: [] }
+      @results = { created: 0, updated: 0, skipped: 0, errors: [] }
     end
 
     def sync!
       client = ThsClient.new(ths_session)
 
-      # Try to get accounts, then sync trades for each
       begin
         account_data = client.account_list
         ths_accounts = account_data.dig("ex_data", "list") || []
@@ -26,7 +25,6 @@ module ThsSync
           sync_positions(client, fund_key: fund_key) if fund_key.present?
         end
       else
-        # Fallback with known fund_key from request sample
         sync_trades(client, fund_key: "84360053")
         sync_positions(client, fund_key: "84360053")
       end
@@ -85,8 +83,9 @@ module ThsSync
         external_id: ext_id
       )
 
+      # Already imported - check if fee needs update
       if ext_record.persisted? && ext_record.status == "imported"
-        results[:skipped] += 1
+        maybe_update_fee(ext_record, record)
         return
       end
 
@@ -110,7 +109,7 @@ module ThsSync
     def import_trade(ext_record, record)
       account = find_investment_account
       unless account
-        ext_record.mark_error!("No investment account found in family")
+        ext_record.mark_error!("No investment account found")
         return
       end
 
@@ -120,7 +119,6 @@ module ThsSync
         return
       end
 
-      # Trade::CreateForm takes `account` object, not `account_id`
       form_params = params.except(:account_id)
       form = Trade::CreateForm.new(**form_params.merge(account: account))
       entry = form.create
@@ -133,6 +131,33 @@ module ThsSync
         ext_record.mark_error!(msg)
         results[:errors] << "#{ext_record.external_id}: #{msg}"
       end
+    end
+
+    # When fee was 0 (same-day trade before settlement), update with real fee next day
+    def maybe_update_fee(ext_record, record)
+      if ThsSync::TradeMapper.fee_changed?(ext_record.entry, record)
+        entry = ext_record.entry
+        trade = entry.entryable
+        new_fee = record["fee_total"].to_f
+
+        trade.update!(fee: new_fee)
+        # Recalculate entry amount with new fee
+        signed_qty = trade.qty
+        fee_impact = signed_qty.positive? ? new_fee : -new_fee
+        new_amount = (signed_qty * trade.price) + fee_impact
+        entry.update!(amount: new_amount)
+
+        # Update raw_data with latest values
+        ext_record.update!(raw_data: record)
+
+        entry.account.sync_later
+        results[:updated] += 1
+      else
+        results[:skipped] += 1
+      end
+    rescue => e
+      results[:errors] << "fee_update #{ext_record.external_id}: #{e.message}"
+      results[:skipped] += 1
     end
 
     def find_investment_account
