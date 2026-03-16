@@ -164,7 +164,7 @@
           "hidden lg:flex flex-col h-full flex-shrink-0 overflow-y-auto transition-all duration-300",
           Current.user.show_ai_sidebar? ? expanded_sidebar_class : collapsed_sidebar_class,
         ),
-        style: "max-width:340px;background:var(--aurora-glass);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-left:1px solid var(--aurora-glass-b)",
+        style: "max-width:420px;background:var(--aurora-glass);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-left:1px solid var(--aurora-glass-b)",
         data: { app_layout_target: "rightSidebar" } do %>
       <%= tag.div id: "chat-container", class: "relative h-full", data: { controller: "chat hotkey", turbo_permanent: true } do %>
         <div class="flex flex-col h-full justify-between shrink-0">
