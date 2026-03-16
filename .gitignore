@@ -109,3 +109,6 @@ scripts/
 
 /*.png
 nohup.out
+tzzb-plugin-customized/
+scripts/ths_cookie.txt
+scripts/ths_request_sample.txt

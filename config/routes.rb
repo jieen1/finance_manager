@@ -24,6 +24,13 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :ths_sessions, only: [ :index, :create, :destroy ] do
+    member do
+      post :sync_now
+      post :test_connection
+    end
+  end
+
   resources :family_exports, only: %i[new create index] do
     member do
       get :download

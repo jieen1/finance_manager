@@ -28,6 +28,12 @@ clean_syncs:
   queue: "scheduled"
   description: "Cleans up stale syncs"
 
+ths_sync:
+  cron: "0 8 * * 1-5" # 4:00 PM Beijing time (8:00 AM UTC) Monday through Friday
+  class: "ThsSyncJob"
+  queue: "scheduled"
+  description: "Syncs trade data from THS Investment Book after A-share market close"
+
 run_security_health_checks:
   cron: "0 2 * * 1-5" # 2:00 AM EST / 3:00 AM EDT (NY time) Monday through Friday
   class: "SecurityHealthCheckJob"

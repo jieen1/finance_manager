@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_03_15_170309) do
+ActiveRecord::Schema[7.2].define(version: 2026_03_16_103153) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -251,6 +251,24 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_15_170309) do
     t.index ["from_currency", "to_currency", "date"], name: "index_exchange_rates_on_base_converted_date_unique", unique: true
     t.index ["from_currency"], name: "index_exchange_rates_on_from_currency"
     t.index ["to_currency"], name: "index_exchange_rates_on_to_currency"
+  end
+
+  create_table "external_records", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "family_id", null: false
+    t.string "source", null: false
+    t.string "external_id", null: false
+    t.string "record_type", null: false
+    t.jsonb "raw_data", default: {}, null: false
+    t.string "status", default: "pending"
+    t.string "error_message"
+    t.uuid "entry_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["entry_id"], name: "index_external_records_on_entry_id"
+    t.index ["family_id", "source", "status"], name: "index_external_records_on_family_id_and_source_and_status"
+    t.index ["family_id"], name: "index_external_records_on_family_id"
+    t.index ["source", "external_id"], name: "index_external_records_on_source_and_external_id", unique: true
+    t.index ["status"], name: "index_external_records_on_status"
   end
 
   create_table "families", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -728,6 +746,20 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_15_170309) do
     t.index ["family_id"], name: "index_tags_on_family_id"
   end
 
+  create_table "ths_sessions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "family_id", null: false
+    t.string "userid", null: false
+    t.text "cookies", null: false
+    t.string "status", default: "active"
+    t.datetime "expires_at"
+    t.datetime "last_synced_at"
+    t.string "last_error"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["family_id", "status"], name: "index_ths_sessions_on_family_id_and_status"
+    t.index ["family_id"], name: "index_ths_sessions_on_family_id"
+  end
+
   create_table "tool_calls", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "message_id", null: false
     t.string "provider_id", null: false
@@ -846,6 +878,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_15_170309) do
   add_foreign_key "chats", "users"
   add_foreign_key "entries", "accounts"
   add_foreign_key "entries", "imports"
+  add_foreign_key "external_records", "entries"
+  add_foreign_key "external_records", "families"
   add_foreign_key "family_exports", "families"
   add_foreign_key "holdings", "accounts"
   add_foreign_key "holdings", "securities"
@@ -876,6 +910,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_15_170309) do
   add_foreign_key "syncs", "syncs", column: "parent_id"
   add_foreign_key "taggings", "tags"
   add_foreign_key "tags", "families"
+  add_foreign_key "ths_sessions", "families"
   add_foreign_key "tool_calls", "messages"
   add_foreign_key "trades", "securities"
   add_foreign_key "transactions", "categories", on_delete: :nullify

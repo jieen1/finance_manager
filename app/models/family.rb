@@ -19,6 +19,8 @@ class Family < ApplicationRecord
 
   has_many :imports, dependent: :destroy
   has_many :family_exports, dependent: :destroy
+  has_many :ths_sessions, dependent: :destroy
+  has_many :external_records, dependent: :destroy
 
   has_many :entries, through: :accounts
   has_many :transactions, through: :accounts
