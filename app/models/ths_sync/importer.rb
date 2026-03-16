@@ -38,25 +38,45 @@ module ThsSync
 
     private
 
+    # 增量同步：只拉最近3天的数据（覆盖前一天用于更新结算后的手续费）
+    # 首次全量同步：如果没有任何已导入记录，拉取全部历史
     def sync_trades(client, fund_key:)
-      # Collect ALL records first, then process
+      cutoff_date = incremental_cutoff_date
       all_records = []
       page = 1
+
       loop do
         data = client.money_history(fund_key: fund_key, page: page, count: 50)
         records = data.dig("ex_data", "list") || []
         break if records.empty?
-        all_records.concat(records)
+
+        # 增量模式：数据按日期倒序返回，遇到早于截止日期的就停止
+        if cutoff_date
+          recent = records.select { |r| r["entry_date"].to_s >= cutoff_date }
+          all_records.concat(recent)
+          break if recent.size < records.size # 已经到达截止日期
+        else
+          all_records.concat(records)
+        end
+
         break if records.size < 50
         page += 1
         break if page > 200
       end
 
-      # Sort by date ASC so op=18 dedup keeps the earliest (缴款日, not 上市日)
+      # 按日期正序处理（op=18 去重需要最早的排在前面）
       all_records.sort_by! { |r| [r["entry_date"].to_s, r["entry_time"].to_s] }
       all_records.each { |record| store_and_import(record) }
     rescue ThsClient::ApiError => e
-      results[:errors] << "money_history page=#{page}: #{e.message}"
+      results[:errors] << "money_history: #{e.message}"
+    end
+
+    # 有历史数据时只拉最近3天，否则全量
+    def incremental_cutoff_date
+      has_history = ExternalRecord.where(source: "ths", family: family).imported.exists?
+      return nil unless has_history # 首次全量
+
+      (Date.current - 3).to_s # 最近3天（今天+昨天+前天，覆盖结算延迟）
     end
 
     def sync_positions(client, fund_key:)
