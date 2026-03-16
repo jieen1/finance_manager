@@ -1,28 +1,34 @@
 import { Controller } from "@hotwired/stimulus";
 
-// Custom dropdown to replace native <select> with styled Aurora dropdown
-// Usage: wrap a <select> with data-controller="aurora-select"
-// The controller hides the native select and renders a custom dropdown
+// Custom dropdown to replace native <select> with styled Aurora dropdown.
+// Dropdown is appended to document.body with fixed positioning to avoid
+// overflow:hidden clipping from parent containers like .aurora-card.
 export default class extends Controller {
-  static targets = ["select", "trigger", "dropdown", "options"];
+  static targets = ["select"];
+
+  _trigger = null;
+  _dropdown = null;
 
   connect() {
     this._buildCustomDropdown();
     document.addEventListener("click", this._handleOutsideClick);
+    window.addEventListener("scroll", this._reposition, true);
   }
 
   disconnect() {
     document.removeEventListener("click", this._handleOutsideClick);
+    window.removeEventListener("scroll", this._reposition, true);
+    if (this._dropdown && this._dropdown.parentNode) {
+      this._dropdown.parentNode.removeChild(this._dropdown);
+    }
   }
 
   toggle(e) {
     e.stopPropagation();
-    const dropdown = this.dropdownTarget;
-    const isOpen = !dropdown.classList.contains("hidden");
-    if (isOpen) {
-      this._close();
-    } else {
+    if (this._dropdown.classList.contains("hidden")) {
       this._open();
+    } else {
+      this._close();
     }
   }
 
@@ -32,44 +38,49 @@ export default class extends Controller {
     const select = this.selectTarget;
 
     select.value = value;
-    this.triggerTarget.querySelector("[data-role='label']").textContent = label;
+    this._trigger.querySelector("[data-role='label']").textContent = label;
 
     // Update active state
-    this.optionsTarget.querySelectorAll("[data-role='option']").forEach((opt) => {
+    this._dropdown.querySelectorAll("[data-role='option']").forEach((opt) => {
       opt.classList.toggle("aurora-select-active", opt.dataset.value === value);
     });
 
     this._close();
-
-    // Dispatch change event on native select to trigger auto-submit etc
     select.dispatchEvent(new Event("change", { bubbles: true }));
   }
 
   _open() {
-    this.dropdownTarget.classList.remove("hidden");
-    // Position dropdown
-    const rect = this.triggerTarget.getBoundingClientRect();
-    const dropdown = this.dropdownTarget;
-    const spaceBelow = window.innerHeight - rect.bottom;
-    if (spaceBelow < 200 && rect.top > 200) {
-      dropdown.style.bottom = "100%";
-      dropdown.style.top = "auto";
-      dropdown.style.marginBottom = "4px";
-      dropdown.style.marginTop = "0";
-    } else {
-      dropdown.style.top = "100%";
-      dropdown.style.bottom = "auto";
-      dropdown.style.marginTop = "4px";
-      dropdown.style.marginBottom = "0";
-    }
+    this._dropdown.classList.remove("hidden");
+    this._reposition();
   }
 
   _close() {
-    this.dropdownTarget.classList.add("hidden");
+    this._dropdown.classList.add("hidden");
   }
 
+  _reposition = () => {
+    if (this._dropdown.classList.contains("hidden")) return;
+    const rect = this._trigger.getBoundingClientRect();
+    const dh = this._dropdown.offsetHeight;
+    const spaceBelow = window.innerHeight - rect.bottom;
+
+    // Horizontal: align right edge of dropdown with right edge of trigger
+    const dw = this._dropdown.offsetWidth;
+    let left = rect.right - dw;
+    if (left < 8) left = rect.left; // fallback: align left if would overflow
+
+    if (spaceBelow < dh + 8 && rect.top > dh + 8) {
+      // Open above
+      this._dropdown.style.top = `${rect.top - dh - 4}px`;
+    } else {
+      // Open below
+      this._dropdown.style.top = `${rect.bottom + 4}px`;
+    }
+    this._dropdown.style.left = `${left}px`;
+  };
+
   _handleOutsideClick = (e) => {
-    if (!this.element.contains(e.target)) {
+    if (!this.element.contains(e.target) && !this._dropdown.contains(e.target)) {
       this._close();
     }
   };
@@ -81,43 +92,38 @@ export default class extends Controller {
     const selectedOption = select.options[select.selectedIndex];
     const selectedLabel = selectedOption ? selectedOption.text : "";
 
-    // Build trigger button
+    // Trigger button (stays in DOM where the select was)
     const trigger = document.createElement("button");
     trigger.type = "button";
     trigger.className = "aurora-select-trigger";
-    trigger.setAttribute("data-aurora-select-target", "trigger");
-    trigger.setAttribute("data-action", "aurora-select#toggle");
+    trigger.addEventListener("click", (e) => this.toggle(e));
     trigger.innerHTML = `
       <span data-role="label">${selectedLabel}</span>
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
     `;
+    this._trigger = trigger;
+    this.element.appendChild(trigger);
 
-    // Build dropdown
+    // Dropdown (appended to body to escape overflow:hidden)
     const dropdown = document.createElement("div");
     dropdown.className = "aurora-select-dropdown hidden";
-    dropdown.setAttribute("data-aurora-select-target", "dropdown");
-
-    const optionsContainer = document.createElement("div");
-    optionsContainer.className = "aurora-select-options";
-    optionsContainer.setAttribute("data-aurora-select-target", "options");
+    dropdown.style.position = "fixed";
+    dropdown.style.zIndex = "9999";
 
     Array.from(select.options).forEach((opt) => {
       const item = document.createElement("button");
       item.type = "button";
       item.className = "aurora-select-option";
       item.setAttribute("data-role", "option");
-      item.setAttribute("data-value", opt.value);
-      item.setAttribute("data-label", opt.text);
-      item.setAttribute("data-action", "aurora-select#pick");
+      item.dataset.value = opt.value;
+      item.dataset.label = opt.text;
       item.textContent = opt.text;
-      if (opt.selected) {
-        item.classList.add("aurora-select-active");
-      }
-      optionsContainer.appendChild(item);
+      if (opt.selected) item.classList.add("aurora-select-active");
+      item.addEventListener("click", (e) => this.pick(e));
+      dropdown.appendChild(item);
     });
 
-    dropdown.appendChild(optionsContainer);
-    this.element.appendChild(trigger);
-    this.element.appendChild(dropdown);
+    this._dropdown = dropdown;
+    document.body.appendChild(dropdown);
   }
 }
