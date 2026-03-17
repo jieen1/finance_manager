@@ -1,13 +1,50 @@
 class Balance::ForwardCalculator < Balance::BaseCalculator
+  def initialize(account, window_start_date: nil)
+    super(account)
+    @window_start_date = window_start_date
+  end
+
   def calculate
     Rails.logger.tagged("Balance::ForwardCalculator") do
-      start_cash_balance = derive_cash_balance_on_date_from_total(
+      if @window_start_date
+        calculate_windowed
+      else
+        calculate_from(calc_start_date, initial_start_cash, initial_start_non_cash)
+      end
+    end
+  end
+
+  private
+    def initial_start_cash
+      derive_cash_balance_on_date_from_total(
         total_balance: account.opening_anchor_balance,
         date: account.opening_anchor_date
       )
-      start_non_cash_balance = account.opening_anchor_balance - start_cash_balance
+    end
 
-      calc_start_date.upto(calc_end_date).map do |date|
+    def initial_start_non_cash
+      account.opening_anchor_balance - initial_start_cash
+    end
+
+    # Windowed calculation: start from yesterday's DB balance, only recalculate window onward.
+    # Falls back to full calculation if no previous balance record exists.
+    def calculate_windowed
+      prev_day = @window_start_date.prev_day
+      prev_balance = account.balances.find_by(date: prev_day, currency: account.currency)
+
+      unless prev_balance
+        Rails.logger.info("No previous balance for windowed sync (#{prev_day}), falling back to full recalculation")
+        return calculate_from(calc_start_date, initial_start_cash, initial_start_non_cash)
+      end
+
+      calculate_from(@window_start_date, prev_balance.end_cash_balance, prev_balance.end_non_cash_balance)
+    end
+
+    def calculate_from(from_date, start_cash, start_non_cash)
+      start_cash_balance = start_cash
+      start_non_cash_balance = start_non_cash
+
+      from_date.upto(calc_end_date).map do |date|
         # Investment accounts use flow-based cash calculation only.
         # Reconciliation valuations are not supported; opening anchor is handled above.
         valuation = account.investment? ? nil : sync_cache.get_valuation(date)
@@ -51,9 +88,7 @@ class Balance::ForwardCalculator < Balance::BaseCalculator
         output_balance
       end
     end
-  end
 
-  private
     def calc_start_date
       account.opening_anchor_date
     end

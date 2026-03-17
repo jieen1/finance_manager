@@ -580,6 +580,63 @@ class Balance::ForwardCalculatorTest < ActiveSupport::TestCase
     )
   end
 
+  # ------------------------------------------------------------------------------------------------
+  # Windowed calculation tests (today-only sync)
+  # ------------------------------------------------------------------------------------------------
+
+  test "windowed calculation uses yesterday's DB balance as starting state" do
+    account = create_account_with_ledger(
+      account: { type: Investment, currency: "USD" },
+      entries: []
+    )
+
+    # Simulate a previous full sync by persisting yesterday's balance to DB
+    yesterday = 1.day.ago.to_date
+    account.balances.create!(
+      date: yesterday,
+      balance: 10000,
+      cash_balance: 10000,
+      currency: "USD",
+      start_cash_balance: 9000,
+      start_non_cash_balance: 0,
+      cash_inflows: 1000,
+      cash_outflows: 0,
+      non_cash_inflows: 0,
+      non_cash_outflows: 0,
+      net_market_flows: 0,
+      cash_adjustments: 0,
+      non_cash_adjustments: 0,
+      flows_factor: 1
+    )
+
+    # Windowed calculation should start from yesterday's end balance
+    calculated = Balance::ForwardCalculator.new(account, window_start_date: Date.current).calculate
+
+    assert_equal 1, calculated.size
+    today = calculated.first
+    assert_equal Date.current, today.date
+    # No new entries today, so cash balance is unchanged from yesterday's end
+    assert_equal 10000, today.cash_balance
+  end
+
+  test "windowed calculation falls back to full recalculation when no previous balance exists" do
+    account = create_account_with_ledger(
+      account: { type: Depository, currency: "USD" },
+      entries: [
+        { type: "transaction", date: 2.days.ago.to_date, amount: -1000 },
+        { type: "transaction", date: Date.current, amount: 0 }
+      ]
+    )
+
+    # No previous balance in DB — windowed should fall back to full calculation
+    calculated = Balance::ForwardCalculator.new(account, window_start_date: Date.current).calculate
+
+    assert calculated.length > 1, "Full fallback should calculate multiple days"
+    today = calculated.find { |b| b.date == Date.current }
+    assert_not_nil today
+    assert_equal 1000, today.balance
+  end
+
   private
     def assert_balances(calculated_data:, expected_balances:)
       # Sort calculated data by date to ensure consistent ordering

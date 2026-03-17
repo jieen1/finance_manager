@@ -1,9 +1,10 @@
 # "Materializes" holdings (similar to a DB materialized view, but done at the app level)
 # into a series of records we can easily query and join with other data.
 class Holding::Materializer
-  def initialize(account, strategy:)
+  def initialize(account, strategy:, window_start_date: nil)
     @account = account
     @strategy = strategy
+    @window_start_date = window_start_date
   end
 
   def materialize_holdings
@@ -12,7 +13,8 @@ class Holding::Materializer
     Rails.logger.info("Persisting #{@holdings.size} holdings")
     persist_holdings
 
-    if strategy == :forward
+    # Skip purge for windowed recalculation — we only computed a subset of dates
+    if strategy == :forward && !@window_start_date
       purge_stale_holdings
     end
 
@@ -55,7 +57,7 @@ class Holding::Materializer
         portfolio_snapshot = Holding::PortfolioSnapshot.new(account)
         Holding::ReverseCalculator.new(account, portfolio_snapshot: portfolio_snapshot)
       else
-        Holding::ForwardCalculator.new(account)
+        Holding::ForwardCalculator.new(account, window_start_date: @window_start_date)
       end
     end
 end

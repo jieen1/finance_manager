@@ -24,10 +24,13 @@ class RealtimeMarketDataJob < ApplicationJob
     end
     
     Rails.logger.info("[RealtimeMarketDataJob] Updating #{securities.count} securities")
-    
+
     # Batch update current day prices
-    update_securities_batch(securities)
-    
+    updated_security_ids = update_securities_batch(securities)
+
+    # Trigger today-only sync for all accounts holding the updated securities
+    trigger_today_sync(updated_security_ids) if updated_security_ids.any?
+
     Rails.logger.info("[RealtimeMarketDataJob] Completed real-time market data update")
   end
 
@@ -50,30 +53,29 @@ class RealtimeMarketDataJob < ApplicationJob
     (now >= afternoon_start && now <= afternoon_end)
   end
 
+  # Returns the list of security IDs whose prices were successfully updated
   def update_securities_batch(securities)
-    return unless Security.provider.present?
-    
-    # Convert securities to array for batch processing
+    return [] unless Security.provider.present?
+
     securities_array = securities.to_a
-    
-    # Use batch real-time data fetching
+    updated_security_ids = []
+
     provider = Security.provider
     Rails.logger.info("[RealtimeMarketDataJob] Provider class: #{provider.class.name}")
-    Rails.logger.info("[RealtimeMarketDataJob] Provider methods: #{provider.methods.grep(/batch/)}")
     Rails.logger.info("[RealtimeMarketDataJob] respond_to? fetch_batch_realtime_data: #{provider.respond_to?(:fetch_batch_realtime_data)}")
-    
+
     if provider.respond_to?(:fetch_batch_realtime_data)
       Rails.logger.info("[RealtimeMarketDataJob] Using batch real-time data fetching for #{securities_array.count} securities")
       batch_results = provider.fetch_batch_realtime_data(securities_array)
       Rails.logger.info("[RealtimeMarketDataJob] Batch results: #{batch_results.keys.count} securities updated")
-      
-      # Process batch results
+
       securities_array.each do |security|
         tencent_symbol = Security.provider.send(:convert_to_tencent_symbol, security.ticker, security.exchange_operating_mic)
         realtime_data = batch_results[tencent_symbol]
-        
+
         if realtime_data.present? && realtime_data[:current_price].present?
           update_security_price_from_realtime(security, realtime_data)
+          updated_security_ids << security.id
         else
           Rails.logger.warn("[RealtimeMarketDataJob] No real-time data for #{security.ticker}")
         end
@@ -84,16 +86,35 @@ class RealtimeMarketDataJob < ApplicationJob
         end
       end
     else
-      # Fallback to individual updates if batch method not available
       Rails.logger.warn("[RealtimeMarketDataJob] Batch method not available, falling back to individual updates")
       securities_array.each do |security|
         update_security_price(security)
+        updated_security_ids << security.id
       rescue => e
         Rails.logger.error("[RealtimeMarketDataJob] Failed to update #{security.ticker}: #{e.message}")
         Sentry.capture_exception(e) do |scope|
           scope.set_tags(security_id: security.id, security_ticker: security.ticker)
         end
       end
+    end
+
+    updated_security_ids
+  end
+
+  # Trigger a today-only windowed sync for all accounts holding the updated securities.
+  # Uses window_start_date: Date.current so only today's holdings and balance are recalculated.
+  def trigger_today_sync(updated_security_ids)
+    account_ids = Holding
+      .where(date: 3.days.ago.., security_id: updated_security_ids)
+      .distinct
+      .pluck(:account_id)
+
+    Rails.logger.info("[RealtimeMarketDataJob] Triggering today-only sync for #{account_ids.size} accounts")
+
+    Account.where(id: account_ids).each do |account|
+      account.sync_later(window_start_date: Date.current, window_end_date: Date.current)
+    rescue => e
+      Rails.logger.error("[RealtimeMarketDataJob] Failed to trigger sync for account #{account.id}: #{e.message}")
     end
   end
 

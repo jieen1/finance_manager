@@ -1,13 +1,33 @@
 class Holding::ForwardCalculator
   attr_reader :account
 
-  def initialize(account)
+  def initialize(account, window_start_date: nil)
     @account = account
+    @window_start_date = window_start_date
   end
 
   def calculate
     Rails.logger.tagged("Holding::ForwardCalculator") do
-      current_portfolio = generate_starting_portfolio
+      if @window_start_date
+        calculate_windowed
+      else
+        calculate_full
+      end
+    end
+  end
+
+  private
+    def portfolio_cache
+      @portfolio_cache ||= Holding::PortfolioCache.new(account)
+    end
+
+    def empty_portfolio
+      securities = portfolio_cache.get_securities
+      securities.each_with_object({}) { |security, hash| hash[security.id] = 0 }
+    end
+
+    def calculate_full
+      current_portfolio = empty_portfolio
       next_portfolio = {}
       holdings = []
 
@@ -20,16 +40,33 @@ class Holding::ForwardCalculator
 
       Holding.gapfill(holdings)
     end
-  end
 
-  private
-    def portfolio_cache
-      @portfolio_cache ||= Holding::PortfolioCache.new(account)
-    end
+    # Windowed calculation: start from yesterday's DB holdings, only recalculate window onward.
+    # Falls back to full calculation if no previous holdings state is available.
+    def calculate_windowed
+      prev_day = @window_start_date.prev_day
 
-    def empty_portfolio
-      securities = portfolio_cache.get_securities
-      securities.each_with_object({}) { |security, hash| hash[security.id] = 0 }
+      current_portfolio = empty_portfolio
+      account.holdings.where(date: prev_day).each do |h|
+        current_portfolio[h.security_id] = h.qty
+      end
+
+      # Fall back to full calculation if there's no prior state to build on
+      if current_portfolio.values.all?(&:zero?) && account.entries.trades.exists?
+        Rails.logger.info("No previous holdings for windowed sync (#{prev_day}), falling back to full recalculation")
+        return calculate_full
+      end
+
+      holdings = []
+      @window_start_date.upto(Date.current) do |date|
+        trades = portfolio_cache.get_trades(date: date)
+        next_portfolio = transform_portfolio(current_portfolio, trades, direction: :forward)
+        holdings += build_holdings(next_portfolio, date)
+        current_portfolio = next_portfolio
+      end
+
+      # No gapfill needed: historical records are already in DB and unchanged
+      holdings
     end
 
     def generate_starting_portfolio

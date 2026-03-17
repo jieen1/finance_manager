@@ -1,9 +1,10 @@
 class Balance::Materializer
   attr_reader :account, :strategy
 
-  def initialize(account, strategy:)
+  def initialize(account, strategy:, window_start_date: nil)
     @account = account
     @strategy = strategy
+    @window_start_date = window_start_date
   end
 
   def materialize_balances
@@ -14,7 +15,8 @@ class Balance::Materializer
       Rails.logger.info("Persisting #{@balances.size} balances")
       persist_balances
 
-      purge_stale_balances
+      # Skip purge for windowed recalculation — we only computed a subset of dates
+      purge_stale_balances unless @window_start_date
 
       if strategy == :forward
         update_account_info
@@ -24,7 +26,7 @@ class Balance::Materializer
 
   private
     def materialize_holdings
-      @holdings = Holding::Materializer.new(account, strategy: strategy).materialize_holdings
+      @holdings = Holding::Materializer.new(account, strategy: strategy, window_start_date: @window_start_date).materialize_holdings
     end
 
     def update_account_info
@@ -83,7 +85,7 @@ class Balance::Materializer
       if strategy == :reverse
         Balance::ReverseCalculator.new(account)
       else
-        Balance::ForwardCalculator.new(account)
+        Balance::ForwardCalculator.new(account, window_start_date: @window_start_date)
       end
     end
 end

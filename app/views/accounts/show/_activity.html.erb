@@ -17,13 +17,25 @@
                 data: { turbo_frame: :modal }) %>
           <% end %>
 
-          <% unless @account.crypto? %>
-            <% href = @account.investment? ? new_trade_path(account_id: @account.id) : new_transaction_path(account_id: @account.id) %>
+          <% if @account.investment? %>
+            <% menu.with_item(
+                variant: "link",
+                text: "出/入金",
+                icon: "arrow-left-right",
+                href: new_trade_path(account_id: @account.id, type: "deposit"),
+                data: { turbo_frame: :modal }) %>
             <% menu.with_item(
                 variant: "link",
                 text: t(".new_transaction"),
                 icon: "credit-card",
-                href: href,
+                href: new_trade_path(account_id: @account.id),
+                data: { turbo_frame: :modal }) %>
+          <% elsif !@account.crypto? %>
+            <% menu.with_item(
+                variant: "link",
+                text: t(".new_transaction"),
+                icon: "credit-card",
+                href: new_transaction_path(account_id: @account.id),
                 data: { turbo_frame: :modal }) %>
           <% end %>
         <% end %>

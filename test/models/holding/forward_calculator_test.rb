@@ -130,6 +130,51 @@ class Holding::ForwardCalculatorTest < ActiveSupport::TestCase
     assert_holdings(expected, calculated)
   end
 
+  # ------------------------------------------------------------------------------------------------
+  # Windowed calculation tests (today-only sync)
+  # ------------------------------------------------------------------------------------------------
+
+  test "windowed calculation uses yesterday's DB holdings as starting state" do
+    load_prices
+
+    # Set up a historical trade and persist yesterday's holdings to DB
+    create_trade(@voo, qty: 10, date: 2.days.ago.to_date, price: 480, account: @account)
+
+    # Simulate yesterday's holdings already being in DB (as if a previous full sync ran)
+    @account.holdings.create!(
+      security: @voo,
+      date: 1.day.ago.to_date,
+      qty: 10,
+      price: 490,
+      amount: 4900,
+      currency: "USD"
+    )
+
+    # Update today's price to 500
+    calculated = Holding::ForwardCalculator.new(@account, window_start_date: Date.current).calculate
+
+    assert_equal 1, calculated.size
+    today_holding = calculated.find { |h| h.date == Date.current && h.security == @voo }
+    assert_not_nil today_holding
+    assert_equal 10, today_holding.qty
+    assert_equal 500, today_holding.price
+    assert_equal 5000, today_holding.amount
+  end
+
+  test "windowed calculation falls back to full recalculation when no previous holdings exist" do
+    load_prices
+
+    create_trade(@voo, qty: 10, date: 2.days.ago.to_date, price: 480, account: @account)
+
+    # No previous holdings in DB — should fall back to full calculation
+    calculated = Holding::ForwardCalculator.new(@account, window_start_date: Date.current).calculate
+
+    assert calculated.length > 1, "Full fallback should calculate multiple days"
+    today_holding = calculated.find { |h| h.date == Date.current && h.security == @voo }
+    assert_not_nil today_holding
+    assert_equal 10, today_holding.qty
+  end
+
   private
     def assert_holdings(expected, calculated)
       expected.each do |expected_entry|

@@ -53,4 +53,27 @@ class RealtimeMarketDataJobTest < ActiveJob::TestCase
 
     RealtimeMarketDataJob.perform_now
   end
+
+  test "trigger_today_sync calls sync_later with today window on affected accounts" do
+    security = Security.create!(ticker: "000001", exchange_operating_mic: "XSHE", country_code: "CN", offline: false)
+    account = accounts(:investment)
+
+    Holding.create!(
+      account: account, security: security,
+      date: Date.current, qty: 100, price: 10.0, amount: 1000, currency: "CNY"
+    )
+
+    # Use any_instance since Account.where loads a new instance from DB
+    Account.any_instance.expects(:sync_later).with(window_start_date: Date.current, window_end_date: Date.current).once
+
+    job = RealtimeMarketDataJob.new
+    job.send(:trigger_today_sync, [ security.id ])
+  end
+
+  test "trigger_today_sync does nothing when security_ids list is empty" do
+    Account.any_instance.expects(:sync_later).never
+
+    job = RealtimeMarketDataJob.new
+    job.send(:trigger_today_sync, [])
+  end
 end
