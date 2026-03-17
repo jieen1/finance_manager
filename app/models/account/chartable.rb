@@ -8,20 +8,22 @@ module Account::Chartable
   def balance_series(period: Period.last_30_days, view: :balance, interval: nil, user: nil)
     raise ArgumentError, "Invalid view type" unless [ :balance, :cash_balance, :holdings_balance ].include?(view.to_sym)
 
-    @balance_series ||= {}
+    preference = Current.user&.trend_color_preference
+    cache_key = family.build_cache_key(
+      "#{id}_balance_series_#{view}_#{period.start_date}_#{period.end_date}_#{interval}_#{preference}",
+      invalidate_on_data_updates: true
+    )
 
-    # 使用 Current.user 的偏好设置生成缓存键，保证一致性
-    memo_key = [ period.start_date, period.end_date, interval, Current.user&.trend_color_preference ].compact.join("_")
-
-    builder = (@balance_series[memo_key] ||= Balance::ChartSeriesBuilder.new(
-      account_ids: [ id ],
-      currency: self.currency,
-      period: period,
-      favorable_direction: favorable_direction,
-      interval: interval
-    ))
-
-    builder.send("#{view}_series")
+    Rails.cache.fetch(cache_key, expires_in: 24.hours) do
+      builder = Balance::ChartSeriesBuilder.new(
+        account_ids: [ id ],
+        currency: self.currency,
+        period: period,
+        favorable_direction: favorable_direction,
+        interval: interval
+      )
+      builder.send("#{view}_series")
+    end
   end
 
   def sparkline_series(user: nil)
