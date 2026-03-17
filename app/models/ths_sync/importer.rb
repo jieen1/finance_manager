@@ -215,18 +215,14 @@ module ThsSync
       if entry.persisted?
         # Use THS entry_money (actual broker settlement) instead of qty×price for accuracy.
         # entry_money excludes fee; fee is always in CNY.
-        # Skip for reverse repo sells (op=35) — they use qty×1000 with separate interest entry.
-        # Exclude from budgets/spending reports.
+        # Skip for reverse repo sells (op=35) — they use qty×lot_price with separate interest entry.
         money = record["entry_money"].to_f
         fee_amt = record["fee_total"].to_f
         is_sell = %w[2 35].include?(record["op"].to_s)
-        updates = { excluded: true }
         if money > 0 && record["op"].to_s != "35"
           signed_money = is_sell ? -(money - fee_amt) : (money + fee_amt)
-          updates[:amount] = signed_money
-          updates[:currency] = "CNY"
+          entry.update_columns(amount: signed_money, currency: "CNY")
         end
-        entry.update_columns(updates)
 
         ext_record.mark_imported!(entry)
         results[:created] += 1
