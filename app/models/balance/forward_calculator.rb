@@ -8,7 +8,9 @@ class Balance::ForwardCalculator < Balance::BaseCalculator
       start_non_cash_balance = account.opening_anchor_balance - start_cash_balance
 
       calc_start_date.upto(calc_end_date).map do |date|
-        valuation = sync_cache.get_valuation(date)
+        # Investment accounts use flow-based cash calculation only.
+        # Reconciliation valuations are not supported; opening anchor is handled above.
+        valuation = account.investment? ? nil : sync_cache.get_valuation(date)
 
         if valuation
           end_cash_balance = derive_cash_balance_on_date_from_total(

@@ -167,16 +167,16 @@ class Balance::ForwardCalculatorTest < ActiveSupport::TestCase
     end
   end
 
-  test "mixed accounts (investment) use valuations where cash balance is total minus holdings" do
+  test "investment accounts ignore reconciliation valuations and use flow-based cash" do
     account = create_account_with_ledger(
       account: { type: Investment, currency: "USD" },
       entries: [
         { type: "opening_anchor", date: 3.days.ago.to_date, balance: 17000 },
-        { type: "reconciliation", date: 2.days.ago.to_date, balance: 18000 }
+        { type: "reconciliation", date: 2.days.ago.to_date, balance: 18000 } # ignored for investment accounts
       ]
     )
 
-    # Without holdings, cash balance equals total balance
+    # Reconciliation valuation is ignored; cash stays at 17000 (flow-based, no transactions)
     calculated = Balance::ForwardCalculator.new(account).calculate
 
     assert_calculated_ledger_balances(
@@ -191,10 +191,10 @@ class Balance::ForwardCalculatorTest < ActiveSupport::TestCase
         },
         {
           date: 2.days.ago.to_date,
-          legacy_balances: { balance: 18000, cash_balance: 18000 },
-          balances: { start: 17000, start_cash: 17000, start_non_cash: 0, end_cash: 18000, end_non_cash: 0, end: 18000 },
+          legacy_balances: { balance: 17000, cash_balance: 17000 },
+          balances: { start: 17000, start_cash: 17000, start_non_cash: 0, end_cash: 17000, end_non_cash: 0, end: 17000 },
           flows: { market_flows: 0 },
-          adjustments: { cash_adjustments: 1000, non_cash_adjustments: 0 } # Since no holdings present, adjustment is all cash
+          adjustments: 0
         }
       ]
     )
@@ -534,12 +534,12 @@ class Balance::ForwardCalculatorTest < ActiveSupport::TestCase
     )
   end
 
-  test "investment account can have valuations that override balance" do
+  test "investment account ignores reconciliation valuations and tracks cash via flows only" do
     account = create_account_with_ledger(
       account: { type: Investment, currency: "USD" },
       entries: [
         { type: "opening_anchor", date: 2.days.ago.to_date, balance: 5000 },
-        { type: "reconciliation", date: 1.day.ago.to_date, balance: 10000 }
+        { type: "reconciliation", date: 1.day.ago.to_date, balance: 10000 } # ignored
       ],
       holdings: [
         { date: 3.days.ago.to_date, ticker: "AAPL", qty: 10, price: 100, amount: 1000 },
@@ -549,8 +549,7 @@ class Balance::ForwardCalculatorTest < ActiveSupport::TestCase
       ]
     )
 
-    # Given constant prices, overall balance (account value) should be constant
-    # (the single trade doesn't affect balance; it just alters cash vs. holdings composition)
+    # Reconciliation is ignored; cash stays at 4000 (opening 5000 - holdings 1000), only market value changes
     calculated = Balance::ForwardCalculator.new(account).calculate
 
     assert_calculated_ledger_balances(
@@ -565,15 +564,15 @@ class Balance::ForwardCalculatorTest < ActiveSupport::TestCase
         },
         {
           date: 1.day.ago.to_date,
-          legacy_balances: { balance: 10000, cash_balance: 8900 },
-          balances: { start: 5000, start_cash: 4000, start_non_cash: 1000, end_cash: 8900, end_non_cash: 1100, end: 10000 },
+          legacy_balances: { balance: 5100, cash_balance: 4000 },
+          balances: { start: 5000, start_cash: 4000, start_non_cash: 1000, end_cash: 4000, end_non_cash: 1100, end: 5100 },
           flows: { net_market_flows: 100 },
-          adjustments: { cash_adjustments: 4900, non_cash_adjustments: 0 }
+          adjustments: 0
         },
         {
           date: Date.current,
-          legacy_balances: { balance: 10100, cash_balance: 8900 },
-          balances: { start: 10000, start_cash: 8900, start_non_cash: 1100, end_cash: 8900, end_non_cash: 1200, end: 10100 },
+          legacy_balances: { balance: 5200, cash_balance: 4000 },
+          balances: { start: 5100, start_cash: 4000, start_non_cash: 1100, end_cash: 4000, end_non_cash: 1200, end: 5200 },
           flows: { net_market_flows: 100 },
           adjustments: 0
         }

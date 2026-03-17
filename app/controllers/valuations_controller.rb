@@ -3,6 +3,12 @@ class ValuationsController < ApplicationController
 
   def confirm_create
     @account = Current.family.accounts.find(params.dig(:entry, :account_id))
+
+    if @account.investment?
+      redirect_back_or_to account_path(@account), alert: "Balance entries are not supported for investment accounts"
+      return
+    end
+
     @entry = @account.entries.build(entry_params.merge(currency: @account.currency))
 
     @reconciliation_dry_run = @entry.account.create_reconciliation(
@@ -31,6 +37,11 @@ class ValuationsController < ApplicationController
 
   def create
     account = Current.family.accounts.find(params.dig(:entry, :account_id))
+
+    if account.investment?
+      redirect_back_or_to account_path(account), alert: "Balance entries are not supported for investment accounts"
+      return
+    end
 
     result = account.create_reconciliation(
       balance: entry_params[:amount],
