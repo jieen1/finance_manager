@@ -17,6 +17,7 @@ class TradesController < ApplicationController
     @model = Trade::CreateForm.new(create_params.merge(account: @account)).create
 
     if @model.persisted?
+      @model.sync_account_later if @model.respond_to?(:sync_account_later)
       flash[:notice] = t("entries.create.success")
 
       respond_to do |format|
@@ -51,6 +52,12 @@ class TradesController < ApplicationController
   end
 
   private
+    def convert_to_account_currency(amount, from_currency, date)
+      return amount if from_currency == @entry.account.currency
+      rate = ExchangeRate.find_or_fetch_rate(from: from_currency, to: @entry.account.currency, date: date)&.rate
+      rate ? amount * rate : amount
+    end
+
     def entry_params
       params.require(:entry).permit(
         :name, :date, :amount, :currency, :excluded, :notes, :nature,
@@ -83,10 +90,13 @@ class TradesController < ApplicationController
           update_params[:entryable_attributes][:fee_currency] = update_params[:currency] || @entry.currency
         end
 
-        # Fee calculation: for buys (positive qty) fee increases cost, for sells (negative qty) fee reduces proceeds
-        base_amount = qty * price.to_d
-        fee_impact = qty.positive? ? fee.to_d : -fee.to_d
-        update_params[:amount] = base_amount + fee_impact
+        # entry.amount = actual cash flow in account currency
+        trade_currency = @entry.entryable.currency || @entry.currency
+        fee_currency_val = update_params[:entryable_attributes][:fee_currency] || @entry.entryable.fee_currency || trade_currency
+        base_in_account = convert_to_account_currency(qty * price.to_d, trade_currency, @entry.date)
+        fee_in_account = convert_to_account_currency(fee.to_d, fee_currency_val, @entry.date)
+        update_params[:amount] = base_in_account + fee_in_account
+        update_params[:currency] = @entry.account.currency
       end
 
       update_params.except(:nature)

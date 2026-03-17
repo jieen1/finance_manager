@@ -12,7 +12,7 @@ class Provider::Tencent < Provider
     with_provider_response do
       # 测试接口可用性
       response = client.get("http://qt.gtimg.cn/q=sz000001")
-      response.body.present?
+      safe_body(response).present?
     end
   end
   
@@ -29,7 +29,7 @@ class Provider::Tencent < Provider
         req.params["query"] = symbol
       end
       
-      data = JSON.parse(response.body)
+      data = JSON.parse(safe_body(response))
       stocks = data.dig("stock") || []
       
       # 根据country_code和exchange_operating_mic过滤结果
@@ -167,7 +167,7 @@ class Provider::Tencent < Provider
       
       begin
         response = client.get(url)
-        batch_results = parse_batch_realtime_response(response.body, batch)
+        batch_results = parse_batch_realtime_response(safe_body(response), batch)
         results.merge!(batch_results)
       rescue => e
         Rails.logger.error("[TencentProvider] 批量查询失败: #{e.message}")
@@ -226,6 +226,12 @@ class Provider::Tencent < Provider
       faraday.response :raise_error
       faraday.headers["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
     end
+  end
+
+  # Tencent APIs (qt.gtimg.cn) return GBK-encoded responses with Chinese characters.
+  # Ruby defaults to ASCII-8BIT which crashes regex matching against UTF-8 patterns.
+  def safe_body(response)
+    response.body.force_encoding("GBK").encode("UTF-8", invalid: :replace, undef: :replace)
   end
   
   # 数据转换和工具方法
@@ -360,7 +366,7 @@ class Provider::Tencent < Provider
     response = client.get(url)
     # 解析腾讯返回的数据格式
     # v_sz000858="51~五 粮 液~000858~27.78~0.18~0.65~417909~116339~~1054.52";
-    match = response.body.match(/v_#{tencent_symbol}="([^"]+)"/)
+    match = safe_body(response).match(/v_#{tencent_symbol}="([^"]+)"/)
     
     if match.nil?
       Rails.logger.warn("[TencentProvider] 未找到匹配的实时数据: #{tencent_symbol}")
@@ -385,7 +391,7 @@ class Provider::Tencent < Provider
   def fetch_single_realtime_data(tencent_symbol)
     url = "http://qt.gtimg.cn/q=#{tencent_symbol}"
     response = client.get(url)
-    match = response.body.match(/v_#{tencent_symbol}="([^"]+)"/)
+    match = safe_body(response).match(/v_#{tencent_symbol}="([^"]+)"/)
     
     return {} if match.nil?
     
@@ -411,9 +417,9 @@ class Provider::Tencent < Provider
     }
     
     response = client.get(url, params)
-    
+
     # 解析历史数据
-    match = response.body.match(/\{.*\}/)
+    match = safe_body(response).match(/\{.*\}/)
     if match.nil?
       Rails.logger.warn("[TencentProvider] 未找到JSON数据: #{tencent_symbol}")
       return []

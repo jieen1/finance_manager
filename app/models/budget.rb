@@ -24,7 +24,7 @@ class Budget < ApplicationRecord
     end
 
     def budget_date_valid?(date, family:)
-      beginning_of_month = date.beginning_of_month
+      beginning_of_month = date.to_date.beginning_of_month
 
       beginning_of_month >= oldest_valid_budget_date(family) && beginning_of_month <= Date.current.end_of_month
     end
@@ -50,7 +50,7 @@ class Budget < ApplicationRecord
     private
       def oldest_valid_budget_date(family)
         # Allow going back to either the earliest entry date OR 2 years ago, whichever is earlier
-        two_years_ago = 2.years.ago.beginning_of_month
+        two_years_ago = 2.years.ago.to_date.beginning_of_month
         oldest_entry_date = family.oldest_entry_date.beginning_of_month
         [ two_years_ago, oldest_entry_date ].min
       end

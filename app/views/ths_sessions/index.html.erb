@@ -52,6 +52,32 @@
   </div>
 
   <div class="aurora-card" style="padding:20px 22px">
+    <h2 class="text-lg font-medium mb-4">定时同步任务</h2>
+
+    <div class="space-y-2">
+      <% @cron_jobs.each do |job| %>
+        <div class="flex items-center justify-between p-3 rounded-lg" style="background:var(--aurora-bg-3)">
+          <div>
+            <p class="text-sm font-medium text-primary"><%= job[:description] %></p>
+            <p class="text-xs text-secondary"><%= job[:cron] %></p>
+          </div>
+          <div class="text-right">
+            <% if job[:last_run] %>
+              <p class="text-xs text-secondary">上次: <%= time_ago_in_words(job[:last_run]) %>前</p>
+            <% else %>
+              <p class="text-xs text-secondary">尚未执行</p>
+            <% end %>
+            <p class="text-xs text-secondary">下次: <%= job[:next_run]&.in_time_zone("Asia/Shanghai")&.strftime("%H:%M") || "-" %></p>
+            <p class="text-xs" style="color:<%= job[:enabled] ? 'var(--aurora-em)' : 'var(--aurora-rose)' %>">
+              <%= job[:enabled] ? "启用" : "停用" %>
+            </p>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="aurora-card" style="padding:20px 22px">
     <h2 class="text-lg font-medium mb-4">最近同步记录</h2>
 
     <% if @recent_records.any? %>

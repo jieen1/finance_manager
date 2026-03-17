@@ -6,8 +6,8 @@ module ExchangeRate::Provided
       registry = Provider::Registry.for_concept(:exchange_rates)
       provider_name = Setting.securities_provider.to_sym
       registry.get_provider(provider_name)
-    rescue => e
-      Rails.logger.error("[ExchangeRate::Provided] Provider error: #{e.message}")
+    rescue
+      # Securities provider (e.g. Tencent) may not support exchange rates — that's expected
       nil
     end
 

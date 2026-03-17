@@ -4,8 +4,6 @@ class RealtimeMarketDataJob < ApplicationJob
   queue_as :scheduled
 
   def perform
-    return if Rails.env.development?
-    
     # Only run during A-share and H-share market hours
     unless market_open?
       Rails.logger.debug("[RealtimeMarketDataJob] Market is closed, skipping update")
@@ -37,7 +35,7 @@ class RealtimeMarketDataJob < ApplicationJob
   private
 
   def market_open?
-    now = Time.current.in_time_zone('Asia/Shanghai')
+    now = Time.current
     
     # Check if it's a weekday (Monday = 1, Friday = 5)
     return false unless (1..5).include?(now.wday)

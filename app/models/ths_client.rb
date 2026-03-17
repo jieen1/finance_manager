@@ -35,6 +35,21 @@ class ThsClient
     })
   end
 
+  # v2 API: returns sub-order level data with unique vid/trans_no per fill
+  def money_history_v2(fund_key:, start_date:, end_date:, page: 1, count: 50)
+    post("/caishen_fund/pc/account/v2/get_money_history", {
+      "fund_key" => fund_key.to_s,
+      "start_date" => start_date.to_s.delete("-"),
+      "end_date" => end_date.to_s.delete("-"),
+      "query_list" => "[]",
+      "page" => page.to_s,
+      "count" => count.to_s,
+      "sort_type" => "",
+      "sort_order" => "1",
+      "h5id" => "#{(Time.current.to_f * 1000).to_i}"
+    })
+  end
+
   def stock_position(fund_key:)
     post("/caishen_fund/pc/asset/v1/stock_position", {
       "fund_key" => fund_key.to_s

@@ -37,9 +37,17 @@ class Holding < ApplicationRecord
           exchange_rates.to_currency = ?
         )", account.currency
       ]))
+      .joins(ActiveRecord::Base.sanitize_sql_array([
+        "LEFT JOIN exchange_rates fee_rates ON (
+          fee_rates.date = entries.date AND
+          fee_rates.from_currency = trades.fee_currency AND
+          fee_rates.to_currency = trades.currency
+        )"
+      ]))
       .where(security_id: security.id)
       .where("trades.qty > 0 AND entries.date <= ?", date)
-      .select("trades.qty, trades.price, trades.fee, COALESCE(exchange_rates.rate, 1) as rate")
+      .select("trades.qty, trades.price, trades.fee, trades.fee_currency, trades.currency as trade_currency,
+               COALESCE(exchange_rates.rate, 1) as rate, COALESCE(fee_rates.rate, 1) as fee_rate")
 
     return Money.new(price, currency) if trades_with_costs.empty?
 
@@ -47,7 +55,9 @@ class Holding < ApplicationRecord
     total_qty = 0
 
     trades_with_costs.each do |trade|
-      cost_per_share = (trade.price * trade.rate) + (trade.fee / trade.qty)
+      # Convert fee from fee_currency to trade currency, then add to price
+      converted_fee = trade.fee * trade.fee_rate
+      cost_per_share = (trade.price * trade.rate) + (converted_fee / trade.qty)
       total_cost += cost_per_share * trade.qty
       total_qty += trade.qty
     end

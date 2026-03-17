@@ -45,28 +45,27 @@ class Account::MarketDataImporter
   def import_security_prices
     return unless Security.provider
 
-    account_securities = account.trades.map(&:security).uniq
+    # Load all unique securities in one query (includes avoids N+1 on security association)
+    account_securities = account.trades.includes(:security).map(&:security).uniq
 
     return if account_securities.empty?
 
+    # Batch load earliest trade date per security in ONE query instead of one per security
+    first_dates_by_security = account.trades.with_entry
+                                            .joins(:entry)
+                                            .where(entries: { account_id: account.id })
+                                            .group("trades.security_id")
+                                            .minimum("entries.date")
+
     account_securities.each do |security|
       security.import_provider_prices(
-        start_date: first_required_price_date(security),
+        start_date: first_dates_by_security[security.id],
         end_date: Date.current
       )
 
       security.import_provider_details
     end
   end
-
-  private
-    # Calculates the first date we require a price for the given security scoped to this account
-    def first_required_price_date(security)
-      account.trades.with_entry
-                    .where(security: security)
-                    .where(entries: { account_id: account.id })
-                    .minimum("entries.date")
-    end
 
     def needs_exchange_rates?
       has_multi_currency_entries? || foreign_account?

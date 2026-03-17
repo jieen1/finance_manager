@@ -12,8 +12,6 @@
       <%= form.select :type, [
           ["买入", "buy"],
           ["卖出", "sell"],
-          ["存款", "deposit"],
-          ["取款", "withdrawal"],
           ["利息", "interest"]
       ],
       { label: t(".type"), selected: type },
@@ -44,15 +42,11 @@
         <%= form.money_field :amount, label: t(".amount"), value: model.amount, required: true %>
       <% end %>
 
-      <% if %w[deposit withdrawal].include?(type) %>
-        <%= form.collection_select :transfer_account_id, Current.family.accounts.visible.alphabetically, :id, :name, { prompt: t(".account_prompt"), label: t(".account") } %>
-      <% end %>
-
       <% if %w[buy sell].include?(type) %>
         <%= form.number_field :qty, label: t(".qty"), placeholder: "10", min: 0.000000000000000001, step: "any", required: true %>
         <%= form.money_field :price, label: t(".price"), required: true, precision: 3 %>
-        <%= form.money_field :fee, label: t(".fee"), value: model.entryable&.fee, precision: 2, 
-                             currency_method: :fee_currency, 
+        <%= form.money_field :fee, label: t(".fee"), value: model.entryable&.fee, precision: 2,
+                             currency_method: :fee_currency,
                              default_currency: model.entryable&.fee_currency || model.currency %>
       <% end %>
     </div>

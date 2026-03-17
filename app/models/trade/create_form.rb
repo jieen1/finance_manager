@@ -19,28 +19,16 @@ class Trade::CreateForm
 
   private
 
-    def calculate_fee_impact(signed_qty, fee_amount, fee_currency_value)
-      # If fee and price use same currency, calculate directly
-      if fee_currency_value == currency
-        signed_qty.positive? ? fee_amount : -fee_amount
-      else
-        # If different currencies, need currency conversion
-        converted_fee = convert_currency(fee_amount, fee_currency_value, currency, date)
-        signed_qty.positive? ? converted_fee : -converted_fee
-      end
-    end
+    # Convert an amount from one currency to account currency
+    def to_account_currency(amount, from_currency)
+      return amount if from_currency == account.currency
 
-    def convert_currency(amount, from_currency, to_currency, date)
-      # Implement currency conversion logic
-      # Use existing ExchangeRate model
-      return amount if from_currency == to_currency
-      
       rate = ExchangeRate.find_or_fetch_rate(
-        from: from_currency, 
-        to: to_currency, 
+        from: from_currency,
+        to: account.currency,
         date: date
       )&.rate
-      
+
       return amount unless rate
       amount * rate
     end
@@ -59,17 +47,19 @@ class Trade::CreateForm
       signed_qty = type == "sell" ? -qty.to_d : qty.to_d
       fee_amount = fee.present? ? fee.to_d : 0
       fee_currency_value = fee_currency.present? ? fee_currency : currency
-      
-      # Fee calculation: for buys (positive qty) fee increases cost, for sells (negative qty) fee reduces proceeds
-      base_amount = signed_qty * price.to_d
-      fee_impact = calculate_fee_impact(signed_qty, fee_amount, fee_currency_value)
-      signed_amount = base_amount + fee_impact
+
+      # entry.amount = actual cash flow in account currency
+      # Convert price×qty from trade currency and fee from fee currency, both to account currency
+      # Fee is always a cost: increases outflow for buys, reduces inflow for sells
+      base_in_account = to_account_currency(signed_qty * price.to_d, currency)
+      fee_in_account = to_account_currency(fee_amount, fee_currency_value)
+      signed_amount = base_in_account + fee_in_account
 
       trade_entry = account.entries.new(
         name: Trade.build_name(type, qty, security.ticker),
         date: date,
         amount: signed_amount,
-        currency: currency,
+        currency: account.currency,
         entryable: Trade.new(
           qty: signed_qty,
           price: price,
@@ -82,7 +72,6 @@ class Trade::CreateForm
 
       if trade_entry.save
         trade_entry.lock_saved_attributes!
-        account.sync_later
       end
 
       trade_entry
@@ -101,7 +90,6 @@ class Trade::CreateForm
 
       if entry.save
         entry.lock_saved_attributes!
-        account.sync_later
       end
 
       entry
@@ -138,7 +126,6 @@ class Trade::CreateForm
 
       if entry.save
         entry.lock_saved_attributes!
-        account.sync_later
       end
 
       entry

@@ -31,16 +31,19 @@ class Holding::Materializer
     def persist_holdings
       current_time = Time.now
 
-      account.holdings.upsert_all(
-        @holdings.map { |h| h.attributes
-               .slice("date", "currency", "qty", "price", "amount", "security_id")
-               .merge("account_id" => account.id, "updated_at" => current_time) },
-        unique_by: %i[account_id security_id date currency]
-      )
+      rows = @holdings.map { |h| h.attributes
+             .slice("date", "currency", "qty", "price", "amount", "security_id")
+             .merge("account_id" => account.id, "updated_at" => current_time) }
+
+      # Batch upsert to avoid holding DB locks for too long on large datasets.
+      # Each batch commits independently, giving web queries a chance to run between batches.
+      rows.each_slice(2000) do |batch|
+        account.holdings.upsert_all(batch, unique_by: %i[account_id security_id date currency])
+      end
     end
 
     def purge_stale_holdings
-      portfolio_security_ids = account.entries.trades.map { |entry| entry.entryable.security_id }.uniq
+      portfolio_security_ids = account.trades.pluck(:security_id).uniq
 
       # If there are no securities in the portfolio, delete all holdings
       if portfolio_security_ids.empty?

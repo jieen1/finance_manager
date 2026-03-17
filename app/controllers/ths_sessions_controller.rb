@@ -8,6 +8,7 @@ class ThsSessionsController < ApplicationController
       .where(source: [ "ths", "ths_position" ])
       .order(created_at: :desc)
       .limit(20)
+    @cron_jobs = load_ths_cron_jobs
   end
 
   def create
@@ -73,5 +74,23 @@ class ThsSessionsController < ApplicationController
 
   def set_breadcrumbs
     @breadcrumbs = [ [ "首页", root_path ], [ "设置", settings_profile_path ], [ "同花顺同步", nil ] ]
+  end
+
+  def load_ths_cron_jobs
+    Sidekiq::Cron::Job.all
+      .select { |j| j.klass == "ThsSyncJob" }
+      .map do |job|
+        {
+          name: job.name,
+          description: job.description.presence || job.name,
+          cron: job.cron,
+          enabled: job.status == "enabled",
+          last_run: job.last_enqueue_time.presence,
+          next_run: Fugit::Cron.parse(job.cron)&.next_time&.to_t
+        }
+      end
+  rescue => e
+    Rails.logger.warn("[ThsSessions] Failed to load cron jobs: #{e.message}")
+    []
   end
 end

@@ -119,7 +119,14 @@ class Security::Price::Importer
       provider_price_value = provider_prices.select { |date, _| date <= start_date }
                                             .max_by { |date, _| date }
                                             &.last&.price
-      db_price_value       = db_prices[start_date]&.price
+
+      # db_prices only covers start_date..end_date; also check the DB for any existing
+      # price on or before start_date to handle market holidays / weekend start dates.
+      db_price_value = provider_price_value.nil? ? Security::Price
+        .where(security_id: security.id, date: ..start_date)
+        .order(date: :desc)
+        .pick(:price) : nil
+
       provider_price_value || db_price_value
     end
 

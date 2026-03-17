@@ -1,41 +1,57 @@
 import_market_data_afternoon:
-  cron: "30 7 * * 1-5" # 3:30 PM Beijing time (7:30 AM UTC) Monday through Friday
+  cron: "30 15 * * 1-5"
   class: "ImportMarketDataJob"
   queue: "scheduled"
-  description: "Imports market data daily at 3:30 PM Beijing time (after A-share market close)"
+  description: "A股收盘后导入行情 (15:30)"
   args:
     mode: "full"
     clear_cache: false
 
 import_market_data_evening:
-  cron: "30 8 * * 1-5" # 4:30 PM Beijing time (8:30 AM UTC) Monday through Friday
+  cron: "30 16 * * 1-5"
   class: "ImportMarketDataJob"
   queue: "scheduled"
-  description: "Imports market data daily at 4:30 PM Beijing time (after H-share market close)"
+  description: "港股收盘后导入行情 (16:30)"
   args:
     mode: "full"
     clear_cache: false
 
 realtime_market_data:
-  cron: "* * * * 1-5" # Every minute Monday through Friday
+  cron: "* * * * 1-5"
   class: "RealtimeMarketDataJob"
   queue: "scheduled"
-  description: "Updates real-time market data during A-share and H-share market hours"
-  
+  description: "实时行情更新 (每分钟)"
+
 clean_syncs:
-  cron: "0 * * * *" # every hour
+  cron: "0 * * * *"
   class: "SyncCleanerJob"
   queue: "scheduled"
-  description: "Cleans up stale syncs"
+  description: "清理过期同步任务 (每小时)"
 
-ths_sync:
-  cron: "0 8 * * 1-5" # 4:00 PM Beijing time (8:00 AM UTC) Monday through Friday
+# THS sync: incremental (last 3 days), light API calls
+# 盘中: 每15分钟同步一次 (9:00-15:00)
+ths_sync_intraday:
+  cron: "*/15 9-15 * * 1-5"
   class: "ThsSyncJob"
   queue: "scheduled"
-  description: "Syncs trade data from THS Investment Book after A-share market close"
+  description: "盘中同步 (每15分钟)"
+
+# 盘后: 每小时同步一次 (16:00-23:00)
+ths_sync_after_hours:
+  cron: "0 16-23 * * 1-5"
+  class: "ThsSyncJob"
+  queue: "scheduled"
+  description: "盘后同步 (每小时)"
+
+# 盘前: 8:30 同步一次
+ths_sync_premarket:
+  cron: "30 8 * * 1-5"
+  class: "ThsSyncJob"
+  queue: "scheduled"
+  description: "盘前同步 (8:30)"
 
 run_security_health_checks:
-  cron: "0 2 * * 1-5" # 2:00 AM EST / 3:00 AM EDT (NY time) Monday through Friday
+  cron: "0 3 * * 1-5"
   class: "SecurityHealthCheckJob"
   queue: "scheduled"
-  description: "Runs security health checks to detect issues with security data"
+  description: "证券数据健康检查 (凌晨3:00)"

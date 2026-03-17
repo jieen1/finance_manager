@@ -71,8 +71,9 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
 
     @entry.reload
     
-    # For sell: Amount should be (-10 * 100) - 9.99 = -1009.99
-    assert_equal -1009.99, @entry.amount
+    # For sell: Amount should be (-10 * 100) + 9.99 = -990.01
+    # Fee reduces proceeds (less cash inflow), so it's added to the negative base
+    assert_equal(-990.01, @entry.amount)
   end
 
   test "creates deposit entry" do

@@ -9,27 +9,31 @@ module Syncable
     syncs.visible.any?
   end
 
-  # Schedules a sync for syncable.  If there is an existing sync pending/syncing for this syncable,
-  # we do not create a new sync, and attempt to expand the sync window if needed.
+  # Schedules a sync for syncable.
+  #
+  # Strategy:
+  # - If a pending sync exists, expand its window to cover the new request (batching).
+  # - If a sync is currently running (syncing), create a new pending sync to run after it.
+  #   This ensures structural changes (new trades, transfers) are never silently dropped.
+  # - Otherwise, create and enqueue a new sync immediately.
   def sync_later(parent_sync: nil, window_start_date: nil, window_end_date: nil)
     Sync.transaction do
       with_lock do
-        sync = self.syncs.incomplete.first
+        pending_sync = self.syncs.where(status: "pending").first
 
-        if sync
-          Rails.logger.info("There is an existing sync, expanding window if needed (#{sync.id})")
-          sync.expand_window_if_needed(window_start_date, window_end_date)
+        if pending_sync
+          Rails.logger.info("Expanding pending sync window (#{pending_sync.id})")
+          pending_sync.expand_window_if_needed(window_start_date, window_end_date)
+          pending_sync
         else
           sync = self.syncs.create!(
             parent: parent_sync,
             window_start_date: window_start_date,
             window_end_date: window_end_date
           )
-
           SyncJob.perform_later(sync)
+          sync
         end
-
-        sync
       end
     end
   end

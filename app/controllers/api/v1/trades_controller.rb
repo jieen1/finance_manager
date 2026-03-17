@@ -104,6 +104,7 @@ class Api::V1::TradesController < Api::V1::BaseController
     @entry = create_form.create
 
     if @entry.persisted?
+      @entry.sync_account_later
       @trade = @entry.trade
       render :show, status: :created
     else
@@ -296,12 +297,23 @@ class Api::V1::TradesController < Api::V1::BaseController
 
     def calculate_trade_amount
       return nil unless trade_params[:qty].present? && trade_params[:price].present?
-      
+
       signed_qty = calculate_signed_qty
       fee_amount = (trade_params[:fee] || 0).to_d
-      base_amount = signed_qty * trade_params[:price].to_d
-      fee_impact = signed_qty.positive? ? fee_amount : -fee_amount
-      base_amount + fee_impact
+      trade_currency = trade_params[:currency] || @entry.entryable.currency || @entry.account.currency
+      fee_currency_val = trade_params[:fee_currency] || @entry.entryable.fee_currency || trade_currency
+      account_currency = @entry.account.currency
+      entry_date = trade_params[:date] || @entry.date
+
+      base_in_account = convert_to_account_currency(signed_qty * trade_params[:price].to_d, trade_currency, account_currency, entry_date)
+      fee_in_account = convert_to_account_currency(fee_amount, fee_currency_val, account_currency, entry_date)
+      base_in_account + fee_in_account
+    end
+
+    def convert_to_account_currency(amount, from_currency, to_currency, date)
+      return amount if from_currency == to_currency
+      rate = ExchangeRate.find_or_fetch_rate(from: from_currency, to: to_currency, date: date)&.rate
+      rate ? amount * rate : amount
     end
 
     def safe_page_param
