@@ -16,6 +16,24 @@ trade:
   entryable_type: Trade
   entryable: one
 
+trade_aapl_buy:
+  name: Purchase 5 shares of AAPL
+  date: <%= 2.days.ago.to_date %>
+  amount: 1000
+  currency: USD
+  account: investment
+  entryable_type: Trade
+  entryable: aapl_buy
+
+trade_other_family:
+  name: QQQS stock buy 3
+  date: <%= 3.days.ago.to_date %>
+  amount: 450
+  currency: USD
+  account: other_family_investment
+  entryable_type: Trade
+  entryable: other_family_trade
+
 transaction:
   name: Starbucks
   date: <%= 1.day.ago.to_date %>

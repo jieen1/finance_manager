@@ -98,24 +98,6 @@
             <%= render "accounts/account_sidebar_tabs", family: Current.family, active_tab: @account_group_tab %>
           </div>
 
-          <% if Current.family.trialing? && !self_hosted? %>
-            <div class="mx-3 mb-3 p-4 space-y-4 aurora-card" style="border-radius: var(--aurora-rs)">
-              <div class="flex items-start justify-between">
-                <div>
-                  <p class="text-sm font-medium text-primary">免费试用</p>
-                  <p class="text-sm text-secondary">剩余 <%= Current.family.days_left_in_trial %> 天</p>
-                </div>
-                <%= render DS::Link.new(
-                  text: "升级",
-                  href: upgrade_subscription_path,
-                ) %>
-              </div>
-              <div class="flex items-center gap-0.5 h-1.5">
-                <div class="h-full rounded-full aurora-progress-bar" style="width: <%= Current.family.percentage_of_trial_completed %>%;background:linear-gradient(90deg,var(--aurora-em-dk),var(--aurora-em-lt))"></div>
-                <div class="h-full rounded-full" style="width: <%= Current.family.percentage_of_trial_remaining %>%;background:var(--aurora-bg-4)"></div>
-              </div>
-            </div>
-          <% end %>
         </div>
       <% end %>
     <% end %>

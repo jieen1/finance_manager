@@ -8,6 +8,7 @@ class Settings::HostingsControllerTest < ActionDispatch::IntegrationTest
     sign_in users(:family_admin)
 
     @provider = mock
+    Setting.stubs(:securities_provider).returns("synth")
     Provider::Registry.stubs(:get_provider).with(:synth).returns(@provider)
     @usage_response = provider_success_response(
       OpenStruct.new(
@@ -20,7 +21,7 @@ class Settings::HostingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "cannot edit when self hosting is disabled" do
-    with_env_overrides SELF_HOSTED: "false" do
+    with_managed_mode do
       get settings_hosting_url
       assert_response :forbidden
 

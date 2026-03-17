@@ -115,9 +115,12 @@ end
     assert_response :success
     response_body = JSON.parse(response.body)
 
-    # Should return empty array since other family has no accounts in fixtures
-    assert_equal [], response_body["accounts"]
-    assert_equal 0, response_body["pagination"]["total_count"]
+    # Should only return the other family's own accounts, not @user's family accounts
+    account_names = response_body["accounts"].map { |a| a["name"] }
+    # dylan_family accounts must not appear in other family's response
+    @user.family.accounts.pluck(:name).each do |name|
+      assert_not_includes account_names, name
+    end
   end
 
   test "should handle pagination parameters" do

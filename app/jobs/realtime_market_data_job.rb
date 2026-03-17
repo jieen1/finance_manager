@@ -14,8 +14,9 @@ class RealtimeMarketDataJob < ApplicationJob
     
     Rails.logger.info("[RealtimeMarketDataJob] Starting real-time market data update")
     
-    # Get all online A-share and H-share securities
-    securities = Security.online.where(country_code: ['CN', 'HK'])
+    # Get securities with active holdings (last 3 days to cover settlement lag)
+    held_security_ids = Holding.where(date: 3.days.ago..).distinct.pluck(:security_id)
+    securities = Security.online.where(id: held_security_ids, country_code: [ "CN", "HK" ])
     
     if securities.empty?
       Rails.logger.info("[RealtimeMarketDataJob] No A-share or H-share securities found")

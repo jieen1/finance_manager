@@ -9,16 +9,14 @@ require_relative "../config/environment"
 
 ENV["RAILS_ENV"] ||= "test"
 
-# Set Plaid to sandbox mode for tests
-ENV["PLAID_ENV"] = "sandbox"
-ENV["PLAID_CLIENT_ID"] ||= "test_client_id"
-ENV["PLAID_SECRET"] ||= "test_secret"
-
 # Fixes Segfaults on M1 Macs when running tests in parallel (temporary workaround)
 ENV["PGGSSENCMODE"] = "disable"
 
 require "rails/test_help"
 require "minitest/mock"
+
+# Force English locale in tests regardless of app default (which is zh-CN for production)
+I18n.default_locale = :en
 require "minitest/autorun"
 require "mocha/minitest"
 require "aasm/minitest"
@@ -31,10 +29,6 @@ VCR.configure do |config|
   config.filter_sensitive_data("<SYNTH_API_KEY>") { ENV["SYNTH_API_KEY"] }
   config.filter_sensitive_data("<OPENAI_ACCESS_TOKEN>") { ENV["OPENAI_ACCESS_TOKEN"] }
   config.filter_sensitive_data("<OPENAI_ORGANIZATION_ID>") { ENV["OPENAI_ORGANIZATION_ID"] }
-  config.filter_sensitive_data("<STRIPE_SECRET_KEY>") { ENV["STRIPE_SECRET_KEY"] }
-  config.filter_sensitive_data("<STRIPE_WEBHOOK_SECRET>") { ENV["STRIPE_WEBHOOK_SECRET"] }
-  config.filter_sensitive_data("<PLAID_CLIENT_ID>") { ENV["PLAID_CLIENT_ID"] }
-  config.filter_sensitive_data("<PLAID_SECRET>") { ENV["PLAID_SECRET"] }
 end
 
 module ActiveSupport
@@ -67,6 +61,11 @@ module ActiveSupport
 
     def with_self_hosting
       Rails.configuration.stubs(:app_mode).returns("self_hosted".inquiry)
+      yield
+    end
+
+    def with_managed_mode
+      Rails.configuration.stubs(:app_mode).returns("managed".inquiry)
       yield
     end
 

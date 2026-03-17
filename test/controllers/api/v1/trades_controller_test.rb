@@ -3,11 +3,10 @@ require "test_helper"
 class Api::V1::TradesControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:family_admin)
-    @api_key = @user.api_keys.create!(
-      name: "Test API Key",
-      scopes: ["read_write"],
-      source: "web"
-    )
+    @user.api_keys.active.where(source: "web").destroy_all
+    @api_key = @user.api_keys.build(name: "Test API Key", scopes: ["read_write"], source: "web")
+    @api_key.key = ApiKey.generate_secure_key
+    @api_key.save!
     @account = @user.family.accounts.investments.first
     @security = securities(:aapl)
     @trade = trades(:aapl_buy)
@@ -48,7 +47,7 @@ class Api::V1::TradesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should not get index without read scope" do
-    @api_key.update!(scopes: ["write"])
+    @api_key.update_column(:scopes, ["write"])
     
     get api_v1_trades_url, headers: { "X-Api-Key" => @api_key.plain_key }
     assert_response :forbidden

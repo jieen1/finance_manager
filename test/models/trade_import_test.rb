@@ -97,13 +97,16 @@ class TradeImportTest < ActiveSupport::TestCase
     )
 
     @import.stubs(:rows).returns([row])
-    @import.stubs(:mappings).returns(mock(accounts: mock(mappable_for: accounts(:depository))))
+    mappings_mock = mock
+    mappings_mock.stubs(:each)
+    mappings_mock.stubs(:accounts).returns(mock(mappable_for: accounts(:depository)))
+    @import.stubs(:mappings).returns(mappings_mock)
 
     assert_difference -> { Trade.count } => 1 do
       @import.import!
     end
 
-    trade = Trade.last
+    trade = Trade.order(created_at: :desc).first
     assert_equal 9.99, trade.fee
   end
 end

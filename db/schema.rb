@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_03_16_145831) do
+ActiveRecord::Schema[7.2].define(version: 2026_03_17_031433) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -31,7 +31,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_16_145831) do
     t.string "currency"
     t.virtual "classification", type: :string, as: "\nCASE\n    WHEN ((accountable_type)::text = ANY (ARRAY[('Loan'::character varying)::text, ('CreditCard'::character varying)::text, ('OtherLiability'::character varying)::text])) THEN 'liability'::text\n    ELSE 'asset'::text\nEND", stored: true
     t.uuid "import_id"
-    t.uuid "plaid_account_id"
     t.decimal "cash_balance", precision: 19, scale: 4, default: "0.0"
     t.jsonb "locked_attributes", default: {}
     t.string "status", default: "active"
@@ -43,7 +42,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_16_145831) do
     t.index ["family_id", "status"], name: "index_accounts_on_family_id_and_status"
     t.index ["family_id"], name: "index_accounts_on_family_id"
     t.index ["import_id"], name: "index_accounts_on_import_id"
-    t.index ["plaid_account_id"], name: "index_accounts_on_plaid_account_id"
     t.index ["status"], name: "index_accounts_on_status"
   end
 
@@ -277,7 +275,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_16_145831) do
     t.datetime "updated_at", null: false
     t.string "currency", default: "CNY"
     t.string "locale", default: "zh-CN"
-    t.string "stripe_customer_id"
     t.string "date_format", default: "%Y-%m-%d"
     t.string "country", default: "CN"
     t.string "timezone"
@@ -366,6 +363,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_16_145831) do
     t.datetime "updated_at", null: false
     t.string "exchange_operating_mic"
     t.string "merchant"
+    t.string "fee"
     t.index ["import_id"], name: "index_import_rows_on_import_id"
     t.index ["merchant"], name: "index_import_rows_on_merchant"
   end
@@ -548,48 +546,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_16_145831) do
     t.jsonb "locked_attributes", default: {}
   end
 
-  create_table "plaid_accounts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "plaid_item_id", null: false
-    t.string "plaid_id", null: false
-    t.string "plaid_type", null: false
-    t.string "plaid_subtype"
-    t.decimal "current_balance", precision: 19, scale: 4
-    t.decimal "available_balance", precision: 19, scale: 4
-    t.string "currency", null: false
-    t.string "name", null: false
-    t.string "mask"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.jsonb "raw_payload", default: {}
-    t.jsonb "raw_transactions_payload", default: {}
-    t.jsonb "raw_investments_payload", default: {}
-    t.jsonb "raw_liabilities_payload", default: {}
-    t.index ["plaid_id"], name: "index_plaid_accounts_on_plaid_id", unique: true
-    t.index ["plaid_item_id"], name: "index_plaid_accounts_on_plaid_item_id"
-  end
-
-  create_table "plaid_items", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "family_id", null: false
-    t.string "access_token"
-    t.string "plaid_id", null: false
-    t.string "name"
-    t.string "next_cursor"
-    t.boolean "scheduled_for_deletion", default: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "available_products", default: [], array: true
-    t.string "billed_products", default: [], array: true
-    t.string "plaid_region", default: "us", null: false
-    t.string "institution_url"
-    t.string "institution_id"
-    t.string "institution_color"
-    t.string "status", default: "good", null: false
-    t.jsonb "raw_payload", default: {}
-    t.jsonb "raw_institution_payload", default: {}
-    t.index ["family_id"], name: "index_plaid_items_on_family_id"
-    t.index ["plaid_id"], name: "index_plaid_items_on_plaid_id", unique: true
-  end
-
   create_table "properties", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -691,20 +647,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_16_145831) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["var"], name: "index_settings_on_var", unique: true
-  end
-
-  create_table "subscriptions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "family_id", null: false
-    t.string "status", null: false
-    t.string "stripe_id"
-    t.decimal "amount", precision: 19, scale: 4
-    t.string "currency"
-    t.string "interval"
-    t.datetime "current_period_ends_at"
-    t.datetime "trial_ends_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["family_id"], name: "index_subscriptions_on_family_id", unique: true
   end
 
   create_table "syncs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -866,7 +808,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_16_145831) do
 
   add_foreign_key "accounts", "families"
   add_foreign_key "accounts", "imports"
-  add_foreign_key "accounts", "plaid_accounts"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "api_keys", "users"
@@ -895,8 +836,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_16_145831) do
   add_foreign_key "mobile_devices", "users"
   add_foreign_key "oauth_access_grants", "oauth_applications", column: "application_id"
   add_foreign_key "oauth_access_tokens", "oauth_applications", column: "application_id"
-  add_foreign_key "plaid_accounts", "plaid_items"
-  add_foreign_key "plaid_items", "families"
   add_foreign_key "rejected_transfers", "transactions", column: "inflow_transaction_id"
   add_foreign_key "rejected_transfers", "transactions", column: "outflow_transaction_id"
   add_foreign_key "rule_actions", "rules"
@@ -906,7 +845,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_16_145831) do
   add_foreign_key "security_prices", "securities"
   add_foreign_key "sessions", "impersonation_sessions", column: "active_impersonator_session_id"
   add_foreign_key "sessions", "users"
-  add_foreign_key "subscriptions", "families"
   add_foreign_key "syncs", "syncs", column: "parent_id"
   add_foreign_key "taggings", "tags"
   add_foreign_key "tags", "families"

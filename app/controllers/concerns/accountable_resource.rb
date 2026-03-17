@@ -5,7 +5,6 @@ module AccountableResource
     include Periodable
 
     before_action :set_account, only: [ :show, :edit, :update ]
-    before_action :set_link_options, only: :new
   end
 
   class_methods do
@@ -65,11 +64,6 @@ module AccountableResource
   end
 
   private
-    def set_link_options
-      @show_us_link = Current.family.can_connect_plaid_us?
-      @show_eu_link = Current.family.can_connect_plaid_eu?
-    end
-
     def accountable_type
       controller_name.classify.constantize
     end

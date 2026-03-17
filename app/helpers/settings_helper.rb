@@ -5,7 +5,6 @@ module SettingsHelper
     { name: "安全设置", path: :settings_security_path },
     { name: "自托管设置", path: :settings_hosting_path, condition: :self_hosted? },
     { name: "API 密钥", path: :settings_api_key_path },
-    { name: "订阅账单", path: :settings_billing_path, condition: :not_self_hosted? },
     { name: "账户管理", path: :accounts_path },
     { name: "导入管理", path: :imports_path },
     { name: "标签管理", path: :tags_path },
@@ -58,8 +57,4 @@ module SettingsHelper
     end
   end
 
-  private
-    def not_self_hosted?
-      !self_hosted?
-    end
 end

@@ -33,12 +33,12 @@ class Trade < ApplicationRecord
 
     current_value = current_price * qty.abs
     # Include fee in cost basis calculation
-    cost_basis = (price_money * qty.abs) + fee_money
+    cost_basis = (price_money * qty.abs) + (fee_money || Money.new(0, currency))
 
     Trend.new(
-      current: current_value, 
+      current: current_value,
       previous: cost_basis,
-      color_preference: entry.account.family.users.first&.trend_color_preference
+      color_preference: entry&.account&.family&.users&.first&.trend_color_preference
     )
   end
 

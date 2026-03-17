@@ -48,7 +48,7 @@ class FamilyExportsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     assert_match export1.filename, response.body
-    assert_match "Exporting...", response.body
+    assert_match "导出中...", response.body
   end
 
   test "admin can download completed export" do

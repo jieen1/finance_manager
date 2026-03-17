@@ -16,6 +16,7 @@ class Account::MarketDataImporterTest < ActiveSupport::TestCase
     Entry.delete_all
 
     @provider = mock("provider")
+    Setting.stubs(:securities_provider).returns("synth")
     Provider::Registry.any_instance
                       .stubs(:get_provider)
                       .with(:synth)

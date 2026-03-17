@@ -33,7 +33,6 @@ module Breadcrumbable
     "preferences"           => "偏好设置",
     "api_keys"              => "API 密钥",
     "hostings"              => "自托管设置",
-    "billings"              => "订阅账单",
     "family_merchants"      => "商家",
     "family_exports"        => "数据导出",
     "invitations"           => "邀请",
@@ -45,8 +44,6 @@ module Breadcrumbable
     "passwords"             => "密码",
     "mfa"                   => "两步验证",
     "pages"                 => "页面",
-    "plaid_items"           => "Plaid 连接",
-    "subscriptions"         => "订阅",
     "currencies"            => "货币",
     "impersonation_sessions" => "模拟会话"
   }.freeze

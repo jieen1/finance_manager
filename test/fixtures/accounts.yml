@@ -16,6 +16,15 @@ other_liability:
   accountable: one
   status: active
 
+connected:
+  family: dylan_family
+  name: Connected Account
+  balance: 5000
+  currency: USD
+  accountable_type: Depository
+  accountable: one
+  status: active
+
 depository:
   family: dylan_family
   name: Checking Account
@@ -23,17 +32,6 @@ depository:
   currency: USD
   accountable_type: Depository
   accountable: one
-  status: active
-
-connected:
-  family: dylan_family
-  name: Plaid Depository Account
-  balance: 5000
-  currency: USD
-  subtype: checking
-  accountable_type: Depository
-  accountable: two
-  plaid_account: one
   status: active
 
 credit_card:
@@ -88,5 +86,14 @@ crypto:
   balance: 10000
   currency: USD
   accountable_type: Crypto
+  accountable: one
+  status: active
+
+other_family_investment:
+  family: empty
+  name: Other Family Brokerage
+  balance: 0
+  currency: USD
+  accountable_type: Investment
   accountable: one
   status: active

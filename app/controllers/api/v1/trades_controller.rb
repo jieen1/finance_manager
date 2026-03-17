@@ -95,10 +95,11 @@ class Api::V1::TradesController < Api::V1::BaseController
     end
 
     account = family.accounts.find(trade_params[:account_id])
-    
+
     # Use Trade::CreateForm for consistent business logic
     # Remove account_id from params since we pass account object instead
     form_params = trade_params.except(:account_id)
+    form_params = form_params.merge(currency: account.currency) if form_params[:currency].blank?
     create_form = Trade::CreateForm.new(form_params.merge(account: account))
     @entry = create_form.create
 
@@ -263,13 +264,18 @@ class Api::V1::TradesController < Api::V1::BaseController
     end
 
     def entry_params_for_update
+      fee = trade_params[:fee]
+      fee_currency = trade_params[:fee_currency]
+      fee_currency ||= trade_params[:currency] || @entry.currency if fee.to_d > 0
+
       entry_params = {
         date: trade_params[:date],
         entryable_attributes: {
           id: @entry.entryable_id,
           qty: calculate_signed_qty,
           price: trade_params[:price],
-          fee: trade_params[:fee]
+          fee: fee,
+          fee_currency: fee_currency
         }.compact_blank
       }
 

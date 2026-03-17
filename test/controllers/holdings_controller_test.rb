@@ -19,8 +19,9 @@ class HoldingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "destroys holding and associated entries" do
+    aapl_entry_count = @holding.account.entries.where(entryable: @holding.account.trades.where(security: @holding.security)).count
     assert_difference -> { Holding.count } => -1,
-                      -> { Entry.count } => -1 do
+                      -> { Entry.count } => -aapl_entry_count do
       delete holding_path(@holding)
     end
 

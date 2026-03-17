@@ -18,42 +18,13 @@ class Provider::Registry
       raise Error.new("Provider '#{name}' not found in registry")
     end
 
-    def plaid_provider_for_region(region)
-      region.to_sym == :us ? plaid_us : plaid_eu
-    end
-
     private
-      def stripe
-        secret_key = ENV["STRIPE_SECRET_KEY"]
-        webhook_secret = ENV["STRIPE_WEBHOOK_SECRET"]
-
-        return nil unless secret_key.present? && webhook_secret.present?
-
-        Provider::Stripe.new(secret_key:, webhook_secret:)
-      end
-
       def synth
         api_key = ENV.fetch("SYNTH_API_KEY", Setting.synth_api_key)
 
         return nil unless api_key.present?
 
         Provider::Synth.new(api_key)
-      end
-
-      def plaid_us
-        config = Rails.application.config.plaid
-
-        return nil unless config.present?
-
-        Provider::Plaid.new(config, region: :us)
-      end
-
-      def plaid_eu
-        config = Rails.application.config.plaid_eu
-
-        return nil unless config.present?
-
-        Provider::Plaid.new(config, region: :eu)
       end
 
       def github
@@ -104,13 +75,13 @@ class Provider::Registry
     def available_providers
       case concept
       when :exchange_rates
-        %i[synth tencent]
+        %i[synth]
       when :securities
         %i[synth tencent]
       when :llm
         %i[openai minimax]
       else
-        %i[synth tencent plaid_us plaid_eu github openai]
+        %i[synth tencent github openai]
       end
     end
 end

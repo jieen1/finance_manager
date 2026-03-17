@@ -19,16 +19,16 @@ class AccountTest < ActiveSupport::TestCase
       name: "Test Investment",
       balance: 1000,
       currency: "USD",
-      subtype: "hsa",
+      subtype: "股票",
       accountable: Investment.new
     )
 
-    assert_equal "HSA", account.short_subtype_label
-    assert_equal "Health Savings Account", account.long_subtype_label
+    assert_equal "股票", account.short_subtype_label
+    assert_equal "股票", account.long_subtype_label
 
-    # Test with nil subtype
+    # Test with nil subtype falls back to display_name
     account.update!(subtype: nil)
-    assert_equal "Investments", account.short_subtype_label
-    assert_equal "Investments", account.long_subtype_label
+    assert_equal "Investment", account.short_subtype_label
+    assert_equal "Investment", account.long_subtype_label
   end
 end

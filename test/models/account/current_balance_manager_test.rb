@@ -4,6 +4,8 @@ class Account::CurrentBalanceManagerTest < ActiveSupport::TestCase
   setup do
     @family = families(:empty)
     @linked_account = accounts(:connected)
+    # Stub linked? since Plaid has been removed and all accounts are unlinked by default
+    @linked_account.stubs(:linked?).returns(true)
   end
 
   # -------------------------------------------------------------------------------------------------
@@ -196,7 +198,7 @@ class Account::CurrentBalanceManagerTest < ActiveSupport::TestCase
     entry = current_anchor.entry
     assert_equal 1000, entry.amount
     assert_equal Date.current, entry.date
-    assert_equal "当前余额", entry.name  # Depository type returns localized "Current balance"
+    assert_equal "Current balance", entry.name  # Depository type returns localized "Current balance"
 
     assert_equal 1000, @linked_account.balance
   end

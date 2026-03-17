@@ -28,22 +28,23 @@ class TradeTest < ActiveSupport::TestCase
   end
 
   test "allows zero fee" do
-    trade = Trade.new(qty: 10, price: 100, currency: "USD", fee: 0)
+    trade = Trade.new(qty: 10, price: 100, currency: "USD", fee: 0, security: securities(:aapl))
     assert trade.valid?
   end
 
   test "allows positive fee" do
-    trade = Trade.new(qty: 10, price: 100, currency: "USD", fee: 5.99)
+    trade = Trade.new(qty: 10, price: 100, currency: "USD", fee: 5.99, security: securities(:aapl))
     assert trade.valid?
   end
 
   test "allows different currencies for price and fee" do
     trade = Trade.new(
-      qty: 10, 
-      price: 100, 
-      currency: "USD", 
-      fee: 5.99, 
-      fee_currency: "EUR"
+      qty: 10,
+      price: 100,
+      currency: "USD",
+      fee: 5.99,
+      fee_currency: "EUR",
+      security: securities(:aapl)
     )
     assert trade.valid?
   end
@@ -78,7 +79,7 @@ class TradeTest < ActiveSupport::TestCase
     assert_not_nil gain_loss
     
     # Cost basis should include fee: (10 * 100) + 9.99 = 1009.99
-    expected_cost_basis = Money.new(100999, "USD")
+    expected_cost_basis = Money.new(1009.99, "USD")
     assert_equal expected_cost_basis, gain_loss.previous
   end
 end

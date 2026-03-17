@@ -37,7 +37,7 @@ class PeriodTest < ActiveSupport::TestCase
 
   test "label returns correct label for known period" do
     period = Period.from_key("last_30_days")
-    assert_equal "过去30天", period.label
+    assert_equal "Last 30 Days", period.label
   end
 
   test "label returns custom label for unknown period" do
@@ -47,7 +47,7 @@ class PeriodTest < ActiveSupport::TestCase
 
   test "comparison_label returns correct label for known period" do
     period = Period.from_key("last_30_days")
-    assert_equal "vs. 最近一个月", period.comparison_label
+    assert_equal "vs. Last Month", period.comparison_label
   end
 
   test "comparison_label returns date range for unknown period" do

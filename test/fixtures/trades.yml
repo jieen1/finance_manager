@@ -3,3 +3,15 @@ one:
   qty: 10
   price: 214
   currency: USD
+
+aapl_buy:
+  security: aapl
+  qty: 5
+  price: 200
+  currency: USD
+
+other_family_trade:
+  security: aapl
+  qty: 3
+  price: 150
+  currency: USD

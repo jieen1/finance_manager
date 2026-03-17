@@ -12,14 +12,16 @@ class InvitationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should create invitation for member" do
-    assert_difference("Invitation.count") do
-      assert_enqueued_with(job: ActionMailer::MailDeliveryJob) do
-        post invitations_url, params: {
-          invitation: {
-            email: "new@example.com",
-            role: "member"
+    with_managed_mode do
+      assert_difference("Invitation.count") do
+        assert_enqueued_with(job: ActionMailer::MailDeliveryJob) do
+          post invitations_url, params: {
+            invitation: {
+              email: "new@example.com",
+              role: "member"
+            }
           }
-        }
+        end
       end
     end
 

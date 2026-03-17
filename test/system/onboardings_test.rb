@@ -141,12 +141,6 @@ class OnboardingsTest < ApplicationSystemTestCase
     assert_button "Next"
   end
 
-  test "trial page renders correctly" do
-    visit trial_onboarding_path
-
-    assert_text "trial" # Adjust based on actual content
-  end
-
   test "navigation between onboarding steps" do
     # Start at main onboarding
     visit onboarding_path

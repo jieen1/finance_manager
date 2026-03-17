@@ -77,7 +77,12 @@ class TradesController < ApplicationController
       if qty.present? && price.present?
         qty = update_params[:nature] == "inflow" ? -qty.to_d : qty.to_d
         update_params[:entryable_attributes][:qty] = qty
-        
+
+        # Default fee_currency to entry currency if not provided
+        if fee.to_d > 0 && update_params[:entryable_attributes][:fee_currency].blank?
+          update_params[:entryable_attributes][:fee_currency] = update_params[:currency] || @entry.currency
+        end
+
         # Fee calculation: for buys (positive qty) fee increases cost, for sells (negative qty) fee reduces proceeds
         base_amount = qty * price.to_d
         fee_impact = qty.positive? ? fee.to_d : -fee.to_d

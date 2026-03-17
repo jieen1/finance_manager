@@ -1,5 +1,9 @@
 empty:
   name: Family
+  locale: "en"
+  currency: "USD"
 
 dylan_family:
   name: The Dylan Family
+  locale: "en"
+  currency: "USD"

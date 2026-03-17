@@ -57,8 +57,8 @@ class BalanceSheetTest < ActiveSupport::TestCase
 
     assert_equal 3, asset_groups.size
     assert_equal 1000 + 2000, asset_groups.find { |ag| ag.name == "Cash" }.total
-    assert_equal 3000, asset_groups.find { |ag| ag.name == "Investments" }.total
-    assert_equal 5000, asset_groups.find { |ag| ag.name == "Other Assets" }.total
+    assert_equal 3000, asset_groups.find { |ag| ag.name == "Investment" }.total
+    assert_equal 5000, asset_groups.find { |ag| ag.name == "Other Asset" }.total
   end
 
   test "calculates liability group totals" do
@@ -71,8 +71,8 @@ class BalanceSheetTest < ActiveSupport::TestCase
     liability_groups = BalanceSheet.new(@family).liabilities.account_groups
 
     assert_equal 2, liability_groups.size
-    assert_equal 1000 + 2000, liability_groups.find { |ag| ag.name == "Credit Cards" }.total
-    assert_equal 3000 + 5000, liability_groups.find { |ag| ag.name == "Other Liabilities" }.total
+    assert_equal 1000 + 2000, liability_groups.find { |ag| ag.name == "Credit Card" }.total
+    assert_equal 3000 + 5000, liability_groups.find { |ag| ag.name == "Other Liability" }.total
   end
 
   private

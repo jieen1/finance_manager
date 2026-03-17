@@ -3,12 +3,8 @@
 <% steps = [
   { name: "基础设置", path: onboarding_path, is_complete: user.first_name.present?, step_number: 1 },
   { name: "偏好设置", path: preferences_onboarding_path, is_complete: user.set_onboarding_preferences_at.present?, step_number: 2 },
-  { name: "财务目标", path: goals_onboarding_path , is_complete: user.set_onboarding_goals_at.present?, step_number: 3 },
-  { name: "开始使用", path: trial_onboarding_path, is_complete: user.onboarded?, step_number: 4 },
+  { name: "财务目标", path: goals_onboarding_path, is_complete: user.set_onboarding_goals_at.present?, step_number: 3 },
 ] %>
-
-<%# Don't show last step if self hosted %>
-<% steps.pop if self_hosted? %>
 
 <ul class="hidden md:flex items-center gap-2">
   <% steps.each_with_index do |step, idx| %>
