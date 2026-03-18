@@ -258,7 +258,14 @@ module ThsSync
       trade = entry.entryable
       new_fee = record["fee_total"].to_f
       new_qty = record["entry_count"].to_f.abs
-      new_price = record["entry_price"].to_f
+      code = record["code"].to_s.strip
+
+      # For reverse repo, use lot_price (not the interest rate in entry_price)
+      if ThsSync::TradeMapper.reverse_repo?(record)
+        new_price = code.start_with?("131") ? 100.0 : 1000.0
+      else
+        new_price = record["entry_price"].to_f
+      end
 
       old_fee = trade.fee.to_f
       old_qty = trade.qty.abs.to_f
