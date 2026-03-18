@@ -114,7 +114,7 @@ module ThsSync
 
         # Also remove associated interest entry if this was a repo sell
         if r.raw_data["op"].to_s == "35"
-          interest_ext = ExternalRecord.find_by(source: "ths", external_id: "#{r.external_id}_interest")
+          interest_ext = ExternalRecord.find_by(source: "ths", external_id: "#{r.external_id}_interest", family: family)
           if interest_ext
             interest_entry = interest_ext.entry
             interest_ext.update_columns(entry_id: nil)
@@ -149,9 +149,9 @@ module ThsSync
       positions.each do |pos|
         ExternalRecord.find_or_create_by(
           source: "ths_position",
-          external_id: "pos_#{Date.current}_#{pos["code"]}"
+          external_id: "pos_#{Date.current}_#{pos["code"]}",
+          family: family
         ) do |r|
-          r.family = family
           r.record_type = "position"
           r.raw_data = pos
           r.status = "imported"
@@ -167,7 +167,8 @@ module ThsSync
 
       ext_record = ExternalRecord.find_or_initialize_by(
         source: "ths",
-        external_id: ext_id
+        external_id: ext_id,
+        family: family
       )
 
       # Already imported - check if fee needs update or data changed
@@ -373,7 +374,7 @@ module ThsSync
       ext_id = "#{vid}_interest"
 
       # Already created?
-      return if ExternalRecord.exists?(source: "ths", external_id: ext_id)
+      return if ExternalRecord.exists?(source: "ths", external_id: ext_id, family: family)
 
       code = record["code"].to_s.strip
       rate = record["entry_price"].to_f
