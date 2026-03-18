@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_03_17_100000) do
+ActiveRecord::Schema[7.2].define(version: 2026_03_18_021059) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -698,6 +698,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_17_100000) do
     t.string "last_error"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.uuid "account_id"
+    t.index ["account_id"], name: "index_ths_sessions_on_account_id"
     t.index ["family_id", "status"], name: "index_ths_sessions_on_family_id_and_status"
     t.index ["family_id"], name: "index_ths_sessions_on_family_id"
   end
@@ -848,6 +850,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_17_100000) do
   add_foreign_key "syncs", "syncs", column: "parent_id"
   add_foreign_key "taggings", "tags"
   add_foreign_key "tags", "families"
+  add_foreign_key "ths_sessions", "accounts"
   add_foreign_key "ths_sessions", "families"
   add_foreign_key "tool_calls", "messages"
   add_foreign_key "trades", "securities"

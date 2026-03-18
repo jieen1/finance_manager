@@ -27,7 +27,7 @@ class User < ApplicationRecord
 
   has_one_attached :profile_image do |attachable|
     attachable.variant :thumbnail, resize_to_fill: [ 300, 300 ], convert: :webp, saver: { quality: 80 }
-    attachable.variant :small, resize_to_fill: [ 72, 72 ], convert: :webp, saver: { quality: 80 }, preprocessed: true
+    attachable.variant :small, resize_to_fill: [ 72, 72 ], convert: :webp, saver: { quality: 80 }
   end
 
   validate :profile_image_size
@@ -70,7 +70,7 @@ class User < ApplicationRecord
   end
 
   def display_name
-    [ first_name, last_name ].compact.join(" ").presence || email
+    [ last_name, first_name ].compact.join("").presence || email
   end
 
   def initial
@@ -82,6 +82,18 @@ class User < ApplicationRecord
       "#{first_name.first}#{last_name.first}".upcase
     else
       initial
+    end
+  end
+
+  # For GIF avatars, return the original (to preserve animation).
+  # For other formats, return the resized variant.
+  def avatar_url(size: :small)
+    return nil unless profile_image.attached?
+
+    if profile_image.content_type == "image/gif"
+      profile_image
+    else
+      profile_image.variant(size)
     end
   end
 
@@ -172,8 +184,8 @@ class User < ApplicationRecord
     def ensure_valid_profile_image
       return unless profile_image.attached?
 
-      unless profile_image.content_type.in?(%w[image/jpeg image/png])
-        errors.add(:profile_image, "must be a JPEG or PNG")
+      unless profile_image.content_type.in?(%w[image/jpeg image/png image/gif image/webp])
+        errors.add(:profile_image, "must be a JPEG, PNG, GIF, or WebP")
         profile_image.purge
       end
     end

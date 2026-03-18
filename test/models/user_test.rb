@@ -48,7 +48,7 @@ class UserTest < ActiveSupport::TestCase
     user.first_name = "Bob"
     assert_equal "Bob", user.display_name
     user.last_name = "Dylan"
-    assert_equal "Bob Dylan", user.display_name
+    assert_equal "DylanBob", user.display_name
   end
 
   test "initial" do

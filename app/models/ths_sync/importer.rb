@@ -407,7 +407,7 @@ module ThsSync
     end
 
     def find_investment_account
-      @investment_account ||= family.accounts
+      @investment_account ||= ths_session.account || family.accounts
         .where(accountable_type: "Investment")
         .where(status: "active")
         .first

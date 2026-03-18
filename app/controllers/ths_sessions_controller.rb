@@ -4,6 +4,7 @@ class ThsSessionsController < ApplicationController
 
   def index
     @ths_session = Current.family.ths_sessions.order(created_at: :desc).first
+    @investment_accounts = Current.family.accounts.where(accountable_type: "Investment", status: "active")
     @recent_records = ExternalRecord.where(family: Current.family)
       .where(source: [ "ths", "ths_position" ])
       .order(created_at: :desc)
@@ -25,7 +26,8 @@ class ThsSessionsController < ApplicationController
       cookies: cookies_str,
       status: "active",
       last_error: nil,
-      expires_at: 23.hours.from_now
+      expires_at: 23.hours.from_now,
+      account_id: params[:account_id].presence
     )
 
     if session.save

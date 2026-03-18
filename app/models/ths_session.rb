@@ -1,5 +1,6 @@
 class ThsSession < ApplicationRecord
   belongs_to :family
+  belongs_to :account, optional: true
 
   scope :active, -> { where(status: "active") }
 

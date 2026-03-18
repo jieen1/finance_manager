@@ -46,6 +46,16 @@
               style: "background:var(--aurora-bg-3);border:1px solid var(--aurora-bd-h);color:var(--aurora-t0)",
               placeholder: "粘贴完整 cookie 字符串..." %>
         </div>
+        <div>
+          <label class="text-sm font-medium text-primary block mb-1">同步到账户</label>
+          <select name="account_id" class="w-full text-sm rounded-lg p-2"
+              style="background:var(--aurora-bg-3);border:1px solid var(--aurora-bd-h);color:var(--aurora-t0)">
+            <option value="">自动选择 (第一个投资账户)</option>
+            <% @investment_accounts.each do |acct| %>
+              <option value="<%= acct.id %>" <%= "selected" if @ths_session&.account_id == acct.id %>><%= acct.name %></option>
+            <% end %>
+          </select>
+        </div>
         <%= f.submit "保存", class: "aurora-btn-primary text-sm" %>
       </div>
     <% end %>
