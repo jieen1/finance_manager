@@ -8,7 +8,7 @@ class ExternalRecord < ApplicationRecord
   scope :from_ths, -> { where(source: "ths") }
 
   validates :source, presence: true
-  validates :external_id, presence: true, uniqueness: { scope: :source }
+  validates :external_id, presence: true, uniqueness: { scope: [:source, :family_id] }
   validates :record_type, presence: true
 
   def mark_imported!(entry)

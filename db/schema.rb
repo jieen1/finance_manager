@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_03_18_025913) do
+ActiveRecord::Schema[7.2].define(version: 2026_03_18_091817) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -265,7 +265,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_18_025913) do
     t.index ["entry_id"], name: "index_external_records_on_entry_id"
     t.index ["family_id", "source", "status"], name: "index_external_records_on_family_id_and_source_and_status"
     t.index ["family_id"], name: "index_external_records_on_family_id"
-    t.index ["source", "external_id"], name: "index_external_records_on_source_and_external_id", unique: true
+    t.index ["source", "external_id", "family_id"], name: "index_external_records_on_source_and_external_id_and_family_id", unique: true
     t.index ["status"], name: "index_external_records_on_status"
   end
 
