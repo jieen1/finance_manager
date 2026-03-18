@@ -228,10 +228,14 @@ class Provider::Tencent < Provider
     end
   end
 
-  # Tencent APIs (qt.gtimg.cn) return GBK-encoded responses with Chinese characters.
-  # Ruby defaults to ASCII-8BIT which crashes regex matching against UTF-8 patterns.
+  # Tencent APIs return mixed encodings: qt.gtimg.cn uses GBK, others use UTF-8.
+  # Try UTF-8 first; only convert from GBK if the body isn't valid UTF-8.
   def safe_body(response)
-    response.body.force_encoding("GBK").encode("UTF-8", invalid: :replace, undef: :replace)
+    body = response.body
+    utf8 = body.dup.force_encoding("UTF-8")
+    return utf8 if utf8.valid_encoding?
+
+    body.force_encoding("GBK").encode("UTF-8", invalid: :replace, undef: :replace)
   end
   
   # 数据转换和工具方法
