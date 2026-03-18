@@ -404,15 +404,20 @@ module ThsSync
     end
 
     # Trigger a single sync after all trades have been imported.
-    # First-time full import: full sync (no window). Incremental: windowed from cutoff date.
+    # Manual override or first-time: full sync. Incremental: windowed from cutoff date.
     def trigger_account_sync
       return unless (account = find_investment_account)
 
-      cutoff = incremental_cutoff_date
-      if cutoff
-        account.sync_later(window_start_date: Date.parse(cutoff), window_end_date: Date.current)
-      else
+      # If user explicitly chose a sync scope beyond 3 days, do full recalculation
+      if @override_start_date && @override_start_date < Date.current - 3
         account.sync_later
+      else
+        cutoff = incremental_cutoff_date
+        if cutoff
+          account.sync_later(window_start_date: Date.parse(cutoff), window_end_date: Date.current)
+        else
+          account.sync_later
+        end
       end
     end
 
