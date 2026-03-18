@@ -94,7 +94,7 @@ zh-CN:
       next: 下一步
       previous: 返回
     user_avatar_field:
-      accepted_formats: JPG 或 PNG格式，最大5MB
+      accepted_formats: JPG、PNG、GIF、WebP格式，最大10MB
       choose: 上传照片
       choose_label: (选填)
       change: 更换照片

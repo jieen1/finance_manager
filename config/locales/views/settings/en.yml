@@ -97,7 +97,7 @@ en:
       next: Next
       previous: Back
     user_avatar_field:
-      accepted_formats: JPG or PNG. 5MB max.
+      accepted_formats: JPG, PNG, GIF, or WebP. 10MB max.
       choose: Upload photo
       choose_label: (optional)
       change: Change photo

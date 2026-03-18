@@ -79,7 +79,7 @@ class User < ApplicationRecord
 
   def initials
     if first_name.present? && last_name.present?
-      "#{first_name.first}#{last_name.first}".upcase
+      "#{last_name.first}#{first_name.first}".upcase
     else
       initial
     end

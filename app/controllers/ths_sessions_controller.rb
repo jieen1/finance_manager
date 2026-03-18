@@ -5,6 +5,7 @@ class ThsSessionsController < ApplicationController
   def index
     @ths_session = Current.family.ths_sessions.order(created_at: :desc).first
     @investment_accounts = Current.family.accounts.where(accountable_type: "Investment", status: "active")
+    @ths_fund_accounts = load_ths_fund_accounts
     @recent_records = ExternalRecord.where(family: Current.family)
       .where(source: [ "ths", "ths_position" ])
       .order(created_at: :desc)
@@ -22,12 +23,19 @@ class ThsSessionsController < ApplicationController
     end
 
     session = Current.family.ths_sessions.find_or_initialize_by(userid: userid)
+
+    # Build fund_key → account_id mappings from form params
+    mappings = {}
+    (params[:fund_mappings] || {}).each do |fund_key, account_id|
+      mappings[fund_key] = account_id if account_id.present?
+    end
+
     session.assign_attributes(
       cookies: cookies_str,
       status: "active",
       last_error: nil,
       expires_at: 23.hours.from_now,
-      account_id: params[:account_id].presence
+      fund_account_mappings: mappings
     )
 
     if session.save
@@ -76,6 +84,23 @@ class ThsSessionsController < ApplicationController
 
   def set_breadcrumbs
     @breadcrumbs = [ [ "首页", root_path ], [ "设置", settings_profile_path ], [ "同花顺同步", nil ] ]
+  end
+
+  def load_ths_fund_accounts
+    return [] unless @ths_session&.persisted? && !@ths_session.expired?
+
+    client = ThsClient.new(@ths_session)
+    data = client.account_list
+    # THS returns accounts in ex_data.common (broker accounts) and ex_data.manual (manual accounts)
+    all_accounts = (data.dig("ex_data", "common") || []) + (data.dig("ex_data", "manual") || [])
+    all_accounts.map do |a|
+      fund_key = a["fund_key"].presence || a["manual_id"].presence
+      name = a["manualname"].presence || a["brokername"].presence || fund_key
+      { fund_key: fund_key, name: name }
+    end.select { |a| a[:fund_key].present? }
+  rescue => e
+    Rails.logger.warn("[ThsSessions] Failed to load THS accounts: #{e.message}")
+    []
   end
 
   def load_ths_cron_jobs

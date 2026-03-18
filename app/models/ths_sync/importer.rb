@@ -13,7 +13,7 @@ module ThsSync
 
       begin
         account_data = client.account_list
-        ths_accounts = account_data.dig("ex_data", "list") || []
+        ths_accounts = (account_data.dig("ex_data", "common") || []) + (account_data.dig("ex_data", "manual") || [])
       rescue ThsClient::ApiError
         ths_accounts = []
       end
@@ -21,10 +21,17 @@ module ThsSync
       if ths_accounts.any?
         ths_accounts.each do |ths_account|
           fund_key = ths_account["fund_key"] || ths_account["manual_id"]
-          sync_trades(client, fund_key: fund_key) if fund_key.present?
-          sync_positions(client, fund_key: fund_key) if fund_key.present?
+          next unless fund_key.present?
+
+          # Set the target account for this fund_key
+          @current_fund_key = fund_key
+          @investment_account = nil  # Reset so find_investment_account re-evaluates
+
+          sync_trades(client, fund_key: fund_key)
+          sync_positions(client, fund_key: fund_key)
         end
       else
+        @current_fund_key = nil
         sync_trades(client, fund_key: "84360053")
         sync_positions(client, fund_key: "84360053")
       end
@@ -407,10 +414,12 @@ module ThsSync
     end
 
     def find_investment_account
-      @investment_account ||= ths_session.account || family.accounts
-        .where(accountable_type: "Investment")
-        .where(status: "active")
-        .first
+      @investment_account ||= begin
+        # Check fund_key → account mapping first
+        mapped = @current_fund_key ? ths_session.account_for_fund(@current_fund_key) : nil
+        # Fall back to first active investment account
+        mapped || family.accounts.where(accountable_type: "Investment", status: "active").first
+      end
     end
   end
 end

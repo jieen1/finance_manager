@@ -46,16 +46,29 @@
               style: "background:var(--aurora-bg-3);border:1px solid var(--aurora-bd-h);color:var(--aurora-t0)",
               placeholder: "粘贴完整 cookie 字符串..." %>
         </div>
-        <div>
-          <label class="text-sm font-medium text-primary block mb-1">同步到账户</label>
-          <select name="account_id" class="w-full text-sm rounded-lg p-2"
-              style="background:var(--aurora-bg-3);border:1px solid var(--aurora-bd-h);color:var(--aurora-t0)">
-            <option value="">自动选择 (第一个投资账户)</option>
-            <% @investment_accounts.each do |acct| %>
-              <option value="<%= acct.id %>" <%= "selected" if @ths_session&.account_id == acct.id %>><%= acct.name %></option>
-            <% end %>
-          </select>
-        </div>
+        <% if @ths_fund_accounts.any? %>
+          <div>
+            <label class="text-sm font-medium text-primary block mb-1">账户映射</label>
+            <p class="text-xs text-secondary mb-2">为每个同花顺账户选择对应的系统投资账户</p>
+            <div class="space-y-2">
+              <% @ths_fund_accounts.each do |fund| %>
+                <div class="flex items-center gap-2 p-2 rounded-lg" style="background:var(--aurora-bg-3)">
+                  <span class="text-sm text-primary shrink-0 w-28"><%= fund[:name] %></span>
+                  <span class="text-xs text-secondary">&rarr;</span>
+                  <select name="fund_mappings[<%= fund[:fund_key] %>]" class="flex-1 text-sm rounded-lg p-1.5"
+                      style="background:var(--aurora-bg-2);border:1px solid var(--aurora-bd-h);color:var(--aurora-t0)">
+                    <option value="">不同步</option>
+                    <% @investment_accounts.each do |acct| %>
+                      <option value="<%= acct.id %>" <%= "selected" if @ths_session&.fund_account_mappings&.dig(fund[:fund_key].to_s) == acct.id.to_s %>><%= acct.name %></option>
+                    <% end %>
+                  </select>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% elsif @investment_accounts.any? %>
+          <p class="text-xs text-secondary">保存 Cookie 后将显示同花顺账户列表，可配置账户映射</p>
+        <% end %>
         <%= f.submit "保存", class: "aurora-btn-primary text-sm" %>
       </div>
     <% end %>
