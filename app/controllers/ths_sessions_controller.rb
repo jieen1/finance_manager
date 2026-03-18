@@ -15,14 +15,6 @@ class ThsSessionsController < ApplicationController
 
   def create
     cookies_str = params[:cookies].to_s.strip
-    userid = cookies_str.match(/userid=(\d+)/)&.captures&.first
-
-    unless userid
-      redirect_to ths_sessions_path, alert: "Cookie 中未找到 userid"
-      return
-    end
-
-    session = Current.family.ths_sessions.find_or_initialize_by(userid: userid)
 
     # Build fund_key → account_id mappings from form params
     mappings = {}
@@ -30,16 +22,34 @@ class ThsSessionsController < ApplicationController
       mappings[fund_key] = account_id if account_id.present?
     end
 
-    session.assign_attributes(
-      cookies: cookies_str,
-      status: "active",
-      last_error: nil,
-      expires_at: 23.hours.from_now,
-      fund_account_mappings: mappings
-    )
+    if cookies_str.present?
+      # New cookie or cookie update
+      userid = cookies_str.match(/userid=(\d+)/)&.captures&.first
+
+      unless userid
+        redirect_to ths_sessions_path, alert: "Cookie 中未找到 userid"
+        return
+      end
+
+      session = Current.family.ths_sessions.find_or_initialize_by(userid: userid)
+      session.assign_attributes(
+        cookies: cookies_str,
+        status: "active",
+        last_error: nil,
+        expires_at: 23.hours.from_now,
+        fund_account_mappings: mappings
+      )
+    elsif @ths_session = Current.family.ths_sessions.order(created_at: :desc).first
+      # Only updating account mappings, no new cookie
+      session = @ths_session
+      session.fund_account_mappings = mappings
+    else
+      redirect_to ths_sessions_path, alert: "请先配置 Cookie"
+      return
+    end
 
     if session.save
-      redirect_to ths_sessions_path, notice: "同花顺会话已保存 (userid: #{userid})"
+      redirect_to ths_sessions_path, notice: "同花顺设置已保存"
     else
       redirect_to ths_sessions_path, alert: session.errors.full_messages.join(", ")
     end
