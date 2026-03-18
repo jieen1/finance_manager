@@ -8,7 +8,8 @@ module ThsSync
       @results = { created: 0, updated: 0, skipped: 0, errors: [] }
     end
 
-    def sync!
+    def sync!(start_date: nil)
+      @override_start_date = start_date
       client = ThsClient.new(ths_session)
 
       begin
@@ -126,8 +127,10 @@ module ThsSync
       Rails.logger.info("[ThsSync] Purged #{stale.size} stale records") if stale.any?
     end
 
-    # Incremental: last 3 days. First-time: from earliest possible date.
+    # Manual override > first-time full > incremental 3 days.
     def incremental_start_date
+      return @override_start_date if @override_start_date
+
       has_history = ExternalRecord.where(source: "ths", family: family).imported.exists?
       has_history ? Date.current - 3 : Date.new(2020, 1, 1)
     end

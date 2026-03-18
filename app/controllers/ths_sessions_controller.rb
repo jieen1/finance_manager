@@ -64,9 +64,17 @@ class ThsSessionsController < ApplicationController
   def sync_now
     session = Current.family.ths_sessions.find(params[:id])
 
+    start_date = case params[:sync_scope]
+    when "30d" then Date.current - 30
+    when "90d" then Date.current - 90
+    when "1y"  then Date.current - 365
+    when "full" then Date.new(2020, 1, 1)
+    else Date.current - 3  # incremental
+    end
+
     begin
       importer = ThsSync::Importer.new(session)
-      results = importer.sync!
+      results = importer.sync!(start_date: start_date)
       redirect_to ths_sessions_path,
         notice: "同步完成: 新建 #{results[:created]}, 跳过 #{results[:skipped]}, 错误 #{results[:errors].size}"
     rescue ThsClient::AuthError => e

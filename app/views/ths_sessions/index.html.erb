@@ -25,9 +25,19 @@
             <p class="text-xs mt-1" style="color:var(--aurora-rose)"><%= @ths_session.last_error %></p>
           <% end %>
         </div>
-        <div class="flex gap-2">
+        <div class="flex items-center gap-2">
           <%= button_to "测试连接", test_connection_ths_session_path(@ths_session), method: :post, class: "aurora-btn-ghost text-xs" %>
-          <%= button_to "立即同步", sync_now_ths_session_path(@ths_session), method: :post, class: "aurora-btn-primary text-xs" %>
+          <%= form_with url: sync_now_ths_session_path(@ths_session), method: :post, local: true, class: "flex items-center gap-1" do %>
+            <select name="sync_scope" class="text-xs rounded-lg p-1"
+                style="background:var(--aurora-bg-3);border:1px solid var(--aurora-bd-h);color:var(--aurora-t0)">
+              <option value="incremental">最近3天</option>
+              <option value="30d">最近30天</option>
+              <option value="90d">最近90天</option>
+              <option value="1y">最近1年</option>
+              <option value="full">全量同步</option>
+            </select>
+            <button type="submit" class="aurora-btn-primary text-xs">同步</button>
+          <% end %>
           <%= button_to "删除", ths_session_path(@ths_session), method: :delete, class: "aurora-btn-ghost text-xs", style: "color:var(--aurora-rose)" %>
         </div>
       </div>
