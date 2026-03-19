@@ -1,0 +1,36 @@
+netflix:
+  family: dylan_family
+  account: depository
+  category: food_and_drink
+  name: Netflix
+  amount: 15.99
+  currency: USD
+  billing_cycle: monthly
+  billing_day: 15
+  next_billing_date: "2026-03-15"
+  status: active
+  color: "#db5a54"
+
+spotify:
+  family: dylan_family
+  account: depository
+  name: Spotify
+  amount: 9.99
+  currency: USD
+  billing_cycle: monthly
+  billing_day: 1
+  next_billing_date: "2026-04-01"
+  status: active
+  color: "#4da568"
+
+paused_sub:
+  family: dylan_family
+  account: depository
+  name: Paused Service
+  amount: 29.99
+  currency: USD
+  billing_cycle: yearly
+  billing_day: 10
+  next_billing_date: "2026-06-10"
+  status: paused
+  color: "#6471eb"

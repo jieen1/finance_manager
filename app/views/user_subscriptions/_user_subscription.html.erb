@@ -1,0 +1,38 @@
+<%# locals: (user_subscription:) %>
+<div id="<%= dom_id(user_subscription) %>" class="flex justify-between items-center p-4 bg-container hover:bg-surface-hover transition-colors">
+  <div class="flex items-center gap-3">
+    <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-medium" style="background-color: <%= user_subscription.color || '#6471eb' %>">
+      <%= user_subscription.name.first(2).upcase %>
+    </div>
+    <div>
+      <p class="text-primary text-sm font-medium"><%= user_subscription.name %></p>
+      <div class="flex items-center gap-2 text-xs text-secondary">
+        <span><%= format_money(user_subscription.amount_money) %>/<%= user_subscription.billing_cycle_label %></span>
+        <span>&middot;</span>
+        <span>下次扣费：<%= user_subscription.next_billing_date.strftime("%Y-%m-%d") %></span>
+        <% if user_subscription.paused? %>
+          <span class="px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 text-xs">已暂停</span>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  <div class="flex items-center gap-2">
+    <span class="text-sm text-secondary hidden md:block"><%= user_subscription.account.name %></span>
+    <%= render DS::Menu.new do |menu| %>
+      <% menu.with_item(variant: "link", text: "编辑", href: edit_user_subscription_path(user_subscription), icon: "pencil", data: { turbo_frame: "modal" }) %>
+      <% menu.with_item(
+        variant: "button",
+        text: user_subscription.active? ? "暂停" : "恢复",
+        href: toggle_status_user_subscription_path(user_subscription),
+        icon: user_subscription.active? ? "pause" : "play",
+        method: :post) %>
+      <% menu.with_item(
+        variant: "button",
+        text: "删除",
+        href: user_subscription_path(user_subscription),
+        icon: "trash-2",
+        method: :delete,
+        confirm: CustomConfirm.new(title: "删除订阅？", body: "确定要删除 #{user_subscription.name} 吗？此操作不可逆。", btn_text: "删除订阅", destructive: true)) %>
+    <% end %>
+  </div>
+</div>

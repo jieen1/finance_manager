@@ -1,0 +1,162 @@
+<%= content_for :page_title, "Agent设置" %>
+
+<h1 class="text-primary text-xl font-medium mb-4">Agent设置</h1>
+
+<%= styled_form_with model: Current.family, url: settings_agent_path, method: :patch, class: "space-y-6" do |f| %>
+  <%= settings_section title: "人格设定（SOUL）", subtitle: "定义 Agent 的性格、行为方式和沟通风格，会注入到每次对话的系统提示词中" do %>
+    <div class="space-y-2">
+      <%= f.text_area :agent_persona,
+          label: "Agent 人格描述",
+          rows: 6,
+          placeholder: "例如：你是一个务实、直接的财务管家。不说废话，直接给结论和建议。对用户的支出习惯保持关注，发现异常时简洁提醒。用中文沟通，语气像一个经验丰富的理财顾问。" %>
+      <p class="text-xs text-secondary">留空则使用默认人格。修改后对新对话立即生效。</p>
+    </div>
+  <% end %>
+
+  <%= settings_section title: "核心记忆", subtitle: "Agent 在每次对话中都会记住的关键信息。Agent 对话中也会自动更新记忆。" do %>
+    <div class="space-y-3" id="core-memories">
+      <% if @core_memories.any? %>
+        <% @core_memories.each_with_index do |memory, idx| %>
+          <div class="p-3 rounded-lg border border-secondary">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-xs font-medium text-secondary uppercase bg-container-inset px-2 py-0.5 rounded"><%= memory.key %></span>
+              <span class="text-xs text-tertiary"><%= memory.updated_at.strftime("%Y-%m-%d %H:%M") %></span>
+            </div>
+            <div class="flex gap-2 items-start">
+              <input type="hidden" name="memories[<%= idx %>][key]" value="<%= memory.key %>">
+              <textarea name="memories[<%= idx %>][value]" rows="2"
+                        class="form-field__input flex-1 text-sm"><%= memory.value %></textarea>
+              <button type="button" class="text-secondary hover:text-red-500 mt-1"
+                      onclick="this.closest('.rounded-lg').querySelector('textarea').value=''; this.closest('.rounded-lg').classList.add('opacity-50');"
+                      title="清空后保存即删除">
+                <%= icon("x", size: "sm") %>
+              </button>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <p class="text-sm text-secondary py-4 text-center">暂无核心记忆。在对话中告诉 Agent "请记住..."，它会自动创建。</p>
+      <% end %>
+
+      <details class="text-sm">
+        <summary class="text-secondary cursor-pointer hover:text-primary">手动添加记忆</summary>
+        <div class="flex gap-2 items-start mt-2">
+          <input type="text" name="memories[<%= @core_memories.size %>][key]"
+                 class="form-field__input w-1/4" placeholder="键名（英文）">
+          <textarea name="memories[<%= @core_memories.size %>][value]" rows="2"
+                    class="form-field__input flex-1" placeholder="记忆内容"></textarea>
+        </div>
+      </details>
+    </div>
+  <% end %>
+
+  <%= settings_section title: "归档记忆", subtitle: "Agent 的长期记忆存档，包含历史分析、对话要点等。可搜索但不会每次加载。" do %>
+    <div class="space-y-3">
+      <% if @archival_memories.any? %>
+        <div class="max-h-64 overflow-y-auto space-y-2">
+          <% @archival_memories.each do |memory| %>
+            <div class="p-2 rounded border border-secondary text-sm">
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-xs font-medium text-secondary"><%= memory.key %></span>
+                <span class="text-xs text-tertiary"><%= memory.updated_at.strftime("%Y-%m-%d") %></span>
+              </div>
+              <p class="text-primary text-xs"><%= memory.value.truncate(200) %></p>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-sm text-secondary py-4 text-center">暂无归档记忆。Agent 在分析和对话中会自动积累。</p>
+      <% end %>
+      <p class="text-xs text-secondary">归档记忆由 Agent 自动管理，通过 <code class="bg-container-inset px-1 rounded">memory_search</code> 工具按需检索。</p>
+    </div>
+  <% end %>
+
+  <%= settings_section title: "心跳检查（Heartbeat）", subtitle: "Agent 定期自动执行的检查任务，类似 OpenClaw 心跳机制。无异常时静默跳过。" do %>
+    <div class="space-y-4">
+      <div class="flex items-center gap-4">
+        <%= f.check_box :agent_heartbeat_enabled, label: "启用心跳检查" %>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <%= f.select :agent_heartbeat_interval,
+            [["每5分钟", 5], ["每15分钟", 15], ["每30分钟", 30], ["每小时", 60], ["每2小时", 120], ["每天", 1440]],
+            { label: "检查间隔" } %>
+        <%= f.text_field :agent_heartbeat_active_start,
+            label: "活跃开始时间", placeholder: "08:00" %>
+        <%= f.text_field :agent_heartbeat_active_end,
+            label: "活跃结束时间", placeholder: "22:00" %>
+      </div>
+
+      <div>
+        <label class="text-sm font-medium text-primary mb-2 block">检查清单（HEARTBEAT）</label>
+        <p class="text-xs text-secondary mb-2">每次心跳时 Agent 会逐项检查以下内容。如无异常则静默跳过（HEARTBEAT_OK）。保持简洁以节省 Token。</p>
+        <%= f.text_area :agent_heartbeat_checklist_text,
+            rows: 6,
+            value: (Current.family.agent_heartbeat_checklist || []).join("\n"),
+            placeholder: "每行一条检查项，例如：\n检查本周是否有未分类的交易\n检查本月各分类消费是否超过预算\n检查股票仓位是否超过设定阈值\n如有到期订阅，提醒用户" %>
+      </div>
+    </div>
+  <% end %>
+
+  <%= settings_section title: "截图自动记账（OCR）", subtitle: "定时扫描 DSM/NAS 指定文件夹中的消费截图，AI 自动识别并记账" do %>
+    <div class="space-y-4">
+      <%= f.check_box :ocr_scan_enabled, label: "启用截图扫描" %>
+
+      <%= f.text_field :ocr_scan_folder,
+          label: "扫描文件夹路径",
+          placeholder: "/volume1/screenshots/expenses",
+          value: Current.family.ocr_scan_folder %>
+      <p class="text-xs text-secondary -mt-2">DSM 共享文件夹的挂载路径。手机截图传到此文件夹后会被自动识别。</p>
+
+      <%= f.collection_select :ocr_scan_account_id,
+          Current.family.accounts.visible.alphabetically, :id, :name,
+          { label: "默认记账账户", include_blank: "自动选择第一个账户" } %>
+
+      <%= f.select :ocr_scan_interval,
+          [["每5分钟", 5], ["每15分钟", 15], ["每30分钟", 30], ["每小时", 60]],
+          { label: "扫描间隔" } %>
+
+      <% if Current.family.ocr_scan_last_at.present? %>
+        <p class="text-xs text-secondary">上次扫描：<%= Current.family.ocr_scan_last_at.strftime("%Y-%m-%d %H:%M:%S") %></p>
+      <% end %>
+
+      <% scan_records = Current.family.ocr_scan_records.recent.limit(5) %>
+      <% if scan_records.any? %>
+        <div class="mt-2">
+          <p class="text-sm font-medium text-primary mb-2">最近识别记录</p>
+          <div class="space-y-1">
+            <% scan_records.each do |record| %>
+              <div class="flex justify-between items-center p-2 rounded border border-secondary text-xs">
+                <div class="flex items-center gap-2">
+                  <% case record.status %>
+                  <% when "success" %>
+                    <span class="text-green-600"><%== "&#10003;" %></span>
+                  <% when "failed" %>
+                    <span class="text-red-600"><%== "&#10007;" %></span>
+                  <% when "skipped" %>
+                    <span class="text-gray-400">-</span>
+                  <% when "processing" %>
+                    <span class="text-blue-500">...</span>
+                  <% end %>
+                  <span class="text-primary truncate max-w-[200px]"><%= record.file_name %></span>
+                </div>
+                <div class="flex items-center gap-2 text-secondary">
+                  <% if record.success? %>
+                    <span><%= record.merchant %> ¥<%= record.amount %></span>
+                  <% elsif record.error_message.present? %>
+                    <span class="text-red-500"><%= record.error_message.truncate(30) %></span>
+                  <% end %>
+                  <span><%= record.processed_at&.strftime("%m-%d %H:%M") %></span>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="flex justify-end">
+    <%= f.submit "保存设置" %>
+  </div>
+<% end %>

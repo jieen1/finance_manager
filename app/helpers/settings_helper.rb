@@ -11,8 +11,12 @@ module SettingsHelper
     { name: "类别管理", path: :categories_path },
     { name: "规则管理", path: :rules_path },
     { name: "商家管理", path: :family_merchants_path },
-    { name: "最新动态", path: :changelog_path },
-    { name: "意见反馈", path: :feedback_path }
+    { name: "订阅管理", path: :user_subscriptions_path },
+    { name: "Agent设置", path: :settings_agent_path },
+    { name: "工具管理", path: :settings_agent_tools_path },
+    { name: "模型配置", path: :settings_llm_providers_path },
+    { name: "任务中心", path: :agent_tasks_path },
+    { name: "操作日志", path: :agent_actions_path }
   ]
 
   def adjacent_setting(current_path, offset)

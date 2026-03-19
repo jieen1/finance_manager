@@ -50,6 +50,30 @@ ths_sync_premarket:
   queue: "scheduled"
   description: "盘前同步 (8:30)"
 
+agent_heartbeat:
+  cron: "0 9 * * *"
+  class: "AgentHeartbeatJob"
+  queue: "scheduled"
+  description: "Agent心跳检查 (每天9:00)"
+
+agent_task_runner:
+  cron: "* * * * *"
+  class: "AgentTaskRunnerJob"
+  queue: "scheduled"
+  description: "任务中心调度器 (每分钟检查到期任务)"
+
+ocr_scan:
+  cron: "*/15 * * * *"
+  class: "OcrScanJob"
+  queue: "scheduled"
+  description: "扫描DSM截图文件夹 (每15分钟)"
+
+process_subscriptions:
+  cron: "0 8 * * *"
+  class: "ProcessSubscriptionsJob"
+  queue: "scheduled"
+  description: "处理到期订阅扣费 (每天8:00)"
+
 run_security_health_checks:
   cron: "0 3 * * 1-5"
   class: "SecurityHealthCheckJob"

@@ -65,10 +65,10 @@ class AssistantTest < ActiveSupport::TestCase
   test "responds with tool function calls" do
     @assistant.expects(:get_model_provider).with("gpt-4.1").returns(@provider).once
 
-    # Only first provider call executes function
-    Assistant::Function::GetAccounts.any_instance.stubs(:call).returns("test value").once
+    # Function execution (may be called via ToolExecutor)
+    Assistant::Function::GetAccounts.any_instance.stubs(:call).returns({ accounts: "test" })
 
-    # Call #1: Function requests
+    # Call #1: Function requests (AI wants to call get_accounts)
     call1_response_chunk = provider_response_chunk(
       id: "1",
       model: "gpt-4.1",
@@ -95,25 +95,24 @@ class AssistantTest < ActiveSupport::TestCase
 
     call2_response = provider_success_response(call2_response_chunk.data)
 
-    sequence = sequence("provider_chat_response")
-
-    @provider.expects(:chat_response).with do |message, **options|
-      call2_text_chunks.each do |text_chunk|
-        options[:streamer].call(text_chunk)
+    call_count = 0
+    @provider.stubs(:chat_response).with do |message, **options|
+      call_count += 1
+      if call_count == 1
+        # Round 1: return function request
+        options[:streamer].call(call1_response_chunk)
+      else
+        # Round 2: return text response
+        call2_text_chunks.each { |chunk| options[:streamer].call(chunk) }
+        options[:streamer].call(call2_response_chunk)
       end
-
-      options[:streamer].call(call2_response_chunk)
       true
-    end.returns(call2_response).once.in_sequence(sequence)
-
-    @provider.expects(:chat_response).with do |message, **options|
-      options[:streamer].call(call1_response_chunk)
-      true
-    end.returns(call1_response).once.in_sequence(sequence)
+    end.returns(call1_response).then.returns(call2_response)
 
     assert_difference "AssistantMessage.count", 1 do
       @assistant.respond_to(@message)
       message = @chat.messages.ordered.where(type: "AssistantMessage").last
+      assert_equal "Your net worth is $124,200", message.content
       assert_equal 1, message.tool_calls.size
     end
   end

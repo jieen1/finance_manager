@@ -46,7 +46,17 @@ module ApplicationHelper
   end
 
   def page_active?(path)
-    current_page?(path) || (request.path.start_with?(path) && path != "/")
+    return true if current_page?(path)
+
+    # For nested settings routes, only match exact path prefix with /
+    # This prevents /settings/agent matching /settings/agent_tools
+    return false if path == "/"
+
+    request_segments = request.path.split("/")
+    path_segments = path.split("/")
+
+    # Only match if path segments align exactly (not just prefix)
+    path_segments.length > 1 && request_segments.first(path_segments.length) == path_segments
   end
 
   # Wrapper around I18n.l to support custom date formats

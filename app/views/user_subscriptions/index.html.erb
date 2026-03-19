@@ -1,0 +1,54 @@
+<header class="flex items-center justify-between">
+  <h1 class="text-primary text-xl font-medium">订阅管理</h1>
+  <%= render DS::Link.new(
+    text: "新建订阅",
+    variant: "primary",
+    href: new_user_subscription_path,
+    icon: "plus",
+    frame: :modal
+  ) %>
+</header>
+
+<% if @user_subscriptions.active.any? %>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+    <div class="bg-container rounded-xl border border-secondary p-4">
+      <p class="text-sm text-secondary mb-1">每月订阅总额</p>
+      <p class="text-xl font-medium text-primary"><%= format_money(Money.new(@monthly_total, Current.family.currency)) %></p>
+    </div>
+    <div class="bg-container rounded-xl border border-secondary p-4">
+      <p class="text-sm text-secondary mb-1">每年订阅总额</p>
+      <p class="text-xl font-medium text-primary"><%= format_money(Money.new(@yearly_total, Current.family.currency)) %></p>
+    </div>
+  </div>
+<% end %>
+
+<div class="bg-container rounded-xl border border-secondary p-4">
+  <% if @user_subscriptions.any? %>
+    <div class="space-y-2">
+      <div class="flex items-center gap-1.5 px-2 py-2 text-xs font-medium text-secondary uppercase">
+        <p>订阅</p>
+        <span class="text-subdued">&middot;</span>
+        <p><%= @user_subscriptions.count %></p>
+      </div>
+      <div class="rounded-lg border border-secondary">
+        <div class="flex flex-col bg-container rounded-lg">
+          <%= render partial: "user_subscription", collection: @user_subscriptions, spacer_template: "shared/ruler" %>
+        </div>
+      </div>
+    </div>
+  <% else %>
+    <div class="flex justify-center items-center py-20">
+      <div class="text-center flex flex-col items-center max-w-[400px]">
+        <p class="text-sm text-primary font-medium mb-1">暂无订阅</p>
+        <p class="text-sm text-secondary mb-4">添加您的定期订阅，系统将自动在扣费日生成记账数据。</p>
+        <%= render DS::Link.new(
+          text: "新建订阅",
+          variant: "primary",
+          href: new_user_subscription_path,
+          icon: "plus",
+          frame: :modal
+        ) %>
+      </div>
+    </div>
+  <% end %>
+</div>

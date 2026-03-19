@@ -3,23 +3,31 @@ class Provider::Minimax < Provider
 
   Error = Class.new(Provider::Error)
 
-  MODELS = %w[MiniMax-Text-01 abab6.5s-chat abab5.5s-chat abab5-chat]
-  API_BASE = "https://api.minimax.chat/v1/"
+  DEFAULT_MODELS = %w[MiniMax-Text-01 abab6.5s-chat abab5.5s-chat abab5-chat].freeze
+  DEFAULT_API_BASE = "https://api.minimax.chat/v1/"
 
   ChatMessage = Provider::LlmConcept::ChatMessage
   ChatStreamChunk = Provider::LlmConcept::ChatStreamChunk
   ChatResponse = Provider::LlmConcept::ChatResponse
   ChatFunctionRequest = Provider::LlmConcept::ChatFunctionRequest
 
+  def self.models
+    custom_model = ENV["MINIMAX_MODEL_NAME"]
+    custom_model.present? ? (DEFAULT_MODELS + [ custom_model ]).uniq : DEFAULT_MODELS
+  end
+
   def initialize(api_key)
+    api_base = ENV.fetch("MINIMAX_BASE_URL", DEFAULT_API_BASE)
+    api_base = "#{api_base}/" unless api_base.end_with?("/")
+
     @client = ::OpenAI::Client.new(
       access_token: api_key,
-      uri_base: API_BASE
+      uri_base: api_base
     )
   end
 
   def supports_model?(model)
-    MODELS.include?(model)
+    self.class.models.include?(model)
   end
 
   def auto_categorize(transactions: [], user_categories: [])

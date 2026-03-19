@@ -6,14 +6,15 @@ class Assistant
   class << self
     def for_chat(chat)
       config = config_for(chat)
-      new(chat, instructions: config[:instructions], functions: config[:functions])
+      new(chat, instructions: config[:instructions], functions: config[:functions], tool_registry: config[:tool_registry])
     end
   end
 
-  def initialize(chat, instructions: nil, functions: [])
+  def initialize(chat, instructions: nil, functions: [], tool_registry: nil)
     @chat = chat
     @instructions = instructions
     @functions = functions
+    @tool_registry = tool_registry
   end
 
   def respond_to(message)
@@ -46,7 +47,7 @@ class Assistant
     end
 
     responder.on(:response) do |data|
-      update_thinking("Analyzing your data...")
+      update_thinking("...")
 
       if data[:function_tool_calls].present?
         assistant_message.tool_calls = data[:function_tool_calls]
@@ -63,13 +64,17 @@ class Assistant
   end
 
   private
-    attr_reader :functions
+    attr_reader :functions, :tool_registry
 
     def function_tool_caller
       function_instances = functions.map do |fn|
         fn.new(chat.user)
       end
 
-      @function_tool_caller ||= FunctionToolCaller.new(function_instances)
+      tool_executor = if tool_registry
+        Assistant::ToolExecutor.new(chat.user, tool_registry: tool_registry)
+      end
+
+      @function_tool_caller ||= FunctionToolCaller.new(function_instances, tool_executor: tool_executor)
     end
 end

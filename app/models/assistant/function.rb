@@ -4,6 +4,11 @@ class Assistant::Function
       raise NotImplementedError, "Subclasses must implement the name class method"
     end
 
+    # Alias for use in registries (avoids conflict with Module#name)
+    def tool_name
+      name
+    end
+
     def description
       raise NotImplementedError, "Subclasses must implement the description class method"
     end

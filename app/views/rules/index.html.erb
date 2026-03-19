@@ -1,19 +1,19 @@
 <header class="flex items-center justify-between">
-  <h1 class="text-primary text-xl font-medium">Rules</h1>
+  <h1 class="text-primary text-xl font-medium">规则管理</h1>
   <div class="flex items-center gap-2">
     <% if @rules.any? %>
       <%= render DS::Menu.new do |menu| %>
         <% menu.with_item(
           variant: "button",
-          text: "Delete all rules",
+          text: "删除所有规则",
           href: destroy_all_rules_path,
           icon: "trash-2",
           method: :delete,
-          confirm: CustomConfirm.for_resource_deletion("all rules", high_severity: true)) %>
+          confirm: CustomConfirm.new(title: "删除所有规则？", body: "确定要删除所有规则吗？此操作不可逆。", btn_text: "删除所有规则", destructive: true, high_severity: true)) %>
       <% end %>
     <% end %>
     <%= render DS::Link.new(
-      text: "New rule",
+      text: "新建规则",
       variant: "primary",
       href: new_rule_path(resource_type: "transaction"),
       icon: "plus",
@@ -25,24 +25,24 @@
   <div class="flex items-center gap-2 mb-2 py-4">
     <%= icon("circle-alert", size: "sm") %>
     <p class="text-sm text-secondary">
-      AI-enabled rule actions will cost money.  Be sure to filter as narrowly as possible to avoid unnecessary costs.
+      启用AI的规则操作会产生费用。请尽可能精确地设置过滤条件，以避免不必要的开支。
     </p>
   </div>
 <% end %>
-<div class="bg-container rounded-xl shadow-border-xs p-4">
+<div class="bg-container rounded-xl border border-secondary p-4">
   <% if @rules.any? %>
-    <div class="bg-container-inset rounded-xl">
-      <div class="flex justify-between px-4 py-2 text-xs uppercase">
+    <div class="space-y-2">
+      <div class="flex justify-between px-2 py-2 text-xs uppercase">
         <div class="flex items-center gap-1.5 font-medium text-secondary">
-          <p>Rules</p>
+          <p>规则</p>
           <span class="text-subdued">&middot;</span>
           <p><%= @rules.count %></p>
         </div>
         <div class="flex items-center gap-1">
-          <span class="text-secondary">Sort by:</span>
+          <span class="text-secondary">排序：</span>
           <%= form_with url: rules_path, method: :get, local: true, class: "flex items-center", data: { controller: "auto-submit-form" } do |form| %>
             <%= form.select :sort_by,
-                      options_for_select([["Name", "name"], ["Updated At", "updated_at"]], @sort_by),
+                      options_for_select([["名称", "name"], ["更新时间", "updated_at"]], @sort_by),
                       {},
                       class: "min-w-[120px] bg-transparent rounded border-none cursor-pointer text-primary uppercase text-xs w-auto",
                       data: { auto_submit_form_target: "auto", autosubmit_trigger_event: "change" } %>
@@ -53,12 +53,12 @@
             variant: "icon",
             icon: "arrow-up-down",
             size: :sm,
-            title: "Toggle sort direction"
+            title: "切换排序方向"
           ) %>
         </div>
       </div>
-      <div class="p-1">
-        <div class="flex flex-col bg-container rounded-lg shadow-border-xs">
+      <div class="rounded-lg border border-secondary">
+        <div class="flex flex-col bg-container rounded-lg">
           <%= render partial: "rule", collection: @rules, spacer_template: "shared/ruler" %>
         </div>
       </div>
@@ -66,11 +66,11 @@
   <% else %>
     <div class="flex justify-center items-center py-20">
       <div class="text-center flex flex-col items-center max-w-[500px]">
-        <p class="text-sm text-primary font-medium mb-1">No rules yet</p>
-        <p class="text-sm text-secondary mb-4">Set up rules to perform actions to your transactions and other data on every account sync.</p>
+        <p class="text-sm text-primary font-medium mb-1">暂无规则</p>
+        <p class="text-sm text-secondary mb-4">设置规则，在每次账户同步时自动对交易和其他数据执行操作。</p>
         <div class="flex items-center gap-2">
           <%= render DS::Link.new(
-            text: "New rule",
+            text: "新建规则",
             variant: "primary",
             href: new_rule_path(resource_type: "transaction"),
             icon: "plus",

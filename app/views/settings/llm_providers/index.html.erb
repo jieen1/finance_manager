@@ -1,0 +1,59 @@
+<%= content_for :page_title, "模型配置" %>
+
+<header class="flex items-center justify-between mb-4">
+  <h1 class="text-primary text-xl font-medium">模型配置</h1>
+  <%= render DS::Link.new(
+    text: "添加提供商",
+    variant: "primary",
+    href: new_settings_llm_provider_path,
+    icon: "plus",
+    frame: :modal
+  ) %>
+</header>
+
+<%= settings_section title: "已配置提供商", subtitle: "支持任何 OpenAI 兼容的 API（DeepSeek、通义千问、Ollama 等）" do %>
+  <% if @llm_providers.any? %>
+    <div class="space-y-2">
+      <% @llm_providers.each do |provider| %>
+        <div class="p-3 rounded-lg border border-secondary hover:border-primary transition-colors">
+          <div class="flex justify-between items-center">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <p class="text-primary text-sm font-medium"><%= provider.name %></p>
+                <span class="px-1.5 py-0.5 rounded text-xs bg-blue-50 text-blue-600 border border-blue-200"><%= provider.role %></span>
+                <% unless provider.enabled? %>
+                  <span class="px-1.5 py-0.5 rounded text-xs bg-gray-50 text-gray-500 border border-gray-200">已禁用</span>
+                <% end %>
+              </div>
+              <p class="text-secondary text-xs mt-0.5 truncate">
+                <%= provider.api_endpoint %> · 模型: <%= provider.resolved_models.join(", ").presence || "未配置" %>
+              </p>
+            </div>
+            <%= render DS::Menu.new do |menu| %>
+              <% menu.with_item(variant: "link", text: "编辑", href: edit_settings_llm_provider_path(provider), icon: "pencil", data: { turbo_frame: "modal" }) %>
+              <% menu.with_item(
+                variant: "button",
+                text: "删除",
+                href: settings_llm_provider_path(provider),
+                icon: "trash-2",
+                method: :delete,
+                confirm: CustomConfirm.new(title: "删除提供商？", body: "确定要删除 #{provider.name} 吗？", btn_text: "删除", destructive: true)) %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="py-8 text-center">
+      <p class="text-sm text-primary font-medium mb-1">暂未配置模型提供商</p>
+      <p class="text-sm text-secondary mb-4">添加 OpenAI 兼容的模型提供商来使用 AI 助手。</p>
+      <%= render DS::Link.new(
+        text: "添加提供商",
+        variant: "primary",
+        href: new_settings_llm_provider_path,
+        icon: "plus",
+        frame: :modal
+      ) %>
+    </div>
+  <% end %>
+<% end %>

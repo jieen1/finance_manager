@@ -5,7 +5,7 @@ class Assistant::Function::GetAccounts < Assistant::Function
     end
 
     def description
-      "Use this to see what accounts the user has along with their current and historical balances"
+      "查询用户所有账户及其当前余额和历史余额变化。可用于了解用户有哪些账户、各账户资产情况。"
     end
   end
 

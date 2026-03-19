@@ -37,9 +37,6 @@ Rails.application.routes.draw do
     end
   end
 
-  get "changelog", to: "pages#changelog"
-  get "feedback", to: "pages#feedback"
-
   resource :current_session, only: %i[update]
 
   resource :registration, only: %i[new create]
@@ -68,6 +65,17 @@ Rails.application.routes.draw do
     end
     resource :security, only: :show
     resource :api_key, only: [ :show, :new, :create, :destroy ]
+    resource :agent, only: [ :show, :update ]
+    resources :agent_tools, only: [ :index, :update ]
+    resources :llm_providers, only: [ :index, :new, :create, :edit, :update, :destroy ]
+  end
+
+  resources :agent_actions, only: [ :index, :update ]
+
+  resources :agent_tasks, only: [ :index, :new, :create, :edit, :update, :destroy ] do
+    member do
+      post :execute
+    end
   end
 
   resources :tags, except: :show do
@@ -93,6 +101,12 @@ Rails.application.routes.draw do
   end
 
   resources :family_merchants, only: %i[index new create edit update destroy]
+
+  resources :user_subscriptions, only: %i[index new create edit update destroy] do
+    member do
+      post :toggle_status
+    end
+  end
 
   resources :transfers, only: %i[new create destroy show update]
 

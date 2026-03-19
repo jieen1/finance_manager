@@ -1,7 +1,7 @@
-<%= link_to "Back to rules", rules_path %>
+<%= link_to "返回规则列表", rules_path %>
 
 <%= render DS::Dialog.new do |dialog| %>
-  <% dialog.with_header(title: "New #{@rule.resource_type} rule") %>
+  <% dialog.with_header(title: "新建#{@rule.resource_type == 'transaction' ? '交易' : @rule.resource_type}规则") %>
   <% dialog.with_body do %>
     <%= render "rules/form", rule: @rule %>
   <% end %>

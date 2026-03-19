@@ -1,0 +1,85 @@
+<%= content_for :page_title, "工具管理" %>
+
+<header class="flex items-center justify-between mb-4">
+  <h1 class="text-primary text-xl font-medium">Agent 工具管理</h1>
+</header>
+
+<%
+  skills = @tools.select { |t| t[:skill] }
+  tools = @tools.reject { |t| t[:skill] }
+%>
+
+<% if skills.any? %>
+  <%= settings_section title: "技能（Skill）", subtitle: "多步编排的高级操作，一次调用完成复杂任务" do %>
+    <div class="space-y-3">
+      <% skills.each do |tool| %>
+        <div class="p-3 rounded-lg border border-secondary hover:bg-surface-hover transition-colors">
+          <div class="flex justify-between items-center">
+            <div class="flex-1 min-w-0 mr-4">
+              <div class="flex items-center gap-2">
+                <p class="text-primary text-sm font-medium"><%= tool[:name] %></p>
+                <span class="px-1.5 py-0.5 rounded text-xs bg-purple-50 text-purple-600 border border-purple-200">技能</span>
+                <% if tool[:write] %>
+                  <span class="px-1.5 py-0.5 rounded text-xs bg-amber-50 text-amber-600 border border-amber-200">写操作</span>
+                <% end %>
+              </div>
+              <p class="text-secondary text-xs mt-0.5"><%= tool[:description] %></p>
+            </div>
+            <div class="flex items-center gap-3 shrink-0">
+              <%= styled_form_with url: settings_agent_tool_path(tool[:name]),
+                  method: :patch,
+                  scope: :agent_tool_config,
+                  data: { controller: "auto-submit-form" },
+                  class: "flex items-center gap-3" do |f| %>
+                <%= f.select :permission_level,
+                    [["自动执行", "auto"], ["需确认", "confirm"], ["需审批", "approve"]],
+                    { selected: tool[:permission_level] },
+                    { class: "text-xs bg-transparent border border-secondary rounded px-2 py-1 cursor-pointer",
+                      data: { auto_submit_form_target: "auto", autosubmit_trigger_event: "change" } } %>
+                <%= f.toggle :enabled,
+                    { checked: tool[:enabled],
+                      data: { auto_submit_form_target: "auto" } } %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
+
+<%= settings_section title: "基础工具（Tool）", subtitle: "原子操作，Agent 的基础能力" do %>
+  <div class="space-y-3">
+    <% tools.each do |tool| %>
+      <div class="p-3 rounded-lg border border-secondary hover:bg-surface-hover transition-colors">
+        <div class="flex justify-between items-center">
+          <div class="flex-1 min-w-0 mr-4">
+            <div class="flex items-center gap-2">
+              <p class="text-primary text-sm font-medium"><%= tool[:name] %></p>
+              <% if tool[:write] %>
+                <span class="px-1.5 py-0.5 rounded text-xs bg-amber-50 text-amber-600 border border-amber-200">写操作</span>
+              <% end %>
+            </div>
+            <p class="text-secondary text-xs mt-0.5 truncate"><%= tool[:description] %></p>
+          </div>
+          <div class="flex items-center gap-3 shrink-0">
+            <%= styled_form_with url: settings_agent_tool_path(tool[:name]),
+                method: :patch,
+                scope: :agent_tool_config,
+                data: { controller: "auto-submit-form" },
+                class: "flex items-center gap-3" do |f| %>
+              <%= f.select :permission_level,
+                  [["自动执行", "auto"], ["需确认", "confirm"], ["需审批", "approve"]],
+                  { selected: tool[:permission_level] },
+                  { class: "text-xs bg-transparent border border-secondary rounded px-2 py-1 cursor-pointer",
+                    data: { auto_submit_form_target: "auto", autosubmit_trigger_event: "change" } } %>
+              <%= f.toggle :enabled,
+                  { checked: tool[:enabled],
+                    data: { auto_submit_form_target: "auto" } } %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>

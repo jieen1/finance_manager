@@ -1,22 +1,22 @@
 <%= render DS::Dialog.new(reload_on_close: true) do |dialog| %>
   <%
     title = if @rule.name.present?
-              "Confirm changes to \"#{@rule.name}\""
+              "确认对 \"#{@rule.name}\" 的更改"
             else
-              "Confirm changes"
+              "确认更改"
             end
   %>
   <% dialog.with_header(title: title) %>
 
   <% dialog.with_body do %>
     <p class="text-secondary text-sm mb-4">
-      You are about to apply this rule to
-      <span class="text-primary font-medium"><%= @rule.affected_resource_count %> <%= @rule.resource_type.pluralize %></span>
-      that meet the specified rule criteria.  Please confirm if you wish to proceed with this change.
+      即将对符合规则条件的
+      <span class="text-primary font-medium"><%= @rule.affected_resource_count %> 条<%= @rule.resource_type == 'transaction' ? '交易' : @rule.resource_type %></span>
+      应用此规则。请确认是否继续。
     </p>
 
     <%= render DS::Button.new(
-      text: "Confirm changes",
+      text: "确认更改",
       href: apply_rule_path(@rule),
       method: :post,
       full_width: true,

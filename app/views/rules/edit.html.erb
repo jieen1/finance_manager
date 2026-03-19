@@ -1,11 +1,11 @@
-<%= link_to "Back to rules", rules_path %>
+<%= link_to "返回规则列表", rules_path %>
 
 <%= render DS::Dialog.new do |dialog| %>
   <%
     title = if @rule.name.present?
-              "Edit #{@rule.resource_type} rule \"#{@rule.name}\""
+              "编辑#{@rule.resource_type == 'transaction' ? '交易' : @rule.resource_type}规则 \"#{@rule.name}\""
             else
-              "Edit #{@rule.resource_type} rule"
+              "编辑#{@rule.resource_type == 'transaction' ? '交易' : @rule.resource_type}规则"
             end
   %>
   <% dialog.with_header(title: title) %>

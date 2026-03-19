@@ -1,5 +1,6 @@
 class Category < ApplicationRecord
   has_many :transactions, dependent: :nullify, class_name: "Transaction"
+  has_many :user_subscriptions, dependent: :nullify
   has_many :import_mappings, as: :mappable, dependent: :destroy, class_name: "Import::Mapping"
 
   belongs_to :family
@@ -98,6 +99,7 @@ class Category < ApplicationRecord
   def replace_and_destroy!(replacement)
     transaction do
       transactions.update_all category_id: replacement&.id
+      user_subscriptions.update_all category_id: replacement&.id
       destroy!
     end
   end

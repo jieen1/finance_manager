@@ -1,0 +1,20 @@
+get_transactions_config:
+  family: dylan_family
+  tool_name: get_transactions
+  enabled: true
+  permission_level: auto
+  tier: core
+
+create_transaction_config:
+  family: dylan_family
+  tool_name: create_transaction
+  enabled: true
+  permission_level: confirm
+  tier: extended
+
+disabled_tool:
+  family: dylan_family
+  tool_name: categorize_transactions
+  enabled: false
+  permission_level: auto
+  tier: extended

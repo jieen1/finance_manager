@@ -1,0 +1,6 @@
+<%= render DS::Dialog.new do |dialog| %>
+  <% dialog.with_header(title: "添加模型提供商") %>
+  <% dialog.with_body do %>
+    <%= render "form", llm_provider: @llm_provider %>
+  <% end %>
+<% end %>

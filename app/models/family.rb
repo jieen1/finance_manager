@@ -31,9 +31,17 @@ class Family < ApplicationRecord
   has_many :tags, dependent: :destroy
   has_many :categories, dependent: :destroy
   has_many :merchants, dependent: :destroy, class_name: "FamilyMerchant"
+  has_many :user_subscriptions, dependent: :destroy
 
   has_many :budgets, dependent: :destroy
   has_many :budget_categories, through: :budgets
+
+  has_many :llm_providers, dependent: :destroy
+  has_many :agent_tool_configs, dependent: :destroy
+  has_many :agent_memories, dependent: :destroy
+  has_many :agent_actions, dependent: :destroy
+  has_many :ocr_scan_records, dependent: :destroy
+  has_many :agent_tasks, dependent: :destroy
 
   validates :locale, inclusion: { in: I18n.available_locales.map(&:to_s) }
   validates :date_format, inclusion: { in: DATE_FORMATS.map(&:last) }

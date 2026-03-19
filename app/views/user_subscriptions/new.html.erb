@@ -1,0 +1,6 @@
+<%= render DS::Dialog.new do |dialog| %>
+  <% dialog.with_header(title: "新建订阅") %>
+  <% dialog.with_body do %>
+    <%= render "form", user_subscription: @user_subscription %>
+  <% end %>
+<% end %>

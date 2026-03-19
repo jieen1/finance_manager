@@ -8,11 +8,12 @@ class Assistant::Function::GetBalanceSheet < Assistant::Function
 
     def description
       <<~INSTRUCTIONS
-        Use this to get the user's balance sheet with varying amounts of historical data.
+        查询用户资产负债表，包含净资产、资产、负债及历史变化趋势。
 
-        This is great for answering questions like:
-        - What is the user's net worth?  What is it composed of?
-        - How has the user's wealth changed over time?
+        适用场景：
+        - 用户的净资产是多少？由哪些部分组成？
+        - 资产/负债如何随时间变化？
+        - 债务资产比分析
       INSTRUCTIONS
     end
   end

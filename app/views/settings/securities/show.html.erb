@@ -10,11 +10,11 @@
 
         <div class="text-sm space-y-1">
           <% if Current.user.otp_required? %>
-            <p class="text-primary">Two-factor authentication is <span class="font-medium text-green-600">enabled</span></p>
-            <p class="text-secondary">Your account is protected with an additional layer of security.</p>
+            <p class="text-primary">双因素认证已<span class="font-medium text-green-600">启用</span></p>
+            <p class="text-secondary">您的账户已受到额外安全层的保护。</p>
           <% else %>
-            <p class="text-primary">Two-factor authentication is <span class="font-medium text-red-600">disabled</span></p>
-            <p class="text-secondary">Enable 2FA to add an extra layer of security to your account.</p>
+            <p class="text-primary">双因素认证已<span class="font-medium text-red-600">关闭</span></p>
+            <p class="text-secondary">启用双因素认证为您的账户添加额外安全保护。</p>
           <% end %>
         </div>
       </div>

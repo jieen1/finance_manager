@@ -1,6 +1,12 @@
-<%# locals: (chat:, message: "思考中...") -%>
+<%# locals: (chat:, message: nil) -%>
 
 <div id="thinking-indicator" class="flex items-start gap-3">
   <%= render "chats/ai_avatar" %>
-  <p class="text-sm text-secondary animate-pulse"><%= message %></p>
+  <div class="flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl" style="background:var(--aurora-bg-3);border-bottom-left-radius:4px;">
+    <div class="flex gap-1">
+      <span class="w-1.5 h-1.5 bg-secondary rounded-full animate-bounce" style="animation-delay: 0ms"></span>
+      <span class="w-1.5 h-1.5 bg-secondary rounded-full animate-bounce" style="animation-delay: 150ms"></span>
+      <span class="w-1.5 h-1.5 bg-secondary rounded-full animate-bounce" style="animation-delay: 300ms"></span>
+    </div>
+  </div>
 </div>

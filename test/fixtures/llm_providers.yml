@@ -1,0 +1,21 @@
+deepseek:
+  family: dylan_family
+  name: DeepSeek
+  api_endpoint: "https://api.deepseek.com/v1"
+  api_key: "sk-test-deepseek"
+  models:
+    main: "deepseek-chat"
+  role: main
+  priority: 0
+  enabled: true
+
+ollama_local:
+  family: dylan_family
+  name: Ollama Local
+  api_endpoint: "http://localhost:11434/v1"
+  api_key: ""
+  models:
+    main: "qwen2.5"
+  role: fast
+  priority: 1
+  enabled: false

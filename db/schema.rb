@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_03_18_091817) do
+ActiveRecord::Schema[7.2].define(version: 2026_03_19_112544) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -86,6 +86,81 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_18_091817) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["addressable_type", "addressable_id"], name: "index_addresses_on_addressable"
+  end
+
+  create_table "agent_actions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "family_id", null: false
+    t.uuid "chat_id"
+    t.uuid "message_id"
+    t.string "tool_name", null: false
+    t.jsonb "params", default: {}
+    t.jsonb "result", default: {}
+    t.string "status", default: "pending", null: false
+    t.string "permission_level", default: "auto", null: false
+    t.string "source", default: "chat", null: false
+    t.text "error_message"
+    t.datetime "executed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["chat_id"], name: "index_agent_actions_on_chat_id"
+    t.index ["family_id", "created_at"], name: "index_agent_actions_on_family_id_and_created_at"
+    t.index ["family_id"], name: "index_agent_actions_on_family_id"
+    t.index ["message_id"], name: "index_agent_actions_on_message_id"
+    t.index ["status"], name: "index_agent_actions_on_status"
+  end
+
+  create_table "agent_memories", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "family_id", null: false
+    t.string "memory_type", null: false
+    t.string "key"
+    t.text "value", null: false
+    t.jsonb "metadata", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["family_id", "memory_type", "key"], name: "index_agent_memories_unique_core_key", unique: true, where: "((memory_type)::text = 'core'::text)"
+    t.index ["family_id", "memory_type"], name: "index_agent_memories_on_family_id_and_memory_type"
+    t.index ["family_id"], name: "index_agent_memories_on_family_id"
+  end
+
+  create_table "agent_tasks", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "family_id", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.string "task_type", default: "cron", null: false
+    t.string "schedule_type", default: "every", null: false
+    t.string "cron_expression"
+    t.integer "interval_minutes"
+    t.datetime "run_at"
+    t.string "timezone", default: "Asia/Shanghai"
+    t.string "action_type", null: false
+    t.jsonb "action_params", default: {}
+    t.string "model_override"
+    t.integer "timeout_seconds", default: 120
+    t.string "status", default: "active", null: false
+    t.datetime "last_run_at"
+    t.datetime "next_run_at"
+    t.integer "run_count", default: 0
+    t.integer "fail_count", default: 0
+    t.text "last_error"
+    t.jsonb "last_result", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["family_id", "status"], name: "index_agent_tasks_on_family_id_and_status"
+    t.index ["family_id"], name: "index_agent_tasks_on_family_id"
+    t.index ["next_run_at", "status"], name: "index_agent_tasks_on_next_run_at_and_status"
+  end
+
+  create_table "agent_tool_configs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "family_id", null: false
+    t.string "tool_name", null: false
+    t.boolean "enabled", default: true
+    t.string "permission_level", default: "auto", null: false
+    t.string "tier", default: "core", null: false
+    t.jsonb "config", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["family_id", "tool_name"], name: "index_agent_tool_configs_on_family_id_and_tool_name", unique: true
+    t.index ["family_id"], name: "index_agent_tool_configs_on_family_id"
   end
 
   create_table "api_keys", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -283,6 +358,17 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_18_091817) do
     t.boolean "auto_sync_on_login", default: true, null: false
     t.datetime "latest_sync_activity_at", default: -> { "CURRENT_TIMESTAMP" }
     t.datetime "latest_sync_completed_at", default: -> { "CURRENT_TIMESTAMP" }
+    t.text "agent_persona"
+    t.boolean "agent_heartbeat_enabled", default: false
+    t.jsonb "agent_heartbeat_checklist", default: []
+    t.integer "agent_heartbeat_interval", default: 30
+    t.string "agent_heartbeat_active_start", default: "08:00"
+    t.string "agent_heartbeat_active_end", default: "22:00"
+    t.boolean "ocr_scan_enabled", default: false
+    t.string "ocr_scan_folder"
+    t.uuid "ocr_scan_account_id"
+    t.integer "ocr_scan_interval", default: 15
+    t.datetime "ocr_scan_last_at"
   end
 
   create_table "family_exports", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -432,6 +518,22 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_18_091817) do
     t.index ["token"], name: "index_invite_codes_on_token", unique: true
   end
 
+  create_table "llm_providers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "family_id", null: false
+    t.string "name", null: false
+    t.string "api_endpoint", null: false
+    t.string "api_key"
+    t.jsonb "models", default: {}
+    t.string "role", default: "main", null: false
+    t.integer "priority", default: 0
+    t.boolean "enabled", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["family_id", "enabled"], name: "index_llm_providers_on_family_id_and_enabled"
+    t.index ["family_id", "role"], name: "index_llm_providers_on_family_id_and_role"
+    t.index ["family_id"], name: "index_llm_providers_on_family_id"
+  end
+
   create_table "loans", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -532,6 +634,24 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_18_091817) do
     t.string "owner_type"
     t.index ["owner_id", "owner_type"], name: "index_oauth_applications_on_owner_id_and_owner_type"
     t.index ["uid"], name: "index_oauth_applications_on_uid", unique: true
+  end
+
+  create_table "ocr_scan_records", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "family_id", null: false
+    t.uuid "entry_id"
+    t.string "file_name", null: false
+    t.string "file_path", null: false
+    t.string "file_hash", null: false
+    t.string "status", default: "pending", null: false
+    t.jsonb "ocr_result", default: {}
+    t.text "error_message"
+    t.datetime "processed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["entry_id"], name: "index_ocr_scan_records_on_entry_id"
+    t.index ["family_id", "file_hash"], name: "index_ocr_scan_records_on_family_id_and_file_hash", unique: true
+    t.index ["family_id", "status"], name: "index_ocr_scan_records_on_family_id_and_status"
+    t.index ["family_id"], name: "index_ocr_scan_records_on_family_id"
   end
 
   create_table "other_assets", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -755,6 +875,28 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_18_091817) do
     t.index ["status"], name: "index_transfers_on_status"
   end
 
+  create_table "user_subscriptions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "family_id", null: false
+    t.uuid "account_id", null: false
+    t.uuid "category_id"
+    t.string "name", null: false
+    t.decimal "amount", precision: 19, scale: 4, null: false
+    t.string "currency", null: false
+    t.string "billing_cycle", default: "monthly", null: false
+    t.integer "billing_day", null: false
+    t.date "next_billing_date", null: false
+    t.string "status", default: "active", null: false
+    t.text "notes"
+    t.string "color"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_user_subscriptions_on_account_id"
+    t.index ["category_id"], name: "index_user_subscriptions_on_category_id"
+    t.index ["family_id", "status"], name: "index_user_subscriptions_on_family_id_and_status"
+    t.index ["family_id"], name: "index_user_subscriptions_on_family_id"
+    t.index ["next_billing_date", "status"], name: "index_user_subscriptions_on_next_billing_date_and_status"
+  end
+
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "family_id", null: false
     t.string "first_name"
@@ -811,6 +953,12 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_18_091817) do
   add_foreign_key "accounts", "imports"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "agent_actions", "chats"
+  add_foreign_key "agent_actions", "families"
+  add_foreign_key "agent_actions", "messages"
+  add_foreign_key "agent_memories", "families"
+  add_foreign_key "agent_tasks", "families"
+  add_foreign_key "agent_tool_configs", "families"
   add_foreign_key "api_keys", "users"
   add_foreign_key "balances", "accounts", on_delete: :cascade
   add_foreign_key "budget_categories", "budgets"
@@ -832,11 +980,14 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_18_091817) do
   add_foreign_key "imports", "families"
   add_foreign_key "invitations", "families"
   add_foreign_key "invitations", "users", column: "inviter_id"
+  add_foreign_key "llm_providers", "families"
   add_foreign_key "merchants", "families"
   add_foreign_key "messages", "chats"
   add_foreign_key "mobile_devices", "users"
   add_foreign_key "oauth_access_grants", "oauth_applications", column: "application_id"
   add_foreign_key "oauth_access_tokens", "oauth_applications", column: "application_id"
+  add_foreign_key "ocr_scan_records", "entries"
+  add_foreign_key "ocr_scan_records", "families"
   add_foreign_key "rejected_transfers", "transactions", column: "inflow_transaction_id"
   add_foreign_key "rejected_transfers", "transactions", column: "outflow_transaction_id"
   add_foreign_key "rule_actions", "rules"
@@ -856,6 +1007,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_18_091817) do
   add_foreign_key "transactions", "merchants"
   add_foreign_key "transfers", "transactions", column: "inflow_transaction_id", on_delete: :cascade
   add_foreign_key "transfers", "transactions", column: "outflow_transaction_id", on_delete: :cascade
+  add_foreign_key "user_subscriptions", "accounts"
+  add_foreign_key "user_subscriptions", "categories"
+  add_foreign_key "user_subscriptions", "families"
   add_foreign_key "users", "chats", column: "last_viewed_chat_id"
   add_foreign_key "users", "families"
 end

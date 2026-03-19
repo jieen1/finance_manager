@@ -1,5 +1,5 @@
 <%# locals: (rule:) %>
-<div id="<%= dom_id(rule) %>" class="flex justify-between items-center p-4 <%= rule.active? ? "text-primary" : "text-secondary" %>">
+<div id="<%= dom_id(rule) %>" class="flex justify-between items-center p-4 hover:bg-surface-hover transition-colors <%= rule.active? ? "text-primary" : "text-secondary" %>">
 
   <div class="text-sm space-y-1.5">
     <% if rule.name.present? %>
@@ -19,7 +19,7 @@
             <% end %>
           </span>
           <% if rule.conditions.count > 1 %>
-            and <%= rule.conditions.count - 1 %> more <%= rule.conditions.count - 1 == 1 ? "condition" : "conditions" %>
+            及其他 <%= rule.conditions.count - 1 %> 个条件
           <% end %>
         </p>
       </div>
@@ -37,7 +37,7 @@
           <% end %>
         </span>
         <% if rule.actions.count > 1 %>
-          and <%= rule.actions.count - 1 %> more <%= rule.actions.count - 1 == 1 ? "action" : "actions" %>
+          及其他 <%= rule.actions.count - 1 %> 个操作
         <% end %>
       </p>
     </div>
@@ -48,9 +48,9 @@
       <p class="flex items-center flex-wrap gap-1.5 m-0">
         <span class="px-2 py-1 border border-secondary rounded-full">
           <% if rule.effective_date.nil? %>
-            All past and future <%= rule.resource_type.pluralize %>
+            所有历史和未来的<%= rule.resource_type == 'transaction' ? '交易' : rule.resource_type %>
           <% else %>
-            <%= rule.resource_type.pluralize %> on or after <%= rule.effective_date.strftime("%b %-d, %Y") %>
+            <%= rule.effective_date.strftime("%Y-%m-%d") %> 及之后的<%= rule.resource_type == 'transaction' ? '交易' : rule.resource_type %>
           <% end %>
         </span>
       </p>
@@ -61,15 +61,15 @@
       <%= f.toggle :active, { data: { auto_submit_form_target: "auto" } } %>
     <% end %>
     <%= render DS::Menu.new do |menu| %>
-      <% menu.with_item(variant: "link", text: "Edit", href: edit_rule_path(rule), icon: "pencil", data: { turbo_frame: "modal" }) %>
-      <% menu.with_item(variant: "link", text: "Re-apply rule", href: confirm_rule_path(rule), icon: "refresh-cw", data: { turbo_frame: "modal" }) %>
+      <% menu.with_item(variant: "link", text: "编辑", href: edit_rule_path(rule), icon: "pencil", data: { turbo_frame: "modal" }) %>
+      <% menu.with_item(variant: "link", text: "重新应用规则", href: confirm_rule_path(rule), icon: "refresh-cw", data: { turbo_frame: "modal" }) %>
       <% menu.with_item(
         variant: "button",
-        text: "Delete",
+        text: "删除",
         href: rule_path(rule),
         icon: "trash-2",
         method: :delete,
-        confirm: CustomConfirm.for_resource_deletion("rule")) %>
+        confirm: CustomConfirm.new(title: "删除规则？", body: "确定要删除此规则吗？此操作不可逆。", btn_text: "删除规则", destructive: true)) %>
     <% end %>
   </div>
 </div>

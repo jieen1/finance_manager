@@ -11,23 +11,19 @@ class SettingsTest < ApplicationSystemTestCase
       [ "Tags", tags_path ],
       [ "Categories", categories_path ],
       [ "Merchants", family_merchants_path ],
-      [ "Imports", imports_path ],
-      [ "What's new", changelog_path ],
-      [ "Feedback", feedback_path ]
+      [ "Imports", imports_path ]
     ]
   end
 
   test "can access settings from sidebar" do
-    VCR.use_cassette("git_repository_provider/fetch_latest_release_notes") do
-      open_settings_from_sidebar
-      assert_selector "h1", text: "Account"
-      assert_current_path settings_profile_path, ignore_query: true
+    open_settings_from_sidebar
+    assert_selector "h1", text: "Account"
+    assert_current_path settings_profile_path, ignore_query: true
 
-      @settings_links.each do |name, path|
-        click_link name
-        assert_selector "h1", text: name
-        assert_current_path path
-      end
+    @settings_links.each do |name, path|
+      click_link name
+      assert_selector "h1", text: name
+      assert_current_path path
     end
   end
 
@@ -59,6 +55,6 @@ class SettingsTest < ApplicationSystemTestCase
       within "div[data-testid=user-menu]" do
         find("button").click
       end
-      click_link "Settings"
+      click_link "设置"
     end
 end

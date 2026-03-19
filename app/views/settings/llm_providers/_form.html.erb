@@ -1,0 +1,29 @@
+<%# locals: (llm_provider:) %>
+
+<%= styled_form_with model: llm_provider, url: llm_provider.persisted? ? settings_llm_provider_path(llm_provider) : settings_llm_providers_path, class: "space-y-4" do |f| %>
+  <% if llm_provider.errors.any? %>
+    <%= render "shared/form_errors", model: llm_provider %>
+  <% end %>
+
+  <%= f.text_field :name, label: "名称", placeholder: "例如：DeepSeek、通义千问、Ollama", required: true %>
+
+  <%= f.text_field :api_endpoint, label: "API 端点", placeholder: "https://api.deepseek.com/v1", required: true %>
+
+  <%= f.text_field :api_key, label: "API Key", placeholder: "sk-...", type: "password" %>
+
+  <%= f.select :role,
+      [["主力模型 (对话)", "main"], ["快速模型 (分类等)", "fast"], ["视觉模型 (OCR)", "vision"]],
+      { label: "角色" } %>
+
+  <%= f.number_field :priority, label: "优先级（数字越小优先级越高）", value: llm_provider.priority || 0 %>
+
+  <div class="space-y-2">
+    <label class="text-sm font-medium text-primary">模型名称</label>
+    <p class="text-xs text-secondary">填写该提供商支持的模型标识符，用于 API 调用时指定模型</p>
+    <%= f.text_field :models, value: llm_provider.resolved_models.join(", "),
+        label: "模型列表（逗号分隔）",
+        placeholder: "deepseek-chat, deepseek-reasoner" %>
+  </div>
+
+  <%= f.submit llm_provider.persisted? ? "保存" : "添加" %>
+<% end %>

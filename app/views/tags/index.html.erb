@@ -24,16 +24,16 @@
 
 </header>
 
-<div class="bg-container rounded-xl shadow-border-xs p-4">
+<div class="bg-container rounded-xl border border-secondary p-4">
   <% if @tags.any? %>
-    <div class="rounded-xl bg-container-inset space-y-1 p-1">
-      <div class="flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-secondary uppercase">
+    <div class="space-y-2">
+      <div class="flex items-center gap-1.5 px-2 py-2 text-xs font-medium text-secondary uppercase">
         <p><%= t(".tags") %></p>
         <span class="text-subdued">&middot;</span>
         <p><%= @tags.count %></p>
       </div>
 
-      <div class="bg-container rounded-lg shadow-border-xs">
+      <div class="rounded-lg border border-secondary">
         <div class="overflow-hidden rounded-lg">
           <%= render partial: @tags, spacer_template: "shared/ruler" %>
         </div>

@@ -4,13 +4,18 @@ class Assistant::FunctionToolCaller
 
   attr_reader :functions
 
-  def initialize(functions = [])
+  def initialize(functions = [], tool_executor: nil)
     @functions = functions
+    @tool_executor = tool_executor
   end
 
   def fulfill_requests(function_requests)
     function_requests.map do |function_request|
-      result = execute(function_request)
+      result = if @tool_executor
+        @tool_executor.execute(function_request)
+      else
+        execute(function_request)
+      end
 
       ToolCall::Function.from_function_request(function_request, result)
     end

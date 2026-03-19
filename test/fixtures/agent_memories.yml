@@ -1,0 +1,17 @@
+risk_profile:
+  family: dylan_family
+  memory_type: core
+  key: risk_profile
+  value: "保守型投资者，偏好稳健收益"
+
+savings_goal:
+  family: dylan_family
+  memory_type: core
+  key: savings_goal
+  value: "每月存5000元应急金"
+
+analysis_record:
+  family: dylan_family
+  memory_type: archival
+  key: monthly_analysis_202603
+  value: "2026年3月消费分析：餐饮支出占比38%，同比上月增长45%"

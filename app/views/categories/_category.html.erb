@@ -1,6 +1,6 @@
 <%# locals: (category:) %>
 
-<div id="<%= dom_id(category) %>" class="flex justify-between items-center px-4 pb-4 <%= "pt-4" unless category.subcategory? %> <%= "pb-4" unless category.subcategories.any? %> bg-container">
+<div id="<%= dom_id(category) %>" class="flex justify-between items-center px-4 pb-4 <%= "pt-4" unless category.subcategory? %> <%= "pb-4" unless category.subcategories.any? %> bg-container hover:bg-surface-hover transition-colors">
   <div class="flex w-full items-center gap-2.5">
     <% if category.subcategory? %>
       <span style="color: <%= category.color %>">

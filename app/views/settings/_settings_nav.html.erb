@@ -19,7 +19,18 @@ nav_sections = [
       { label: t(".tags_label"), path: tags_path, icon: "tags" },
       { label: t(".categories_label"), path: categories_path, icon: "shapes" },
       { label: t(".rules_label"), path: rules_path, icon: "git-branch" },
-      { label: t(".merchants_label"), path: family_merchants_path, icon: "store" }
+      { label: t(".merchants_label"), path: family_merchants_path, icon: "store" },
+      { label: "订阅管理", path: user_subscriptions_path, icon: "repeat" }
+    ]
+  },
+  {
+    header: "AI助手",
+    items: [
+      { label: "Agent设置", path: settings_agent_path, icon: "bot" },
+      { label: "工具管理", path: settings_agent_tools_path, icon: "wrench" },
+      { label: "模型配置", path: settings_llm_providers_path, icon: "cpu" },
+      { label: "任务中心", path: agent_tasks_path, icon: "clock" },
+      { label: "操作日志", path: agent_actions_path, icon: "scroll-text" }
     ]
   },
 ]

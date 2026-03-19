@@ -1,4 +1,6 @@
 class Assistant::Responder
+  MAX_TOOL_ROUNDS = 5
+
   def initialize(message:, instructions:, function_tool_caller:, llm:)
     @message = message
     @instructions = instructions
@@ -11,53 +13,53 @@ class Assistant::Responder
   end
 
   def respond(previous_response_id: nil)
-    # For the first response
-    streamer = proc do |chunk|
-      case chunk.type
-      when "output_text"
-        emit(:output_text, chunk.data)
-      when "response"
-        response = chunk.data
+    round = 0
+    current_response_id = previous_response_id
+    accumulated_function_results = []
 
-        if response.function_requests.any?
-          handle_follow_up_response(response)
-        else
-          emit(:response, { id: response.id })
-        end
-      end
-    end
+    loop do
+      round += 1
+      pending_function_requests = nil
 
-    get_llm_response(streamer: streamer, previous_response_id: previous_response_id)
-  end
-
-  private
-    attr_reader :message, :instructions, :function_tool_caller, :llm
-
-    def handle_follow_up_response(response)
       streamer = proc do |chunk|
         case chunk.type
         when "output_text"
           emit(:output_text, chunk.data)
         when "response"
-          # We do not currently support function executions for a follow-up response (avoid recursive LLM calls that could lead to high spend)
-          emit(:response, { id: chunk.data.id })
+          response = chunk.data
+
+          if response.function_requests.any? && round < MAX_TOOL_ROUNDS
+            pending_function_requests = response
+          else
+            emit(:response, { id: response.id })
+          end
         end
       end
 
-      function_tool_calls = function_tool_caller.fulfill_requests(response.function_requests)
-
-      emit(:response, {
-        id: response.id,
-        function_tool_calls: function_tool_calls
-      })
-
-      # Get follow-up response with tool call results
       get_llm_response(
         streamer: streamer,
-        function_results: function_tool_calls.map(&:to_result),
-        previous_response_id: response.id
+        function_results: accumulated_function_results,
+        previous_response_id: current_response_id
       )
+
+      if pending_function_requests
+        function_tool_calls = function_tool_caller.fulfill_requests(pending_function_requests.function_requests)
+
+        emit(:response, {
+          id: pending_function_requests.id,
+          function_tool_calls: function_tool_calls
+        })
+
+        accumulated_function_results = function_tool_calls.map(&:to_result)
+        current_response_id = pending_function_requests.id
+      else
+        break
+      end
     end
+  end
+
+  private
+    attr_reader :message, :instructions, :function_tool_caller, :llm
 
     def get_llm_response(streamer:, function_results: [], previous_response_id: nil)
       response = llm.chat_response(

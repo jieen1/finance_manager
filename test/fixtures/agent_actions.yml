@@ -1,0 +1,23 @@
+executed_action:
+  family: dylan_family
+  tool_name: get_transactions
+  params:
+    start_date: "2026-03-01"
+    end_date: "2026-03-19"
+  result:
+    total_results: 10
+  status: executed
+  permission_level: auto
+  source: chat
+  executed_at: "2026-03-19 10:00:00"
+
+pending_action:
+  family: dylan_family
+  tool_name: create_transaction
+  params:
+    account_name: "Checking Account"
+    amount: 35
+    description: "午餐"
+  status: pending
+  permission_level: confirm
+  source: chat

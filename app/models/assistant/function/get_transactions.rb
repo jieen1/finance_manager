@@ -12,51 +12,21 @@ class Assistant::Function::GetTransactions < Assistant::Function
 
     def description
       <<~INSTRUCTIONS
-        Use this to search user's transactions by using various optional filters.
+        搜索用户交易记录，支持多种过滤条件。
 
-        This function is great for things like:
-        - Finding specific transactions
-        - Getting basic stats about a small group of transactions
+        适用场景：查找特定交易、统计小范围交易数据。
+        不适用：大时间范围分析（请用 get_income_statement）。
 
-        This function is not great for:
-        - Large time periods (use the get_income_statement function for this)
+        支持分页，每页 #{default_page_size} 条。响应包含 total_pages、page、total_results、total_income、total_expenses。
 
-        Note on pagination:
-
-        This function can be paginated.  You can expect the following properties in the response:
-
-        - `total_pages`: The total number of pages of results
-        - `page`: The current page of results
-        - `page_size`: The number of results per page (this will always be #{default_page_size})
-        - `total_results`: The total number of results for the given filters
-        - `total_income`: The total income for the given filters
-        - `total_expenses`: The total expenses for the given filters
-
-        Simple example (transactions from the last 30 days):
-
+        示例（最近30天）：
         ```
-        get_transactions({
-          page: 1,
-          start_date: "#{30.days.ago.to_date}",
-          end_date: "#{Date.current}"
-        })
+        get_transactions({ page: 1, start_date: "#{30.days.ago.to_date}", end_date: "#{Date.current}" })
         ```
 
-        More complex example (various filters):
-
+        复杂示例：
         ```
-        get_transactions({
-          page: 1,
-          search: "mcdonalds",
-          accounts: ["Checking", "Savings"],
-          start_date: "#{30.days.ago.to_date}",
-          end_date: "#{Date.current}",
-          categories: ["Restaurants"],
-          merchants: ["McDonald's"],
-          tags: ["Food"],
-          amount: "100",
-          amount_operator: "less"
-        })
+        get_transactions({ page: 1, search: "海底捞", accounts: ["现金"], categories: ["餐饮"], amount: "100", amount_operator: "greater" })
         ```
       INSTRUCTIONS
     end

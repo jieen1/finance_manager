@@ -1,0 +1,37 @@
+<%# locals: (user_subscription:) %>
+
+<%= styled_form_with model: user_subscription, class: "space-y-4" do |f| %>
+  <% if user_subscription.errors.any? %>
+    <%= render "shared/form_errors", model: user_subscription %>
+  <% end %>
+
+  <%= f.text_field :name, label: "订阅名称", placeholder: "例如：Netflix、Spotify", required: true %>
+
+  <%= f.number_field :amount, label: "金额", placeholder: "0.00", step: "0.01", min: "0.01", required: true %>
+
+  <%= f.select :currency,
+      Money::Currency.as_options.map { |c| ["#{c.name} (#{c.iso_code})", c.iso_code] },
+      { label: "货币" } %>
+
+  <%= f.select :billing_cycle,
+      UserSubscription::BILLING_CYCLES.map { |k, v| [v, k] },
+      { label: "扣费周期" } %>
+
+  <%= f.number_field :billing_day, label: "扣费日（每月几号）", min: 1, max: 28, required: true %>
+
+  <%= f.date_field :next_billing_date, label: "下次扣费日期", required: true %>
+
+  <%= f.collection_select :account_id,
+      Current.family.accounts.visible.alphabetically, :id, :name,
+      { label: "扣费账户", prompt: "请选择账户" } %>
+
+  <%= f.collection_select :category_id,
+      Current.family.categories.alphabetically, :id, :name,
+      { label: "分类", include_blank: "不指定分类" } %>
+
+  <%= f.text_area :notes, label: "备注", rows: 2 %>
+
+  <%= f.hidden_field :color, value: user_subscription.color || UserSubscription::COLORS.sample %>
+
+  <%= f.submit user_subscription.persisted? ? "保存" : "创建订阅" %>
+<% end %>

@@ -15,6 +15,11 @@
           <p class="text-sm font-bold text-primary truncate"><%= @chat.title.presence || "AI 助手" %></p>
           <p class="text-xs" style="color:var(--aurora-t2)">AI 分析</p>
         </div>
+        <%# Chat history button — uses same "menu" icon as _chat_nav for consistency %>
+        <%= link_to chats_path(chat_view: "all"), data: { turbo_frame: chat_frame }, class: "p-1.5 rounded-lg hover:bg-surface-hover text-secondary hover:text-primary transition-colors", title: "对话历史" do %>
+          <%= icon("menu", size: "sm") %>
+        <% end %>
+
         <%# Menu with new chat / edit / delete options %>
         <%= render DS::Menu.new(icon_vertical: true) do |menu| %>
           <% menu.with_item(variant: "link", text: "开始新对话", href: new_chat_path, icon: "plus") %>

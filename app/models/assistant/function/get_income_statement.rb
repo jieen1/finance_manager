@@ -8,20 +8,16 @@ class Assistant::Function::GetIncomeStatement < Assistant::Function
 
     def description
       <<~INSTRUCTIONS
-        Use this to get income and expense insights by category, for a specific time period
+        查询指定时间段的收支报表，按分类汇总收入和支出。
 
-        This is great for answering questions like:
-        - What is the user's net income for the current month?
-        - What are the user's spending habits?
-        - How much income or spending did the user have over a specific time period?
+        适用场景：
+        - 本月净收入是多少？
+        - 消费习惯分析（各分类占比）
+        - 指定时间段的收支统计
 
-        Simple example:
-
+        示例：
         ```
-        get_income_statement({
-          start_date: "2024-01-01",
-          end_date: "2024-12-31"
-        })
+        get_income_statement({ start_date: "2026-01-01", end_date: "2026-03-31" })
         ```
       INSTRUCTIONS
     end

@@ -7,7 +7,7 @@
                 class: "aurora-chat-input",
                 data: { chat_target: "form" } do |f| %>
 
-    <%= f.hidden_field :ai_model, value: "MiniMax-Text-01" %>
+    <%= f.hidden_field :ai_model, value: ENV.fetch("MINIMAX_MODEL_NAME", "MiniMax-Text-01") %>
 
     <%= f.text_area :content, placeholder: "随便问点什么...", value: message_hint,
                   class: "w-full border-0 focus:ring-0 text-sm resize-none bg-transparent text-primary placeholder:text-subdued px-1",
